@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+
+# Keep source .ts files
+!packages/*/src/**/*.ts
+!packages/*/src/**/*.tsx
+!scripts/**/*.ts
+
+# Generated Files
+scripts/output/
+
+# Local database
+data/local.db
+data/local.db-wal
+data/local.db-shm
+
+# Cloudflare
+.wrangler/
+.dev.vars
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

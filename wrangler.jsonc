@@ -1,0 +1,17 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "league-manager-api",
+	"main": "packages/api/src/worker.ts",
+	"compatibility_date": "2024-12-01",
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "league-manager-db",
+			"database_id": "4f2f2062-6da0-4fe3-a6d9-eabed39d6da1",
+			"migrations_dir": "packages/core/src/db/migrations"
+		}
+	],
+	"vars": {
+		"FRONTEND_ORIGIN": ""
+	}
+}
