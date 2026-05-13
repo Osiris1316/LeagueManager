@@ -6,13 +6,29 @@
  * Usage: npx tsx scripts/migrate.ts
  */
 
-import Database from 'better-sqlite3';
-import { readdirSync, readFileSync } from 'fs';
-import { join, resolve } from 'path';
+/**
+ * Migration runner for local development.
+ * Reads .sql files from packages/core/src/db/migrations/ in order,
+ * tracks applied migrations in the _migrations table, and runs new ones.
+ *
+ * Usage: npx tsx scripts/migrate.ts
+ */
 
-const DB_PATH = resolve(import.meta.dirname, '..', 'data', 'local.db');
+import Database from 'better-sqlite3';
+import { mkdirSync, readdirSync, readFileSync } from 'fs';
+import { dirname, join, resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const DATA_DIR = resolve(__dirname, '..', 'data');
+mkdirSync(DATA_DIR, { recursive: true });
+
+const DB_PATH = resolve(DATA_DIR, 'local.db');
+
 const MIGRATIONS_DIR = resolve(
-  import.meta.dirname,
+  __dirname,
   '..',
   'packages',
   'core',

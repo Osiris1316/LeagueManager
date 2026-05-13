@@ -56,6 +56,17 @@ export function standingsRoutes<E extends { Bindings: { DB: D1Database } }>() {
       `)
       .bind(seasonId)
       .all<Match & { player1_name: string; player2_name: string; winner_name: string | null }>();
+    
+    // Get rules for this season's tiers
+    const { results: tierRules } = await db
+      .prepare('SELECT tier_id, rules_summary FROM season_tier_rules WHERE season_id = ?')
+      .bind(seasonId)
+      .all<{ tier_id: string; rules_summary: string | null }>();
+
+    const rulesByTier: Record<string, string | null> = {};
+    for (const r of tierRules) {
+      rulesByTier[r.tier_id] = r.rules_summary;
+    }
 
     // Build per-tier data
     const tierData = tiers.map(tier => {
@@ -82,14 +93,33 @@ export function standingsRoutes<E extends { Bindings: { DB: D1Database } }>() {
       }
 
       return {
-        tier,
-        standings,
-        matches: tierMatches,
-        rounds,
-      };
+      tier,
+      standings,
+      matches: tierMatches,
+      rounds,
+      rules_summary: rulesByTier[tier.id] ?? null,
+    };
     });
 
     return c.json({ season, tiers: tierData });
+  });
+
+  // Full rules text for a season + tier (loaded on demand when user opens modal)
+  routes.get('/seasons/:seasonId/tiers/:tierId/rules', async (c) => {
+    const db = c.env.DB;
+    const seasonId = parseInt(c.req.param('seasonId'), 10);
+    const tierId = c.req.param('tierId');
+
+    if (isNaN(seasonId)) return c.json({ error: 'Invalid season ID' }, 400);
+
+    const rules = await db
+      .prepare('SELECT rules_summary, rules_full FROM season_tier_rules WHERE season_id = ? AND tier_id = ?')
+      .bind(seasonId, tierId)
+      .first<{ rules_summary: string | null; rules_full: string | null }>();
+
+    if (!rules) return c.json({ error: 'Rules not found for this season and tier' }, 404);
+
+    return c.json(rules);
   });
 
   return routes;

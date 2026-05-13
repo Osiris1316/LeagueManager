@@ -4,6 +4,8 @@ import { getMatch, reportMatch, clearMatch } from '../api/client';
 import type { GameReport } from '../api/client';
 import { useAdmin } from '../context/AdminContext';
 import { CIVS, MAPS } from '../data/aoe4';
+import { RulesModal } from '../components/RulesModal';
+
 
 interface MatchData {
   match: {
@@ -20,6 +22,8 @@ interface MatchData {
     player2_score: number;
     winner_name: string | null;
     round_number: number | null;
+    season_id: number;
+    tier_id: string;
   };
   games: {
     game_number: number;
@@ -30,6 +34,13 @@ interface MatchData {
     player2_civ: string | null;
     player2_civ_id: string | null;
     winner_id: number | null;
+  }[];
+  rules_summary: string | null;
+  presets: {
+    draft_type: string;
+    preset_id: string | null;
+    preset_url: string | null;
+    label: string | null;
   }[];
 }
 
@@ -55,6 +66,7 @@ export function MatchPage() {
   const [submitting, setSubmitting] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [submitResult, setSubmitResult] = useState<string | null>(null);
+  const [showRules, setShowRules] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -219,11 +231,28 @@ export function MatchPage() {
           <span style={{ color: 'var(--color-text-tertiary)', margin: '0 0.5rem', fontWeight: 400 }}>vs</span>
           {match.player2_name}
         </h1>
-        <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-xs)' }}>
-          {match.tier_name} · Round {match.round_number} · Bo{match.best_of}
-          {isComplete && match.winner_name && (
-            <span style={{ color: 'var(--color-win)' }}> · {match.winner_name} wins {match.player1_score}–{match.player2_score}</span>
-          )}
+        <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-xs)', display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
+          <span>
+            {match.tier_name} · Round {match.round_number} · Bo{match.best_of}
+            {isComplete && match.winner_name && (
+              <span style={{ color: 'var(--color-win)' }}> · {match.winner_name} wins {match.player1_score}–{match.player2_score}</span>
+            )}
+          </span>
+          <button
+            onClick={() => setShowRules(true)}
+            style={{
+              background: 'var(--color-bg-surface)',
+              border: '1px solid var(--color-accent)',
+              borderRadius: 'var(--border-radius-sm)',
+              color: 'var(--color-accent)',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              padding: '0.1875rem 0.625rem',
+              cursor: 'pointer',
+            }}
+          >
+            Rules
+          </button>
         </p>
         {(match as any).scheduled_at && !isAdmin && (
           <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-xs)', fontSize: '0.875rem' }}>
@@ -259,9 +288,49 @@ export function MatchPage() {
                 color: 'var(--color-text)', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
               }}
             />
-          </div>
+            </div>
         )}
       </header>
+      
+      {/* Draft preset links */}
+      {data.presets.filter(p => p.preset_url).length > 0 && (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 'var(--space-sm)',
+          marginBottom: 'var(--space-lg)',
+        }}>
+          {data.presets
+            .filter((p) => p.preset_url)
+            .sort((a, b) => {
+              const order: Record<string, number> = { map: 0, civ_main: 1, civ_game: 2 };
+              return (order[a.draft_type] ?? 9) - (order[b.draft_type] ?? 9);
+            })
+            .map((preset) => (
+              <a
+                key={preset.draft_type}
+                href={preset.preset_url!}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: 'var(--space-sm) var(--space-md)',
+                  background: 'var(--color-bg-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--border-radius-sm)',
+                  color: 'var(--color-accent)',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                }}
+              >
+                🔗 {preset.label ?? preset.draft_type}
+              </a>
+            ))}
+        </div>
+      )}
 
       {submitResult && (
         <div role="status" style={{
@@ -405,6 +474,15 @@ export function MatchPage() {
             </button>
           )}
         </div>
+      )}
+
+      {showRules && (
+        <RulesModal
+          seasonId={match.season_id}
+          tierId={match.tier_id}
+          tierName={match.tier_name}
+          onClose={() => setShowRules(false)}
+        />
       )}
     </div>
   );

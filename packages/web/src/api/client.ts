@@ -57,11 +57,19 @@ export interface MatchWithPlayers {
   winner_name: string | null;
 }
 
+export interface Preset {
+  draft_type: string;
+  preset_id: string | null;
+  preset_url: string | null;
+  label: string | null;
+}
+
 export interface TierData {
   tier: Tier;
   standings: PlayerStanding[];
   matches: MatchWithPlayers[];
   rounds: Record<string, MatchWithPlayers[]>;
+  rules_summary: string | null;
 }
 
 export interface StandingsResponse {
@@ -110,8 +118,17 @@ export function getPlayers(): Promise<Player[]> {
 export function getMatch(matchId: number): Promise<{
   match: MatchWithPlayers & { tier_name: string; civ_rule: string };
   games: unknown[];
+  rules_summary: string | null;
+  presets: Preset[];
 }> {
   return fetchJson(`/api/matches/${matchId}`);
+}
+
+export function getRules(seasonId: number, tierId: string): Promise<{
+  rules_summary: string | null;
+  rules_full: string | null;
+}> {
+  return fetchJson(`/api/seasons/${seasonId}/tiers/${tierId}/rules`);
 }
 
 // ── Admin auth ──
