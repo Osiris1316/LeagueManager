@@ -8,16 +8,19 @@ interface StandingsTableProps {
 
 export function StandingsTable({ standings, tierId }: StandingsTableProps) {
   if (standings.length === 0) {
-    return <p style={{ color: 'var(--color-text-secondary)' }}>No players assigned.</p>;
+    return <p className="standings-table__empty">No players assigned.</p>;
   }
 
   return (
     <div className="card">
       <div className="table-wrap">
-        <table aria-label={`Standings for ${tierId.replace('_', ' ').toUpperCase()}`}>
+        <table
+          className="standings-table"
+          aria-label={`Standings for ${tierId.replace('_', ' ').toUpperCase()}`}
+        >
           <thead>
             <tr>
-              <th scope="col" style={{ width: '3rem' }}>#</th>
+              <th scope="col">#</th>
               <th scope="col">Player</th>
               <th scope="col" className="num">W</th>
               <th scope="col" className="num">L</th>
@@ -27,33 +30,36 @@ export function StandingsTable({ standings, tierId }: StandingsTableProps) {
             </tr>
           </thead>
           <tbody>
-            {standings.map(row => (
-              <tr key={row.player_id}>
-                <td className="num">{row.rank}</td>
-                <td>
-                  <Link to={`/player/${row.player_id}`}>
-                    {row.display_name}
-                  </Link>
-                </td>
-                <td className="num" style={{ color: row.wins > 0 ? 'var(--color-win)' : undefined }}>
-                  {row.wins}
-                </td>
-                <td className="num" style={{ color: row.losses > 0 ? 'var(--color-loss)' : undefined }}>
-                  {row.losses}
-                </td>
-                <td className="num" style={{
-                  color: row.game_diff > 0
-                    ? 'var(--color-win)'
-                    : row.game_diff < 0
-                    ? 'var(--color-loss)'
-                    : undefined
-                }}>
-                  {row.game_diff > 0 ? `+${row.game_diff}` : row.game_diff}
-                </td>
-                <td className="num">{row.match_wins}</td>
-                <td className="num">{row.match_losses}</td>
-              </tr>
-            ))}
+            {standings.map((row, index) => {
+              const diffClass = row.game_diff > 0
+                ? 'num--positive'
+                : row.game_diff < 0
+                  ? 'num--negative'
+                  : '';
+
+              return (
+                <tr key={row.player_id}>
+                  <td className="num" data-label="#">{index +1}</td>
+                  <td data-label="Player">
+                    <span className="standings-table__position">{index + 1}.</span>{' '}
+                    <Link to={`/player/${row.player_id}`}>
+                      {row.display_name}
+                    </Link>
+                  </td>
+                  <td className={`num ${row.wins > 0 ? 'num--positive' : ''}`} data-label="W">
+                    {row.wins}
+                  </td>
+                  <td className={`num ${row.losses > 0 ? 'num--negative' : ''}`} data-label="L">
+                    {row.losses}
+                  </td>
+                  <td className={`num ${diffClass}`} data-label="+/−">
+                    {row.game_diff > 0 ? `+${row.game_diff}` : row.game_diff}
+                  </td>
+                  <td className="num" data-label="GW">{row.match_wins}</td>
+                  <td className="num" data-label="GL">{row.match_losses}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

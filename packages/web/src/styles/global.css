@@ -188,6 +188,83 @@ tbody tr:hover {
   background: var(--color-bg-hover);
 }
 
+.standings-table__position {
+  display: none;
+}
+
+/* ── Standings table: mobile portrait ── */
+@media (max-width: 480px) {
+  .standings-table thead {
+    display: none;
+  }
+
+  .card:has(.standings-table) {
+    padding: var(--space-xs) 0;
+  }
+
+  .standings-table,
+  .standings-table tbody {
+    display: block;
+  }
+
+  .standings-table tr {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    padding: 0.375rem 0.5rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .standings-table tr:last-child {
+    border-bottom: none;
+  }
+
+  .standings-table td {
+    border-bottom: none;
+    padding: 2px 0;
+    font-size: 0.8125rem;
+    text-align: center;
+  }
+
+  .standings-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.5625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-tertiary);
+    line-height: 1;
+    margin-bottom: 1px;
+  }
+
+  /* Rank: hidden as its own cell */
+  .standings-table td:first-child {
+    display: none;
+  }
+
+  /* Player name: spans full width */
+  .standings-table td:nth-child(2) {
+    grid-column: 1 / -1;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0 0 0.375rem 0;
+  }
+
+  .standings-table td:nth-child(2)::before {
+    content: none;
+  }
+
+  .standings-table__position {
+    display: inline;
+    color: var(--color-text-tertiary);
+    font-weight: 400;
+    font-size: 0.75rem;
+    margin-right: 0.25rem;
+  }
+}
+
 /* Right-align numeric columns */
 .num {
   text-align: right;
@@ -212,6 +289,8 @@ tbody tr:hover {
 
 .badge--pending  { background: rgba(98, 104, 128, 0.15); color: var(--color-pending); }
 .badge--complete { background: rgba(92, 184, 122, 0.15); color: var(--color-win); }
+.badge--win  { background: rgba(92, 184, 122, 0.15); color: var(--color-win); }
+.badge--loss { background: rgba(212, 92, 92, 0.15); color: var(--color-loss); }
 
 /* ── Match card ── */
 .match-card {
@@ -222,16 +301,33 @@ tbody tr:hover {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--border-radius);
-  transition: border-color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+  color: var(--color-text);
+  cursor: pointer;
 }
 
 .match-card:hover {
   border-color: var(--color-border);
+  background: var(--color-bg-hover);
 }
 
+/* Tier accent stripe (left edge) */
+.match-card--tier-s { border-left: 3px solid var(--color-tier-s); }
+.match-card--tier-a { border-left: 3px solid var(--color-tier-a); }
+.match-card--tier-b { border-left: 3px solid var(--color-tier-b); }
+
+/* Player name — takes available space */
 .match-card__player {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.match-card__player--right {
+  text-align: right;
 }
 
 .match-card__player--winner {
@@ -239,6 +335,18 @@ tbody tr:hover {
   color: var(--color-win);
 }
 
+/* Player name as a clickable link inside the card */
+.match-card__player-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.match-card__player-link:hover {
+  color: var(--color-accent);
+}
+
+/* Score block (mono font) */
 .match-card__score {
   font-family: var(--font-mono);
   font-size: 1.125rem;
@@ -247,11 +355,74 @@ tbody tr:hover {
   color: var(--color-text-secondary);
 }
 
+.match-card__score--win  { color: var(--color-win); }
+.match-card__score--loss { color: var(--color-loss); }
+
+.match-card__score-sep {
+  margin: 0 0.25rem;
+  color: var(--color-text-tertiary);
+}
+
+/* "vs" label */
 .match-card__vs {
   color: var(--color-text-tertiary);
   font-size: 0.8125rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+/* Round number / meta label */
+.match-card__meta {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  min-width: 2rem;
+  flex-shrink: 0;
+}
+
+/* Trailing area (badges, time) — pushed to the right */
+.match-card__trailing {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Scheduled time */
+.match-card__time {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--color-text-tertiary);
+}
+
+/* ── Match card: mobile portrait ── */
+@media (max-width: 480px) {
+  .match-card {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  /* Round label stays on the first line with vs/score */
+  .match-card__meta {
+    min-width: auto;
+  }
+
+  /* In symmetric mode, players + score share the top line,
+     trailing badge drops to a second line */
+  .match-card__trailing {
+    width: 100%;
+    margin-left: 0;
+    padding-top: var(--space-xs);
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  /* Player names get more room */
+  .match-card__player {
+    flex-basis: 0;
+    min-width: 4rem;
+  }
 }
 
 /* ── Section spacing ── */
@@ -368,6 +539,14 @@ tbody tr:hover {
   margin-top: var(--space-md);
 }
 
+.round-header__date {
+  font-weight: 400;
+  margin-left: 0.5rem;
+  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
 .round-header:first-child {
   margin-top: 0;
 }
@@ -377,4 +556,50 @@ tbody tr:hover {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+}
+
+/* Rendered markdown content (rules modal, etc.) */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  color: var(--color-text);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content h1 { font-size: 1.25rem; }
+.markdown-content h2 { font-size: 1.125rem; }
+.markdown-content h3 { font-size: 1rem; }
+
+.markdown-content h1:first-child,
+.markdown-content h2:first-child,
+.markdown-content h3:first-child {
+  margin-top: 0;
+}
+
+.markdown-content p {
+  margin-bottom: 0.75em;
+  line-height: 1.7;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-bottom: 0.75em;
+  padding-left: 1.5em;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25em;
+  line-height: 1.6;
+}
+
+.markdown-content strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 1.5em 0;
 }

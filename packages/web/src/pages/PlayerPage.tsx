@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPlayer } from '../api/client';
 import type { PlayerDetailResponse } from '../api/client';
+import { MatchCard } from '../components/MatchCard';
 
 export function PlayerPage() {
   const { playerId } = useParams<{ playerId: string }>();
@@ -43,7 +44,6 @@ export function PlayerPage() {
   const { player, tierAssignment, matches } = data;
   const tierId = tierAssignment?.tier_id.replace('code_', '') ?? '';
 
-  // Compute player's record from their matches
   let wins = 0;
   let losses = 0;
   for (const m of matches) {
@@ -83,62 +83,14 @@ export function PlayerPage() {
           <p style={{ color: 'var(--color-text-secondary)' }}>No matches yet.</p>
         ) : (
           <div className="match-list">
-            {matches.map(match => {
-              const isP1 = match.player1_id === player.id;
-              const opponent = isP1 ? match.player2_name : match.player1_name;
-              const opponentId = isP1 ? match.player2_id : match.player1_id;
-              const playerScore = isP1 ? match.player1_score : match.player2_score;
-              const opponentScore = isP1 ? match.player2_score : match.player1_score;
-              const won = match.winner_id === player.id;
-              const isComplete = match.status === 'complete';
-
-              return (
-                <div key={match.id} className="match-card">
-                  <span style={{
-                    fontSize: '0.75rem',
-                    color: 'var(--color-text-tertiary)',
-                    minWidth: '2rem',
-                  }}>
-                    R{match.round_number}
-                  </span>
-
-                  <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.8125rem' }}>
-                    vs
-                  </span>
-
-                  <Link
-                    to={`/player/${opponentId}`}
-                    style={{ flex: 1 }}
-                  >
-                    {opponent}
-                  </Link>
-
-                  {isComplete ? (
-                    <>
-                      <span
-                        className="match-card__score"
-                        style={{ color: won ? 'var(--color-win)' : 'var(--color-loss)' }}
-                      >
-                        {playerScore}–{opponentScore}
-                      </span>
-                      <span
-                        className="badge"
-                        style={{
-                          background: won
-                            ? 'rgba(92, 184, 122, 0.15)'
-                            : 'rgba(212, 92, 92, 0.15)',
-                          color: won ? 'var(--color-win)' : 'var(--color-loss)',
-                        }}
-                      >
-                        {won ? 'W' : 'L'}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="badge badge--pending">Pending</span>
-                  )}
-                </div>
-              );
-            })}
+            {matches.map(match => (
+              <MatchCard
+                key={match.id}
+                match={match}
+                perspectivePlayerId={player.id}
+                tierAccent={tierId as 's' | 'a' | 'b'}
+              />
+            ))}
           </div>
         )}
       </section>

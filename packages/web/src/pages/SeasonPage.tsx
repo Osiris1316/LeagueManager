@@ -137,6 +137,7 @@ export function SeasonPage() {
                 matches={tierData.matches}
                 rounds={tierData.rounds}
                 seasonStartDate={season.started_at}
+                tierAccent={tierData.tier.id.replace('code_', '') as 's' | 'a' | 'b'}
               />
             </div>
           </section>
