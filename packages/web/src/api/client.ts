@@ -131,6 +131,10 @@ export function getRules(seasonId: number, tierId: string): Promise<{
   return fetchJson(`/api/seasons/${seasonId}/tiers/${tierId}/rules`);
 }
 
+export function getSeasonMatches(seasonId: number): Promise<MatchWithPlayers[]> {
+  return fetchJson(`/api/seasons/${seasonId}/matches`);
+}
+
 // ── Admin auth ──
 
 export function setAdminToken(token: string) {

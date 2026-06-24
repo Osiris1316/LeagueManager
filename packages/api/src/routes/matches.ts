@@ -81,11 +81,23 @@ export function matchesRoutes<E extends { Bindings: { DB: D1Database } }>() {
       .bind(id)
       .all<Game>();
 
+    const { results: availableMaps } = await db
+      .prepare(`
+        SELECT m.id, m.name
+        FROM season_maps sm
+        JOIN maps m ON m.id = sm.map_id
+        WHERE sm.season_id = ?
+        ORDER BY m.name
+      `)
+      .bind(match.season_id)
+      .all<{ id: string; name: string }>();
+
     return c.json({
       match,
       games,
       rules_summary: rules?.rules_summary ?? null,
       presets,
+      available_maps: availableMaps,
     });
   });
 

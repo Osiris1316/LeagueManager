@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { seasonsRoutes } from './routes/seasons.js';
 import { playersRoutes } from './routes/players.js';
 import { matchesRoutes } from './routes/matches.js';
+import { mapsRoutes } from './routes/maps.js';
 import { standingsRoutes } from './routes/standings.js';
 import { adminRoutes } from './routes/admin.js';
 
@@ -33,6 +34,7 @@ export function createApp() {
   app.route('/api', seasonsRoutes<AppEnv>());
   app.route('/api', playersRoutes<AppEnv>());
   app.route('/api', matchesRoutes<AppEnv>());
+  app.route('/api', mapsRoutes<AppEnv>());
   app.route('/api', standingsRoutes<AppEnv>());
   app.route('/api/admin', adminRoutes());
 

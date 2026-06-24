@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import type { Match } from '@league-manager/core';
+import { computeMatchOutcome } from '@league-manager/core';
 
 type AdminEnv = {
   Bindings: {
@@ -75,8 +76,6 @@ export function adminRoutes() {
       return c.json({ error: 'games array is required' }, 400);
     }
 
-    const winsNeeded = Math.ceil(match.best_of / 2);
-
     for (const game of body.games) {
       if (typeof game.game_number !== 'number' || game.game_number < 1 || game.game_number > match.best_of) {
         return c.json({ error: `Invalid game_number: ${game.game_number}` }, 400);
@@ -94,17 +93,12 @@ export function adminRoutes() {
       return c.json({ error: 'Duplicate game numbers' }, 400);
     }
 
-    let player1Score = 0;
-    let player2Score = 0;
-
-    for (const game of body.games) {
-      if (game.winner_id === match.player1_id) player1Score++;
-      else player2Score++;
-    }
-
-    let matchWinnerId: number | null = null;
-    if (player1Score >= winsNeeded) matchWinnerId = match.player1_id;
-    else if (player2Score >= winsNeeded) matchWinnerId = match.player2_id;
+    const outcome = computeMatchOutcome({
+      best_of: match.best_of,
+      player1_id: match.player1_id,
+      player2_id: match.player2_id,
+      games: body.games,
+    });
 
     const now = new Date().toISOString();
 
@@ -152,9 +146,9 @@ export function adminRoutes() {
             status = ?, started_at = COALESCE(started_at, ?), completed_at = ?
         WHERE id = ?
       `)
-      .bind(player1Score, player2Score, matchWinnerId,
-        matchWinnerId ? 'complete' : 'in_progress',
-        now, matchWinnerId ? now : null, matchId)
+      .bind(outcome.player1_score, outcome.player2_score, outcome.winner_id,
+        outcome.status,
+        now, outcome.winner_id ? now : null, matchId)
       .run();
 
     const updated = await db
@@ -175,7 +169,7 @@ export function adminRoutes() {
       .bind(matchId)
       .all();
 
-    return c.json({ match: updated, games: savedGames, message: matchWinnerId ? 'Match complete' : 'Match in progress' });
+    return c.json({ match: updated, games: savedGames, message: outcome.winner_id ? 'Match complete' : 'Match in progress' });
   });
 
   // ── Clear match results ──
