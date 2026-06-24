@@ -6,7 +6,6 @@ import { useAdmin } from '../context/AdminContext';
 import { CIVS, MAPS } from '../data/aoe4';
 import { RulesModal } from '../components/RulesModal';
 
-
 interface MatchData {
   match: {
     id: number;
@@ -41,6 +40,10 @@ interface MatchData {
     preset_id: string | null;
     preset_url: string | null;
     label: string | null;
+  }[];
+  available_maps: {
+    id: string;
+    name: string
   }[];
 }
 
@@ -136,7 +139,7 @@ export function MatchPage() {
         gameReports.push({
           game_number: i + 1,
           map_id: g.map_id || undefined,
-          map_name: MAPS.find(m => m.id === g.map_id)?.name,
+          map_name: data.available_maps.find(m => m.id === g.map_id)?.name ?? MAPS.find(m => m.id === g.map_id)?.name,
           player1_civ_id: g.player1_civ_id || undefined,
           player1_civ: CIVS.find(c => c.id === g.player1_civ_id)?.name,
           player2_civ_id: g.player2_civ_id || undefined,
@@ -225,45 +228,35 @@ export function MatchPage() {
         </Link>
       </nav>
 
-      <header style={{ marginBottom: 'var(--space-xl)' }}>
-        <h1 style={{ fontSize: '1.5rem' }}>
-          {match.player1_name}
-          <span style={{ color: 'var(--color-text-tertiary)', margin: '0 0.5rem', fontWeight: 400 }}>vs</span>
-          {match.player2_name}
+      <header style={{ marginBottom: 'var(--space-lg)' }}>
+        <h1 className="match-header__title">
+          <Link to={`/player/${match.player1_id}`} className="game-result__player-link">
+            {match.player1_name}
+          </Link>
+          <span className="match-header__vs">vs</span>
+          <Link to={`/player/${match.player2_id}`} className="game-result__player-link">
+            {match.player2_name}
+          </Link>
         </h1>
-        <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-xs)', display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
-          <span>
-            {match.tier_name} · Round {match.round_number} · Bo{match.best_of}
-            {isComplete && match.winner_name && (
-              <span style={{ color: 'var(--color-win)' }}> · {match.winner_name} wins {match.player1_score}–{match.player2_score}</span>
-            )}
-          </span>
-          <button
-            onClick={() => setShowRules(true)}
-            style={{
-              background: 'var(--color-bg-surface)',
-              border: '1px solid var(--color-accent)',
-              borderRadius: 'var(--border-radius-sm)',
-              color: 'var(--color-accent)',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              padding: '0.1875rem 0.625rem',
-              cursor: 'pointer',
-            }}
-          >
-            Rules
-          </button>
+        <p className="match-header__meta">
+          {match.tier_name} · Round {match.round_number} · Bo{match.best_of}
+          {isComplete && match.winner_name && (
+            <span className="match-header__result">
+              {' · '}{match.winner_name} wins{' '}
+              {match.winner_name === match.player1_name
+                ? `${match.player1_score}–${match.player2_score}`
+                : `${match.player2_score}–${match.player1_score}`}
+            </span>
+          )}
         </p>
         {(match as any).scheduled_at && !isAdmin && (
-          <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-xs)', fontSize: '0.875rem' }}>
+          <p className="match-header__meta">
             Scheduled: {new Date((match as any).scheduled_at).toLocaleString()}
           </p>
         )}
         {isAdmin && (
-          <div style={{ marginTop: 'var(--space-sm)', display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-            <label htmlFor="scheduled-at" style={{ fontSize: '0.8125rem', color: 'var(--color-text-tertiary)' }}>
-              Scheduled
-            </label>
+          <div className="schedule-row">
+            <label htmlFor="scheduled-at">Scheduled</label>
             <input
               id="scheduled-at"
               type="datetime-local"
@@ -282,77 +275,38 @@ export function MatchPage() {
                   });
                 } catch { /* silent fail for now */ }
               }}
-              style={{
-                padding: '0.375rem 0.5rem', background: 'var(--color-bg-surface)',
-                border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-sm)',
-                color: 'var(--color-text)', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
-              }}
             />
-            </div>
+          </div>
         )}
       </header>
-      
-      {/* Draft preset links */}
-      {data.presets.filter(p => p.preset_url).length > 0 && (
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 'var(--space-sm)',
-          marginBottom: 'var(--space-lg)',
-        }}>
-          {data.presets
-            .filter((p) => p.preset_url)
-            .sort((a, b) => {
-              const order: Record<string, number> = { map: 0, civ_main: 1, civ_game: 2 };
-              return (order[a.draft_type] ?? 9) - (order[b.draft_type] ?? 9);
-            })
-            .map((preset) => (
-              <a
-                key={preset.draft_type}
-                href={preset.preset_url!}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.375rem',
-                  padding: 'var(--space-sm) var(--space-md)',
-                  background: 'var(--color-bg-surface)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--border-radius-sm)',
-                  color: 'var(--color-accent)',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                }}
-              >
-                🔗 {preset.label ?? preset.draft_type}
-              </a>
-            ))}
-        </div>
-      )}
+
+      <div className="match-links">
+        <button onClick={() => setShowRules(true)} className="match-links__btn">
+          Rules
+        </button>
+        {data.presets
+          .filter((p) => p.preset_url)
+          .sort((a, b) => {
+            const order: Record<string, number> = { map: 0, civ_main: 1, civ_game: 2 };
+            return (order[a.draft_type] ?? 9) - (order[b.draft_type] ?? 9);
+          })
+          .map((preset) => (
+            <a key={preset.draft_type} href={preset.preset_url!}
+              target="_blank" rel="noopener noreferrer" className="match-links__btn">
+              {preset.label ?? preset.draft_type}
+            </a>
+          ))}
+      </div>
 
       {submitResult && (
-        <div role="status" style={{
-          padding: 'var(--space-md)', marginBottom: 'var(--space-lg)',
-          background: 'rgba(92, 184, 122, 0.1)', border: '1px solid rgba(92, 184, 122, 0.3)',
-          borderRadius: 'var(--border-radius)', color: 'var(--color-win)',
-        }}>
-          {submitResult}
-        </div>
+        <div role="status" className="banner banner--success">{submitResult}</div>
       )}
 
       {error && (
-        <div role="alert" style={{
-          padding: 'var(--space-md)', marginBottom: 'var(--space-lg)',
-          background: 'rgba(212, 92, 92, 0.1)', border: '1px solid rgba(212, 92, 92, 0.3)',
-          borderRadius: 'var(--border-radius)', color: 'var(--color-loss)',
-        }}>
-          {error}
-        </div>
+        <div role="alert" className="banner banner--error">{error}</div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
+      <div className="game-list">
         {games.map((game, index) => {
           const gameNum = index + 1;
           const existingGame = data.games.find(g => g.game_number === gameNum);
@@ -360,116 +314,124 @@ export function MatchPage() {
           const isDisabledForAdmin = isAdmin && gameNum > clinchAfter;
 
           return (
-            <div key={index} className="card" style={{ opacity: isDisabledForAdmin ? 0.4 : 1 }}>
-              <h3 style={{
-                fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)',
-                marginBottom: 'var(--space-md)',
-              }}>
-                Game {gameNum}
-              </h3>
-
-              <div style={{ display: 'grid', gap: 'var(--space-md)' }}>
-                {/* Map */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                  <span style={labelStyle}>Map</span>
-                  {isAdmin && !isDisabledForAdmin ? (
-                    <select value={game.map_id} onChange={e => updateGame(index, 'map_id', e.target.value)}
-                      style={selectStyle} aria-label={`Game ${gameNum} map`}>
-                      <option value="">— Select —</option>
-                      {MAPS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                    </select>
-                  ) : (
-                    <span style={valueStyle(hasResult)}>{existingGame?.map_name ?? 'TBD'}</span>
-                  )}
-                </div>
-
-                {/* Civs */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                    <span style={labelStyle}>{match.player1_name}</span>
-                    {isAdmin && !isDisabledForAdmin ? (
-                      <select value={game.player1_civ_id}
-                        onChange={e => updateGame(index, 'player1_civ_id', e.target.value)}
-                        style={selectStyle} aria-label={`Game ${gameNum} ${match.player1_name} civ`}>
-                        <option value="">— Select —</option>
-                        {CIVS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                      </select>
-                    ) : (
-                      <span style={valueStyle(hasResult)}>{existingGame?.player1_civ ?? 'TBD'}</span>
-                    )}
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                    <span style={labelStyle}>{match.player2_name}</span>
-                    {isAdmin && !isDisabledForAdmin ? (
-                      <select value={game.player2_civ_id}
-                        onChange={e => updateGame(index, 'player2_civ_id', e.target.value)}
-                        style={selectStyle} aria-label={`Game ${gameNum} ${match.player2_name} civ`}>
-                        <option value="">— Select —</option>
-                        {CIVS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                      </select>
-                    ) : (
-                      <span style={valueStyle(hasResult)}>{existingGame?.player2_civ ?? 'TBD'}</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Winner */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                  <span style={labelStyle}>Winner</span>
-                  {isAdmin && !isDisabledForAdmin ? (
-                    <div style={{ display: 'flex', gap: 'var(--space-sm)', flex: 1 }}>
-                      <button type="button" onClick={() => updateGame(index, 'winner_id', match.player1_id)}
-                        style={{ ...winnerBtnStyle, ...(game.winner_id === match.player1_id ? winnerActiveStyle : {}) }}
-                        aria-pressed={game.winner_id === match.player1_id}>
-                        {match.player1_name}
-                      </button>
-                      <button type="button" onClick={() => updateGame(index, 'winner_id', match.player2_id)}
-                        style={{ ...winnerBtnStyle, ...(game.winner_id === match.player2_id ? winnerActiveStyle : {}) }}
-                        aria-pressed={game.winner_id === match.player2_id}>
-                        {match.player2_name}
-                      </button>
-                    </div>
-                  ) : (
-                    <span style={{
-                      ...valueStyle(hasResult),
-                      color: hasResult ? 'var(--color-win)' : undefined,
-                      fontWeight: hasResult ? 600 : 400,
-                    }}>
-                      {hasResult
-                        ? (existingGame!.winner_id === match.player1_id ? match.player1_name : match.player2_name)
-                        : 'TBD'}
-                    </span>
-                  )}
-                </div>
+            <div key={index} className={`game-card${isDisabledForAdmin ? ' game-card--disabled' : ''}`}>
+              <div className="game-card__header">
+                <span>Game {gameNum}</span>
+                {!isAdmin && existingGame?.map_name && (
+                  <span className="game-card__map">· {existingGame.map_name}</span>
+                )}
+                {!isAdmin && !existingGame?.map_name && (
+                  <span className="game-card__map">· TBD</span>
+                )}
               </div>
+
+              {isAdmin ? (
+                <div className="game-edit">
+                  <div className="game-edit__row">
+                    <span className="game-edit__label">Map</span>
+                    {!isDisabledForAdmin ? (
+                      <select value={game.map_id} onChange={e => updateGame(index, 'map_id', e.target.value)}
+                        className="game-edit__select" aria-label={`Game ${gameNum} map`}>
+                        <option value="">— Select —</option>
+                        {data.available_maps.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                      </select>
+                    ) : (
+                      <span className="game-result__tbd">{existingGame?.map_name ?? 'TBD'}</span>
+                    )}
+                  </div>
+
+                  <div className="game-edit__civs">
+                    <div className="game-edit__row">
+                      <span className="game-edit__label">{match.player1_name}</span>
+                      {!isDisabledForAdmin ? (
+                        <select value={game.player1_civ_id}
+                          onChange={e => updateGame(index, 'player1_civ_id', e.target.value)}
+                          className="game-edit__select" aria-label={`Game ${gameNum} ${match.player1_name} civ`}>
+                          <option value="">— Select —</option>
+                          {CIVS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                      ) : (
+                        <span className="game-result__tbd">{existingGame?.player1_civ ?? 'TBD'}</span>
+                      )}
+                    </div>
+
+                    <div className="game-edit__row">
+                      <span className="game-edit__label">{match.player2_name}</span>
+                      {!isDisabledForAdmin ? (
+                        <select value={game.player2_civ_id}
+                          onChange={e => updateGame(index, 'player2_civ_id', e.target.value)}
+                          className="game-edit__select" aria-label={`Game ${gameNum} ${match.player2_name} civ`}>
+                          <option value="">— Select —</option>
+                          {CIVS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                      ) : (
+                        <span className="game-result__tbd">{existingGame?.player2_civ ?? 'TBD'}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="game-edit__row">
+                    <span className="game-edit__label">Winner</span>
+                    {!isDisabledForAdmin ? (
+                      <div className="game-edit__winners">
+                        <button type="button" onClick={() => updateGame(index, 'winner_id', match.player1_id)}
+                          className={`btn-winner${game.winner_id === match.player1_id ? ' btn-winner--active' : ''}`}
+                          aria-pressed={game.winner_id === match.player1_id}>
+                          {match.player1_name}
+                        </button>
+                        <button type="button" onClick={() => updateGame(index, 'winner_id', match.player2_id)}
+                          className={`btn-winner${game.winner_id === match.player2_id ? ' btn-winner--active' : ''}`}
+                          aria-pressed={game.winner_id === match.player2_id}>
+                          {match.player2_name}
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="game-result__tbd">
+                        {hasResult
+                          ? (existingGame!.winner_id === match.player1_id ? match.player1_name : match.player2_name)
+                          : 'TBD'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="game-result">
+                  {hasResult ? (
+                    <>
+                      <span className={`game-result__player game-result__player--right${existingGame!.winner_id === match.player1_id ? ' game-result__player--winner' : ''}`}>
+                        <Link to={`/player/${match.player1_id}`} className="game-result__player-link"
+                          onClick={e => e.stopPropagation()}>
+                          {match.player1_name}
+                        </Link>
+                        <span className="game-result__civ">({existingGame?.player1_civ ?? '?'})</span>
+                      </span>
+                      <span className="game-result__vs">vs</span>
+                      <span className={`game-result__player${existingGame!.winner_id === match.player2_id ? ' game-result__player--winner' : ''}`}>
+                        <Link to={`/player/${match.player2_id}`} className="game-result__player-link"
+                          onClick={e => e.stopPropagation()}>
+                          {match.player2_name}
+                        </Link>
+                        <span className="game-result__civ">({existingGame?.player2_civ ?? '?'})</span>
+                      </span>
+                    </>
+                  ) : (
+                    <span className="game-result__tbd">Not yet played</span>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
       {isAdmin && (
-        <div style={{ marginTop: 'var(--space-xl)', display: 'flex', gap: 'var(--space-md)' }}>
-          <button onClick={handleSubmit} disabled={submitting || clearing}
-            style={{
-              padding: 'var(--space-sm) var(--space-xl)',
-              background: submitting ? 'var(--color-text-tertiary)' : 'var(--color-accent)',
-              color: 'var(--color-bg)', border: 'none', borderRadius: 'var(--border-radius-sm)',
-              fontWeight: 600, fontSize: '0.9375rem',
-              cursor: submitting ? 'not-allowed' : 'pointer',
-            }}>
+        <div className="match-actions">
+          <button onClick={handleSubmit} disabled={submitting || clearing} className="btn-submit">
             {submitting ? 'Submitting…' : isComplete ? 'Update Results' : 'Submit Results'}
           </button>
 
           {hasAnyResults && (
-            <button onClick={handleClear} disabled={submitting || clearing}
-              style={{
-                padding: 'var(--space-sm) var(--space-lg)',
-                background: 'transparent', color: 'var(--color-loss)',
-                border: '1px solid var(--color-loss)', borderRadius: 'var(--border-radius-sm)',
-                fontSize: '0.875rem',
-                cursor: clearing ? 'not-allowed' : 'pointer',
-              }}>
+            <button onClick={handleClear} disabled={submitting || clearing} className="btn-clear">
               {clearing ? 'Clearing…' : 'Clear Results'}
             </button>
           )}
@@ -487,33 +449,3 @@ export function MatchPage() {
     </div>
   );
 }
-
-const labelStyle: React.CSSProperties = {
-  fontSize: '0.8125rem', color: 'var(--color-text-tertiary)', minWidth: '5rem', flexShrink: 0,
-};
-
-function valueStyle(hasValue: boolean): React.CSSProperties {
-  return {
-    fontSize: '0.9375rem',
-    color: hasValue ? 'var(--color-text)' : 'var(--color-text-tertiary)',
-    fontStyle: hasValue ? 'normal' : 'italic',
-  };
-}
-
-const selectStyle: React.CSSProperties = {
-  flex: 1, padding: '0.375rem 0.5rem', background: 'var(--color-bg-surface)',
-  border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-sm)',
-  color: 'var(--color-text)', fontFamily: 'var(--font-body)', fontSize: '0.875rem', appearance: 'auto',
-};
-
-const winnerBtnStyle: React.CSSProperties = {
-  flex: 1, padding: '0.375rem 0.75rem', background: 'var(--color-bg-surface)',
-  border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-sm)',
-  color: 'var(--color-text-secondary)', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
-  fontWeight: 500, cursor: 'pointer',
-};
-
-const winnerActiveStyle: React.CSSProperties = {
-  background: 'rgba(92, 184, 122, 0.15)', borderColor: 'var(--color-win)',
-  color: 'var(--color-win)', fontWeight: 600,
-};
