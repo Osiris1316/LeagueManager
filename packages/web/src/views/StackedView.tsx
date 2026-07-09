@@ -1,6 +1,7 @@
 import type { StandingsResponse } from '../api/client';
 import { StandingsTable } from '../components/StandingsTable';
 import { ScheduleView } from '../components/ScheduleView';
+import { CollapsibleSchedule } from '../components/CollapsibleSchedule';
 
 export function StackedView({ data }: { data: StandingsResponse }) {
   const { season, tiers } = data;
@@ -47,13 +48,14 @@ export function StackedView({ data }: { data: StandingsResponse }) {
             />
 
             <div style={{ marginTop: 'var(--space-lg)' }}>
-              <h3 style={{ marginBottom: 'var(--space-md)' }}>Schedule</h3>
-              <ScheduleView
-                matches={tierData.matches}
-                rounds={tierData.rounds}
-                seasonStartDate={season.started_at}
-                tierAccent={tierData.tier.id.replace('code_', '') as 's' | 'a' | 'b'}
-              />
+              <CollapsibleSchedule count={tierData.matches.length}>
+                <ScheduleView
+                  matches={tierData.matches}
+                  rounds={tierData.rounds}
+                  seasonStartDate={season.started_at}
+                  tierAccent={tierData.tier.id.replace('code_', '') as 's' | 'a' | 'b'}
+                />
+              </CollapsibleSchedule>
             </div>
           </section>
         );

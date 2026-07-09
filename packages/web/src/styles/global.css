@@ -989,27 +989,38 @@ tbody tr:hover {
 .num--positive { color: var(--color-win); }
 .num--negative { color: var(--color-loss); }
 
-/* ── Columns view (tiers side-by-side) ── */
+/* ── Columns view (tiers side-by-side, row-aligned via subgrid) ── */
 .columns-view {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto auto auto; /* bar · header · standings · schedule */
   gap: var(--space-lg);
   align-items: start;
 }
 
 .columns-view__col {
-  min-width: 0; /* let grid tracks shrink instead of overflowing */
+  min-width: 0;
+  display: grid;
+  grid-row: span 4;             /* occupy all four bands */
+  grid-template-rows: subgrid;  /* adopt the parent's row lines */
+  gap: 0;
 }
 
 .columns-view__col .section-header {
   margin-bottom: var(--space-md);
 }
 
-/* Narrow screens can't hold 3 columns — fall back to a single stack */
+/* Narrow screens can't hold 3 columns — fall back to a single stack. */
 @media (max-width: 900px) {
   .columns-view {
     grid-template-columns: 1fr;
+    grid-template-rows: none;
     gap: var(--space-xl);
+  }
+
+  .columns-view__col {
+    display: block;
+    grid-row: auto;
   }
 }
 
@@ -1042,4 +1053,65 @@ tbody tr:hover {
   background: var(--color-accent-bg);
   border-color: var(--color-accent);
   color: var(--color-accent);
+}
+
+/* ── Collapsible section (native details/summary) ── */
+.collapsible {
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.collapsible__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: color 0.15s ease;
+}
+
+.collapsible__summary:hover {
+  color: var(--color-text);
+}
+
+/* Hide the browser's default disclosure triangle */
+.collapsible__summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Custom chevron: a right-pointing triangle that rotates down when open */
+.collapsible__chevron {
+  width: 0;
+  height: 0;
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.collapsible[open] .collapsible__chevron {
+  transform: rotate(90deg);
+}
+
+.collapsible__count {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-surface);
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.collapsible__body {
+  padding-top: var(--space-md);
 }
