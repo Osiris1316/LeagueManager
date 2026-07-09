@@ -119,12 +119,12 @@ a:hover {
 .page-container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-xs) var(--space-md) var(--space-lg);
 }
 
 @media (min-width: 768px) {
   .page-container {
-    padding: var(--space-2xl) var(--space-xl);
+    padding: var(--space-xs) var(--space-xl) var(--space-2xl);
   }
 }
 
@@ -462,9 +462,13 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  padding: var(--space-md) 0;
+  padding: var(--space-xs) 0;
   margin-bottom: var(--space-xl);
   border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-bg);
 }
 
 .nav__brand {
