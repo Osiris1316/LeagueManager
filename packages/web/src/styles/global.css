@@ -192,14 +192,19 @@ tbody tr:hover {
   display: none;
 }
 
-/* ── Standings table: mobile portrait ── */
-@media (max-width: 480px) {
+/* Mark each standings table's wrapper as a query container, so the table
+   reflows based on ITS OWN width — works in a narrow phone (stacked view)
+   AND a narrow column (columns view). Scoped to standings wrappers only,
+   so other tables keep their normal overflow behavior. */
+.card:has(.standings-table) .table-wrap {
+  container: standings / inline-size;
+  overflow-x: visible;
+}
+
+/* ── Standings table: card reflow when the table's box is narrow ── */
+@container standings (max-width: 500px) {
   .standings-table thead {
     display: none;
-  }
-
-  .card:has(.standings-table) {
-    padding: var(--space-xs) 0;
   }
 
   .standings-table,
@@ -238,12 +243,10 @@ tbody tr:hover {
     margin-bottom: 1px;
   }
 
-  /* Rank: hidden as its own cell */
   .standings-table td:first-child {
     display: none;
   }
 
-  /* Player name: spans full width */
   .standings-table td:nth-child(2) {
     grid-column: 1 / -1;
     text-align: left;
@@ -262,6 +265,15 @@ tbody tr:hover {
     font-weight: 400;
     font-size: 0.75rem;
     margin-right: 0.25rem;
+  }
+}
+
+/* Tighten card padding on true mobile so reflowed cards use full width.
+   Kept viewport-based because .card is an ancestor of the query container
+   and so can't be restyled from inside the @container block. */
+@media (max-width: 480px) {
+  .card:has(.standings-table) {
+    padding: var(--space-xs) 0;
   }
 }
 
@@ -976,3 +988,58 @@ tbody tr:hover {
 /* Standings table conditional colors */
 .num--positive { color: var(--color-win); }
 .num--negative { color: var(--color-loss); }
+
+/* ── Columns view (tiers side-by-side) ── */
+.columns-view {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.columns-view__col {
+  min-width: 0; /* let grid tracks shrink instead of overflowing */
+}
+
+.columns-view__col .section-header {
+  margin-bottom: var(--space-md);
+}
+
+/* Narrow screens can't hold 3 columns — fall back to a single stack */
+@media (max-width: 900px) {
+  .columns-view {
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+  }
+}
+
+/* ── View switch toggle ── */
+.view-switch {
+  display: inline-flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xl);
+}
+
+.view-switch__btn {
+  padding: 0.25rem 0.75rem;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.view-switch__btn:hover {
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text);
+}
+
+.view-switch__btn--active {
+  background: var(--color-accent-bg);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}

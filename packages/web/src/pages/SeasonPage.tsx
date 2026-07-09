@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { getSeasons, getStandings } from '../api/client';
 import type { StandingsResponse, Season } from '../api/client';
 import { StackedView } from '../views/StackedView';
+import { ColumnsView } from '../views/ColumnsView';
 
 export function SeasonPage() {
   const { seasonId } = useParams<{ seasonId: string }>();
@@ -10,6 +11,7 @@ export function SeasonPage() {
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'stacked' | 'columns'>('stacked');
 
   useEffect(() => {
     let cancelled = false;
@@ -91,7 +93,28 @@ export function SeasonPage() {
         </p>
       </header>
 
-      <StackedView data={data} />
+      <div className="view-switch" role="group" aria-label="Layout view">
+        <button
+          type="button"
+          className={`view-switch__btn${viewMode === 'stacked' ? ' view-switch__btn--active' : ''}`}
+          onClick={() => setViewMode('stacked')}
+          aria-pressed={viewMode === 'stacked'}
+        >
+          Stacked
+        </button>
+        <button
+          type="button"
+          className={`view-switch__btn${viewMode === 'columns' ? ' view-switch__btn--active' : ''}`}
+          onClick={() => setViewMode('columns')}
+          aria-pressed={viewMode === 'columns'}
+        >
+          Columns
+        </button>
+      </div>
+
+      {viewMode === 'stacked'
+        ? <StackedView data={data} />
+        : <ColumnsView data={data} />}
     </div>
   );
 }
