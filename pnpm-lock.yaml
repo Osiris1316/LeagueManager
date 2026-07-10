@@ -51,6 +51,9 @@ importers:
 
   packages/web:
     dependencies:
+      '@league-manager/core':
+        specifier: workspace:^
+        version: link:../core
       marked:
         specifier: ^18.0.3
         version: 18.0.3

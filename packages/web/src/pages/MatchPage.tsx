@@ -5,6 +5,7 @@ import type { GameReport } from '../api/client';
 import { useAdmin } from '../context/AdminContext';
 import { CIVS, MAPS } from '../data/aoe4';
 import { RulesModal } from '../components/RulesModal';
+import { CivFlag } from '../components/CivFlag';
 
 interface MatchData {
   match: {
@@ -315,15 +316,11 @@ export function MatchPage() {
 
           return (
             <div key={index} className={`game-card${isDisabledForAdmin ? ' game-card--disabled' : ''}`}>
-              <div className="game-card__header">
-                <span>Game {gameNum}</span>
-                {!isAdmin && existingGame?.map_name && (
-                  <span className="game-card__map">· {existingGame.map_name}</span>
-                )}
-                {!isAdmin && !existingGame?.map_name && (
-                  <span className="game-card__map">· TBD</span>
-                )}
-              </div>
+              {isAdmin && (
+                <div className="game-card__header">
+                  <span>Game {gameNum}</span>
+                </div>
+              )}
 
               {isAdmin ? (
                 <div className="game-edit">
@@ -403,15 +400,17 @@ export function MatchPage() {
                           onClick={e => e.stopPropagation()}>
                           {match.player1_name}
                         </Link>
-                        <span className="game-result__civ">({existingGame?.player1_civ ?? '?'})</span>
+                        <CivFlag civId={existingGame?.player1_civ_id} showName={false} />
                       </span>
-                      <span className="game-result__vs">vs</span>
+
+                      <span className="game-result__map">{existingGame?.map_name ?? '—'}</span>
+
                       <span className={`game-result__player${existingGame!.winner_id === match.player2_id ? ' game-result__player--winner' : ''}`}>
+                        <CivFlag civId={existingGame?.player2_civ_id} showName={false} />
                         <Link to={`/player/${match.player2_id}`} className="game-result__player-link"
                           onClick={e => e.stopPropagation()}>
                           {match.player2_name}
                         </Link>
-                        <span className="game-result__civ">({existingGame?.player2_civ ?? '?'})</span>
                       </span>
                     </>
                   ) : (

@@ -761,9 +761,16 @@ tbody tr:hover {
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: baseline;
+  align-items: center;   /* was: baseline — flags sit better centered */
   gap: 0.375rem;
   font-size: 0.9375rem;
+}
+
+.game-result__map {
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
 }
 
 .game-result__player--right {
@@ -1188,4 +1195,17 @@ tbody tr:hover {
 
 .match-card__row--winner .match-card__cell-score {
   color: var(--color-win);
+}
+
+.civ-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.civ-flag__img {
+  width: auto;          /* was implicitly square via width attr */
+  border-radius: 2px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
