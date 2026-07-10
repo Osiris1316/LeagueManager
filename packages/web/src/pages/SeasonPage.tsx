@@ -11,7 +11,7 @@ export function SeasonPage() {
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'stacked' | 'columns'>('stacked');
+  const [viewMode, setViewMode] = useState<'stacked' | 'columns'>('columns');
 
   useEffect(() => {
     let cancelled = false;
@@ -96,19 +96,19 @@ export function SeasonPage() {
       <div className="view-switch" role="group" aria-label="Layout view">
         <button
           type="button"
-          className={`view-switch__btn${viewMode === 'stacked' ? ' view-switch__btn--active' : ''}`}
-          onClick={() => setViewMode('stacked')}
-          aria-pressed={viewMode === 'stacked'}
-        >
-          Stacked
-        </button>
-        <button
-          type="button"
           className={`view-switch__btn${viewMode === 'columns' ? ' view-switch__btn--active' : ''}`}
           onClick={() => setViewMode('columns')}
           aria-pressed={viewMode === 'columns'}
         >
           Columns
+        </button>
+        <button
+          type="button"
+          className={`view-switch__btn${viewMode === 'stacked' ? ' view-switch__btn--active' : ''}`}
+          onClick={() => setViewMode('stacked')}
+          aria-pressed={viewMode === 'stacked'}
+        >
+          Stacked
         </button>
       </div>
 

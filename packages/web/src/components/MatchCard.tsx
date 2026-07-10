@@ -56,49 +56,51 @@ function SymmetricCard({ match, tierClass }: { match: MatchWithPlayers; tierClas
       ? 'In progress'
       : 'Upcoming';
 
+  const trailing = isComplete
+    ? null
+    : match.status === 'in_progress'
+      ? 'Live'
+      : match.scheduled_at
+        ? formatScheduledTime(match.scheduled_at)
+        : 'Pending';
+
   return (
     <Link
       to={`/match/${match.id}`}
       className={`match-card${tierClass}`}
       aria-label={`${match.player1_name} vs ${match.player2_name}: ${statusLabel}`}
     >
-      <span className="match-card__meta">R{match.round_number}</span>
+        <div className="match-card__grid">
+        <div className={`match-card__row${p1Won ? ' match-card__row--winner' : ''}`}>
+          <PlayerLink
+            to={`/player/${match.player1_id}`}
+            className="match-card__name"
+          >
+            {match.player1_name}
+          </PlayerLink>
+          <span className="match-card__cell-score">
+            {isComplete ? match.player1_score : ''}
+          </span>
+        </div>
 
-      <PlayerLink
-        to={`/player/${match.player1_id}`}
-        className={`match-card__player match-card__player--right${p1Won ? ' match-card__player--winner' : ''}`}
-      >
-        {match.player1_name}
-      </PlayerLink>
-
-      {isComplete ? (
-        <span className="match-card__score">
-          {match.player1_score}
-          <span className="match-card__score-sep">–</span>
-          {match.player2_score}
-        </span>
-      ) : (
-        <span className="match-card__vs">vs</span>
-      )}
-
-      <PlayerLink
-        to={`/player/${match.player2_id}`}
-        className={`match-card__player${p2Won ? ' match-card__player--winner' : ''}`}
-      >
-        {match.player2_name}
-      </PlayerLink>
+        <div className={`match-card__row${p2Won ? ' match-card__row--winner' : ''}`}>
+          <PlayerLink
+            to={`/player/${match.player2_id}`}
+            className="match-card__name"
+          >
+            {match.player2_name}
+          </PlayerLink>
+          <span className="match-card__cell-score">
+            {isComplete ? match.player2_score : ''}
+          </span>
+        </div>
+      </div>
 
       <span className="match-card__trailing">
         {isComplete ? (
           <span className="sr-only">{statusLabel}</span>
         ) : (
-          <span className="badge badge--pending">
-            {match.status === 'in_progress'
-              ? 'Live'
-              : match.scheduled_at
-                ? formatScheduledTime(match.scheduled_at)
-                : 'Pending'}
-          </span>
+          <span className="badge badge--pending">{trailing}</span>
         )}
       </span>
     </Link>

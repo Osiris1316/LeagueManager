@@ -41,32 +41,52 @@ export function ScheduleView({ matches, rounds, seasonStartDate, tierAccent }: S
     .map(Number)
     .sort((a, b) => a - b);
 
-  return (
-    <div role="list" aria-label="Match schedule by round">
-      {roundNumbers.map(rn => {
-        const roundMatches = rounds[String(rn)] ?? [];
-        const dateRange = getRoundDateRange(rn, seasonStartDate);
+  // Split each round's matches into pending vs completed, preserving round order.
+  const pendingByRound: { round: number; matches: MatchWithPlayers[] }[] = [];
+  const completedByRound: { round: number; matches: MatchWithPlayers[] }[] = [];
 
-        return (
-          <div key={rn} role="listitem">
-            <div className="round-header">
-              Round {rn}
-              {dateRange && (
-                <span className="round-header__date">{dateRange}</span>
-              )}
-            </div>
-            <div className="match-list">
-              {roundMatches.map(match => (
-                <MatchCard
-                  key={match.id}
-                  match={match}
-                  tierAccent={tierAccent}
-                />
-              ))}
-            </div>
+  for (const rn of roundNumbers) {
+    const roundMatches = rounds[String(rn)] ?? [];
+    const pending = roundMatches.filter(m => m.status !== 'complete');
+    const completed = roundMatches.filter(m => m.status === 'complete');
+    if (pending.length > 0) pendingByRound.push({ round: rn, matches: pending });
+    if (completed.length > 0) completedByRound.push({ round: rn, matches: completed });
+  }
+
+  function renderRounds(groups: { round: number; matches: MatchWithPlayers[] }[]) {
+    return groups.map(({ round, matches: roundMatches }) => {
+      const dateRange = getRoundDateRange(round, seasonStartDate);
+      return (
+        <div key={round} role="listitem">
+          <div className="round-header">
+            Round {round}
+            {dateRange && <span className="round-header__date">{dateRange}</span>}
           </div>
-        );
-      })}
+          <div className="match-list">
+            {roundMatches.map(match => (
+              <MatchCard key={match.id} match={match} tierAccent={tierAccent} />
+            ))}
+          </div>
+        </div>
+      );
+    });
+  }
+
+  return (
+    <div className="schedule-view" role="list" aria-label="Match schedule by status and round">
+      {pendingByRound.length > 0 && (
+        <div className="schedule-section">
+          <h4 className="schedule-section__label">Upcoming</h4>
+          {renderRounds(pendingByRound)}
+        </div>
+      )}
+
+      {completedByRound.length > 0 && (
+        <div className="schedule-section">
+          <h4 className="schedule-section__label">Completed</h4>
+          {renderRounds(completedByRound)}
+        </div>
+      )}
     </div>
   );
 }

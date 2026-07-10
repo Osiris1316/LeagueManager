@@ -309,7 +309,7 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--border-radius);
@@ -561,6 +561,29 @@ tbody tr:hover {
   color: var(--color-text-tertiary);
   font-size: 0.75rem;
   letter-spacing: 0.02em;
+}
+
+.schedule-section {
+  margin-bottom: var(--space-lg);
+}
+
+.schedule-section:last-child {
+  margin-bottom: 0;
+}
+
+.schedule-section__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-sm);
+}
+
+.schedule-section__label + div .round-header:first-child {
+  margin-top: var(--space-sm);
 }
 
 .round-header:first-child {
@@ -1114,4 +1137,55 @@ tbody tr:hover {
 
 .collapsible__body {
   padding-top: var(--space-md);
+}
+
+/* Schedule is a query container, so its match cards reflow to fit the
+   wrapper's OWN width — narrow column (columns view) or narrow screen.
+   container-type also stops the cards from widening the subgrid track,
+   which is what was dragging the standings out behind the next column. */
+.schedule-view {
+  container: schedule / inline-size;
+}
+
+/* ── Match card: two-row grid (name | score) ── */
+.match-card__grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0 var(--space-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.match-card__row {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: var(--space-sm);
+  line-height: 1.4;
+  padding: 0;
+}
+
+.match-card__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.match-card__cell-score {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  text-align: right;
+  color: var(--color-text-secondary);
+  min-width: 1.5ch;
+}
+
+.match-card__row--winner .match-card__name {
+  font-weight: 600;
+  color: var(--color-win);
+}
+
+.match-card__row--winner .match-card__cell-score {
+  color: var(--color-win);
 }
