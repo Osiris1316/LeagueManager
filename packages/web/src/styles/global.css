@@ -316,7 +316,6 @@ tbody tr:hover {
   transition: background 0.15s ease, border-color 0.15s ease;
   text-decoration: none;
   color: var(--color-text);
-  cursor: pointer;
 }
 
 .match-card:hover {
@@ -355,7 +354,8 @@ tbody tr:hover {
 }
 
 .match-card__player-link:hover {
-  color: var(--color-accent);
+  color: inherit;               /* keep winner-green / normal color */
+  text-decoration: underline;   /* the hover affordance you wanted */
 }
 
 /* Score block (mono font) */

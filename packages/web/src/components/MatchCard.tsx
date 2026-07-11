@@ -33,7 +33,6 @@ function PlayerLink({ to, children, className }: {
 }
 
 export function MatchCard({ match, perspectivePlayerId, tierAccent }: MatchCardProps) {
-  const isComplete = match.status === 'complete';
   const tierClass = tierAccent ? ` match-card--tier-${tierAccent}` : '';
 
   // Perspective mode: showing from one player's point of view
@@ -65,31 +64,25 @@ function SymmetricCard({ match, tierClass }: { match: MatchWithPlayers; tierClas
         : 'Pending';
 
   return (
-    <Link
-      to={`/match/${match.id}`}
-      className={`match-card${tierClass}`}
-      aria-label={`${match.player1_name} vs ${match.player2_name}: ${statusLabel}`}
-    >
-        <div className="match-card__grid">
+    <div className={`match-card${tierClass}`}>
+      <div className="match-card__grid">
         <div className={`match-card__row${p1Won ? ' match-card__row--winner' : ''}`}>
-          <PlayerLink
-            to={`/player/${match.player1_id}`}
-            className="match-card__name"
-          >
-            {match.player1_name}
-          </PlayerLink>
+          <span className="match-card__name">
+            <Link to={`/player/${match.player1_id}`} className="match-card__player-link">
+              {match.player1_name}
+            </Link>
+          </span>
           <span className="match-card__cell-score">
             {isComplete ? match.player1_score : ''}
           </span>
         </div>
 
         <div className={`match-card__row${p2Won ? ' match-card__row--winner' : ''}`}>
-          <PlayerLink
-            to={`/player/${match.player2_id}`}
-            className="match-card__name"
-          >
-            {match.player2_name}
-          </PlayerLink>
+          <span className="match-card__name">
+            <Link to={`/player/${match.player2_id}`} className="match-card__player-link">
+              {match.player2_name}
+            </Link>
+          </span>
           <span className="match-card__cell-score">
             {isComplete ? match.player2_score : ''}
           </span>
@@ -102,8 +95,23 @@ function SymmetricCard({ match, tierClass }: { match: MatchWithPlayers; tierClas
         ) : (
           <span className="badge badge--pending">{trailing}</span>
         )}
+        <Link
+          to={`/match/${match.id}`}
+          className="match-card__info"
+          aria-label={`View match: ${match.player1_name} vs ${match.player2_name}`}
+        >
+          <svg
+            viewBox="0 0 24 24" width="18" height="18"
+            fill="none" stroke="currentColor" strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+        </Link>
       </span>
-    </Link>
+    </div>
   );
 }
 
