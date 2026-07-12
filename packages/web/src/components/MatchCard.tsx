@@ -3,7 +3,6 @@ import type { MatchWithPlayers } from '../api/client';
 
 interface MatchCardProps {
   match: MatchWithPlayers;
-  perspectivePlayerId?: number;
   tierAccent?: 's' | 'a' | 'b';
 }
 
@@ -16,31 +15,8 @@ function formatScheduledTime(isoString: string): string {
   return `${month}/${day} ${hours}:${minutes}`;
 }
 
-function PlayerLink({ to, children, className }: {
-  to: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <Link
-      to={to}
-      className="match-card__player-link"
-      onClick={e => e.stopPropagation()}
-    >
-      <span className={className}>{children}</span>
-    </Link>
-  );
-}
-
-export function MatchCard({ match, perspectivePlayerId, tierAccent }: MatchCardProps) {
+export function MatchCard({ match, tierAccent }: MatchCardProps) {
   const tierClass = tierAccent ? ` match-card--tier-${tierAccent}` : '';
-
-  // Perspective mode: showing from one player's point of view
-  if (perspectivePlayerId != null) {
-    return <PerspectiveCard match={match} playerId={perspectivePlayerId} tierClass={tierClass} />;
-  }
-
-  // Symmetric mode: neutral view of both players
   return <SymmetricCard match={match} tierClass={tierClass} />;
 }
 
@@ -104,61 +80,5 @@ function SymmetricCard({ match, tierClass }: { match: MatchWithPlayers; tierClas
         </svg>
       </Link>
     </div>
-  );
-}
-
-function PerspectiveCard({ match, playerId, tierClass }: {
-  match: MatchWithPlayers;
-  playerId: number;
-  tierClass: string;
-}) {
-  const isP1 = match.player1_id === playerId;
-  const opponentName = isP1 ? match.player2_name : match.player1_name;
-  const opponentId = isP1 ? match.player2_id : match.player1_id;
-  const playerScore = isP1 ? match.player1_score : match.player2_score;
-  const opponentScore = isP1 ? match.player2_score : match.player1_score;
-  const won = match.winner_id === playerId;
-  const isComplete = match.status === 'complete';
-
-  const statusLabel = isComplete
-    ? `${won ? 'Won' : 'Lost'} ${playerScore}–${opponentScore} vs ${opponentName}`
-    : `Upcoming vs ${opponentName}`;
-
-  return (
-    <Link
-      to={`/match/${match.id}`}
-      className={`match-card${tierClass}`}
-      aria-label={statusLabel}
-    >
-      <span className="match-card__meta">R{match.round_number}</span>
-
-      <span className="match-card__vs">vs</span>
-
-      <PlayerLink
-        to={`/player/${opponentId}`}
-        className="match-card__player"
-      >
-        {opponentName}
-      </PlayerLink>
-
-      <span className="match-card__trailing">
-        {isComplete ? (
-          <>
-            <span className={`match-card__score ${won ? 'match-card__score--win' : 'match-card__score--loss'}`}>
-              {playerScore}
-              <span className="match-card__score-sep">–</span>
-              {opponentScore}
-            </span>
-            <span className={`badge ${won ? 'badge--win' : 'badge--loss'}`}>
-              {won ? 'W' : 'L'}
-            </span>
-          </>
-        ) : (
-          <span className="badge badge--pending">
-            {match.scheduled_at ? formatScheduledTime(match.scheduled_at) : 'Pending'}
-          </span>
-        )}
-      </span>
-    </Link>
   );
 }

@@ -87,7 +87,6 @@ export function PlayerPage() {
               <MatchCard
                 key={match.id}
                 match={match}
-                perspectivePlayerId={player.id}
                 tierAccent={tierId as 's' | 'a' | 'b'}
               />
             ))}
