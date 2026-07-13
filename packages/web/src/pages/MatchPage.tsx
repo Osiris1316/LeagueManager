@@ -230,25 +230,27 @@ export function MatchPage() {
       </nav>
 
       <header style={{ marginBottom: 'var(--space-lg)' }}>
-        <h1 className="match-header__title">
-          <Link to={`/player/${match.player1_id}`} className="game-result__player-link">
+        <div className="match-scoreline">
+          <Link to={`/player/${match.player1_id}`}
+            className={`match-scoreline__name match-scoreline__name--left${isComplete && match.winner_name === match.player1_name ? ' match-scoreline__name--winner' : ''}`}>
             {match.player1_name}
           </Link>
-          <span className="match-header__vs">vs</span>
-          <Link to={`/player/${match.player2_id}`} className="game-result__player-link">
+          <span className="match-scoreline__score">
+            <span className={isComplete && match.winner_name === match.player1_name ? 'match-scoreline__num--winner' : ''}>
+              {match.player1_score}
+            </span>
+            <span className="match-scoreline__dash">–</span>
+            <span className={isComplete && match.winner_name === match.player2_name ? 'match-scoreline__num--winner' : ''}>
+              {match.player2_score}
+            </span>
+          </span>
+          <Link to={`/player/${match.player2_id}`}
+            className={`match-scoreline__name match-scoreline__name--right${isComplete && match.winner_name === match.player2_name ? ' match-scoreline__name--winner' : ''}`}>
             {match.player2_name}
           </Link>
-        </h1>
+        </div>
         <p className="match-header__meta">
           {match.tier_name} · Round {match.round_number} · Bo{match.best_of}
-          {isComplete && match.winner_name && (
-            <span className="match-header__result">
-              {' · '}{match.winner_name} wins{' '}
-              {match.winner_name === match.player1_name
-                ? `${match.player1_score}–${match.player2_score}`
-                : `${match.player2_score}–${match.player1_score}`}
-            </span>
-          )}
         </p>
         {(match as any).scheduled_at && !isAdmin && (
           <p className="match-header__meta">
@@ -281,23 +283,25 @@ export function MatchPage() {
         )}
       </header>
 
-      <div className="match-links">
-        <button onClick={() => setShowRules(true)} className="match-links__btn">
-          Rules
-        </button>
-        {data.presets
-          .filter((p) => p.preset_url)
-          .sort((a, b) => {
-            const order: Record<string, number> = { map: 0, civ_main: 1, civ_game: 2 };
-            return (order[a.draft_type] ?? 9) - (order[b.draft_type] ?? 9);
-          })
-          .map((preset) => (
-            <a key={preset.draft_type} href={preset.preset_url!}
-              target="_blank" rel="noopener noreferrer" className="match-links__btn">
-              {preset.label ?? preset.draft_type}
-            </a>
-          ))}
-      </div>
+      {!isComplete && (
+        <div className="match-links">
+          <button onClick={() => setShowRules(true)} className="match-links__btn">
+            Rules
+          </button>
+          {data.presets
+            .filter((p) => p.preset_url)
+            .sort((a, b) => {
+              const order: Record<string, number> = { map: 0, civ_main: 1, civ_game: 2 };
+              return (order[a.draft_type] ?? 9) - (order[b.draft_type] ?? 9);
+            })
+            .map((preset) => (
+              <a key={preset.draft_type} href={preset.preset_url!}
+                target="_blank" rel="noopener noreferrer" className="match-links__btn">
+                {preset.label ?? preset.draft_type}
+              </a>
+            ))}
+        </div>
+      )}
 
       {submitResult && (
         <div role="status" className="banner banner--success">{submitResult}</div>
@@ -395,22 +399,18 @@ export function MatchPage() {
                 <div className="game-result">
                   {hasResult ? (
                     <>
-                      <span className={`game-result__player game-result__player--right${existingGame!.winner_id === match.player1_id ? ' game-result__player--winner' : ''}`}>
-                        <Link to={`/player/${match.player1_id}`} className="game-result__player-link"
-                          onClick={e => e.stopPropagation()}>
-                          {match.player1_name}
-                        </Link>
+                      <span className={`badge ${existingGame!.winner_id === match.player1_id ? 'badge--win' : 'badge--loss'}`}>
+                        {existingGame!.winner_id === match.player1_id ? 'W' : 'L'}
+                      </span>
+                      <span className="game-result__civ-cell game-result__civ-cell--left">
                         <CivFlag civId={existingGame?.player1_civ_id} showName={false} />
                       </span>
-
                       <span className="game-result__map">{existingGame?.map_name ?? '—'}</span>
-
-                      <span className={`game-result__player${existingGame!.winner_id === match.player2_id ? ' game-result__player--winner' : ''}`}>
+                      <span className="game-result__civ-cell game-result__civ-cell--right">
                         <CivFlag civId={existingGame?.player2_civ_id} showName={false} />
-                        <Link to={`/player/${match.player2_id}`} className="game-result__player-link"
-                          onClick={e => e.stopPropagation()}>
-                          {match.player2_name}
-                        </Link>
+                      </span>
+                      <span className={`badge ${existingGame!.winner_id === match.player2_id ? 'badge--win' : 'badge--loss'}`}>
+                        {existingGame!.winner_id === match.player2_id ? 'W' : 'L'}
                       </span>
                     </>
                   ) : (

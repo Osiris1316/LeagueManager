@@ -767,12 +767,60 @@ tbody tr:hover {
   letter-spacing: normal;
 }
 
-/* Read-only game result (non-admin) */
+/* ── Match page: two-row score header ── */
+.match-scoreline {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xs);
+}
+
+.match-scoreline__name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.match-scoreline__name:hover { color: var(--color-accent); }
+.match-scoreline__name--left { text-align: right; }
+.match-scoreline__name--right { text-align: left; }
+.match-scoreline__name--winner { color: var(--color-win); }
+
+.match-scoreline__score {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.match-scoreline__dash { color: var(--color-text-tertiary); }
+.match-scoreline__num--winner { color: var(--color-win); }
+
+/* Read-only game result (non-admin): W/L · civ · map · civ · W/L */
 .game-result {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto;
   align-items: center;
   gap: var(--space-md);
 }
+
+.game-result__civ-cell {
+  display: inline-flex;
+  align-items: center;
+}
+
+.game-result__civ-cell--left { justify-content: flex-end; }
+.game-result__civ-cell--right { justify-content: flex-start; }
 
 .game-result__player {
   flex: 1;
