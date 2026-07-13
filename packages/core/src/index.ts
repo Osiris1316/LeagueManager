@@ -6,3 +6,5 @@ export type { MatchOutcomeInput, MatchOutcome } from './league/match-outcome.js'
 
 export { CIVS, civById } from './aoe4/civs.js';
 export type { Civ } from './aoe4/civs.js';
+
+export * from './stats/slots';
