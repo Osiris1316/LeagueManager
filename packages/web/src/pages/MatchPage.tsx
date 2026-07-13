@@ -312,8 +312,15 @@ export function MatchPage() {
       )}
 
       <div className="game-list">
-        {games.map((game, index) => {
-          const gameNum = index + 1;
+        {games
+          .map((game, index) => ({ game, index, gameNum: index + 1 }))
+          .filter(({ gameNum }) => {
+            // On a completed match, hide never-played slots (2–0 Bo3 → no game 3).
+            if (!isComplete) return true;
+            const eg = data.games.find(g => g.game_number === gameNum);
+            return !!eg?.winner_id;
+          })
+          .map(({ game, index, gameNum }) => {
           const existingGame = data.games.find(g => g.game_number === gameNum);
           const hasResult = !!existingGame?.winner_id;
           const isDisabledForAdmin = isAdmin && gameNum > clinchAfter;

@@ -33,9 +33,19 @@
   /* Focus ring (high contrast for accessibility) */
   --color-focus: #6ea8fe;
 
-  /* Typography */
+  /* ══════════════════════════════════════════════════════════════
+     TYPOGRAPHY CONTROL PANEL — edit these to restyle match UI
+     Loaded families (see index.html): DM Sans, Inter.
+     To use another, add it in index.html first.
+     ══════════════════════════════════════════════════════════════ */
   --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'DM Mono', ui-monospace, monospace;
+  --font-mono: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Crisp faces for match card + match-page scoreline.
+     Swap the first name in each to audition:
+       names  → 'Inter' | 'DM Sans'
+       scores → 'Inter' (tabular figures)                        */
+  --font-crisp: 'Inter', system-ui, -apple-system, sans-serif;
 
   /* Spacing scale */
   --space-xs: 0.25rem;
@@ -62,8 +72,6 @@
 
 html {
   font-size: 16px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -72,6 +80,12 @@ body {
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
+}
+
+/* All numeric UI uses equal-width (tabular) figures so digits and zeros
+   line up across every surface — scores, timestamps, counts, tables. */
+body {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Focus styles (accessibility) ── */
@@ -685,6 +699,17 @@ tbody tr:hover {
   color: var(--color-win);
 }
 
+/* Cap match content width on wide desktops; center it. */
+.match-scoreline,
+.match-links,
+.game-list,
+.match-header__meta,
+.match-actions {
+  max-width: 44rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ── Match action links (rules, drafts) ── */
 .match-links {
   display: flex;
@@ -767,24 +792,44 @@ tbody tr:hover {
   letter-spacing: normal;
 }
 
-/* ── Match page: two-row score header ── */
+/* ── Match page: two-row score header ──
+   minmax(0,…) on the side columns lets them resolve to whole pixels,
+   which stops the sub-pixel blur on centered text.                  */
 .match-scoreline {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: var(--space-md);
   margin-bottom: var(--space-xs);
+  container-type: inline-size;
+  transform: translateZ(0);
 }
 
 .match-scoreline__name {
-  font-size: 1.25rem;
+  font-family: var(--font-crisp);
+  font-size: 1.05rem;                 /* was 1.25 — smaller, less chunky */
   font-weight: 600;
   color: var(--color-text);
   text-decoration: none;
   min-width: 0;
+  white-space: nowrap;
+}
+
+/* ── Long-name behavior: CLIP (default) ──
+   To switch to SHRINK, comment out these two lines; the @container
+   rule below then scales the font down instead of clipping.        */
+.match-scoreline__name {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+/* ── Long-name behavior: SHRINK ──
+   Active at narrow widths. In CLIP mode the ellipsis wins first;
+   comment out the two lines above to make this the visible behavior. */
+@container (max-width: 22rem) {
+  .match-scoreline__name {
+    font-size: clamp(0.8rem, 4.5cqi, 1.05rem);
+  }
 }
 
 .match-scoreline__name:hover { color: var(--color-accent); }
@@ -793,9 +838,10 @@ tbody tr:hover {
 .match-scoreline__name--winner { color: var(--color-win); }
 
 .match-scoreline__score {
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-family: var(--font-crisp);
+  font-size: 1.25rem;                 /* was 1.5 — smaller */
   font-weight: 600;
+  font-feature-settings: "tnum" 1, "zero" 0;
   color: var(--color-text-secondary);
   white-space: nowrap;
   display: inline-flex;
@@ -809,7 +855,7 @@ tbody tr:hover {
 /* Read-only game result (non-admin): W/L · civ · map · civ · W/L */
 .game-result {
   display: grid;
-  grid-template-columns: auto 1fr auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto auto;
   align-items: center;
   gap: var(--space-md);
 }
@@ -821,6 +867,16 @@ tbody tr:hover {
 
 .game-result__civ-cell--left { justify-content: flex-end; }
 .game-result__civ-cell--right { justify-content: flex-start; }
+
+/* W/L pills in the game row: square-ish corners (match the cards),
+   fixed width so W and L are identical regardless of letter width. */
+.game-result .badge {
+  border-radius: var(--border-radius-sm);  /* was 999px pill → matches cards */
+  width: 1.75rem;                           /* fixed → W and L same width */
+  padding-left: 0;
+  padding-right: 0;
+  justify-content: center;
+}
 
 .game-result__player {
   flex: 1;
