@@ -8,3 +8,5 @@ export { CIVS, civById } from './aoe4/civs.js';
 export type { Civ } from './aoe4/civs.js';
 
 export * from './stats/slots';
+
+export * from './stats/h2h';
