@@ -23,10 +23,10 @@ function formatRecord(row: KeyedRecord) {
   return `${row.won} – ${row.played - row.won}`;
 }
 
-function sortRowsByWinRate(rows: KeyedRecord[]) {
+function sortRowsByPlayed(rows: KeyedRecord[]) {
   return [...rows].sort((a, b) => {
-    if (b.winRate !== a.winRate) return b.winRate - a.winRate;
     if (b.played !== a.played) return b.played - a.played;
+    if (b.winRate !== a.winRate) return b.winRate - a.winRate;
     return a.key.localeCompare(b.key);
   });
 }
@@ -46,7 +46,7 @@ function formatMapName(key: string) {
 }
 
 function StatsTable({ title, rows, emptyText, renderLabel }: StatsTableProps) {
-  const sortedRows = sortRowsByWinRate(rows);
+  const sortedRows = sortRowsByPlayed(rows);
 
   return (
     <article className="card player-stats-card">

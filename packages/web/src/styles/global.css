@@ -666,7 +666,7 @@ tbody tr:hover {
 
   .player-stats-table .num::before {
     content: attr(data-label) ":";
-    color: var(--color-text-muted);
+    color: var(--color-text-tertiary);
     font-weight: 500;
   }
 }
