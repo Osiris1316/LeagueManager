@@ -97,6 +97,49 @@ export interface PlayerDetailResponse {
   matches: (MatchWithPlayers & { season_number: number })[];
 }
 
+export interface KeyedRecord {
+  key: string;
+  played: number;
+  won: number;
+  winRate: number;
+}
+
+export interface PlayerStatsResponse {
+  playerId: number;
+  civs: KeyedRecord[];
+  maps: KeyedRecord[];
+}
+
+export interface H2HRecord {
+  perspectivePlayerId: number;
+  opponentPlayerId: number;
+  matchesPlayed: number;
+  wins: number;
+  losses: number;
+  gamesWon: number;
+  gamesLost: number;
+  lastMeeting: {
+    matchId: number;
+    won: boolean;
+    score: [number, number];
+  } | null;
+}
+
+export interface CivMatchupRecord {
+  civId: string;
+  oppCivId: string;
+  played: number;
+  won: number;
+  winRate: number;
+}
+
+export interface H2HResponse {
+  perspectivePlayerId: number;
+  opponentPlayerId: number;
+  series: H2HRecord;
+  civMatchups: CivMatchupRecord[];
+}
+
 // ── Public API functions ──
 
 export function getSeasons(): Promise<Season[]> {
@@ -109,6 +152,14 @@ export function getStandings(seasonId: number): Promise<StandingsResponse> {
 
 export function getPlayer(playerId: number): Promise<PlayerDetailResponse> {
   return fetchJson(`/api/players/${playerId}`);
+}
+
+export function getPlayerStats(playerId: number): Promise<PlayerStatsResponse> {
+  return fetchJson(`/api/players/${playerId}/stats`);
+}
+
+export function getH2H(p1: number, p2: number): Promise<H2HResponse> {
+  return fetchJson(`/api/h2h?p1=${p1}&p2=${p2}`);
 }
 
 export function getPlayers(): Promise<Player[]> {

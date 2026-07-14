@@ -562,6 +562,115 @@ tbody tr:hover {
   -webkit-overflow-scrolling: touch;
 }
 
+/* ── Player stats ── */
+.player-stats-grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+  .player-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.player-stats-card {
+  container-type: inline-size;
+  padding: 0;
+  overflow: hidden;
+}
+
+.player-stats-card .table-wrap {
+  overflow-x: visible;
+}
+
+.player-stats-card__header {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.player-stats-card__header h3 {
+  font-size: 1rem;
+}
+
+.player-stats-card__empty {
+  padding: var(--space-lg);
+  color: var(--color-text-secondary);
+}
+
+.player-stats-table {
+  width: 100%;
+}
+
+.player-stats-table th,
+.player-stats-table td {
+  white-space: nowrap;
+}
+
+.player-stats-table__label {
+  min-width: 12rem;
+}
+
+.player-stats-table .civ-flag {
+  max-width: 100%;
+  gap: var(--space-sm);
+}
+
+.player-stats-table .civ-flag__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container (max-width: 520px) {
+  .player-stats-table thead {
+    display: none;
+  }
+
+  .player-stats-table,
+  .player-stats-table tbody,
+  .player-stats-table tr,
+  .player-stats-table td {
+    display: block;
+  }
+
+  .player-stats-table tr {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .player-stats-table tr:last-child {
+    border-bottom: 0;
+  }
+
+  .player-stats-table td {
+    padding: 0;
+    border-bottom: 0;
+    white-space: normal;
+  }
+
+  .player-stats-table__label {
+    min-width: 0;
+    margin-bottom: var(--space-xs);
+  }
+
+  .player-stats-table .num {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-right: var(--space-md);
+    color: var(--color-text-secondary);
+    font-size: 0.8125rem;
+    text-align: left;
+  }
+
+  .player-stats-table .num::before {
+    content: attr(data-label) ":";
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+}
+
 /* ── Visually hidden (accessible labels) ── */
 .sr-only {
   position: absolute;
