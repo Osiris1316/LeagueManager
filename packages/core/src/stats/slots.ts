@@ -136,3 +136,33 @@ export function computeMapStats(slots: SlotView[], playerId: number): KeyedRecor
 export function computeCivPopularity(slots: SlotView[]): KeyedRecord[] {
   return tally(slots, (s) => s.civId);
 }
+
+export type StatsScope = 'all' | 'during' | 'since';
+
+export interface ScopeSelection {
+  scope: StatsScope;
+  seasonId: number | null; // null only when scope === 'all'
+}
+
+/**
+ * Pre-filter slot views by a season scope. `orderedSeasonIds` must be in
+ * chronological order (oldest → newest); "since" is resolved by position in
+ * that list, not by raw id value, so it stays correct even if season ids
+ * aren't monotonic with time. Unknown/empty selections never over-filter.
+ */
+export function filterSlotsByScope(
+  slots: SlotView[],
+  selection: ScopeSelection,
+  orderedSeasonIds: number[],
+): SlotView[] {
+  if (selection.scope === 'all' || selection.seasonId == null) return slots;
+
+  if (selection.scope === 'during') {
+    return slots.filter((s) => s.seasonId === selection.seasonId);
+  }
+
+  const startIndex = orderedSeasonIds.indexOf(selection.seasonId);
+  if (startIndex === -1) return slots;
+  const allowed = new Set(orderedSeasonIds.slice(startIndex));
+  return slots.filter((s) => allowed.has(s.seasonId));
+}
