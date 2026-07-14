@@ -6,6 +6,8 @@ import { matchesRoutes } from './routes/matches.js';
 import { mapsRoutes } from './routes/maps.js';
 import { standingsRoutes } from './routes/standings.js';
 import { adminRoutes } from './routes/admin.js';
+import { playerStatsRoutes } from './routes/player-stats.js';
+import { h2hRoutes } from './routes/h2h.js';
 
 export type Bindings = {
   DB: D1Database;
@@ -37,6 +39,8 @@ export function createApp() {
   app.route('/api', mapsRoutes<AppEnv>());
   app.route('/api', standingsRoutes<AppEnv>());
   app.route('/api/admin', adminRoutes());
+  app.route('/api', playerStatsRoutes<AppEnv>());
+  app.route('/api', h2hRoutes<AppEnv>());
 
   return app;
 }
