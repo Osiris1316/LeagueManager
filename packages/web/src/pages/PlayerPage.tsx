@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getPlayer, getPlayerStats } from '../api/client';
-import type { PlayerDetailResponse, PlayerStatsResponse } from '../api/client';
+import { getPlayer } from '../api/client';
+import type { PlayerDetailResponse } from '../api/client';
 import { MatchCard } from '../components/MatchCard';
-import { PlayerStatsTables } from '../components/PlayerStatsTables';
+import { PlayerStatsSection } from '../components/PlayerStatsSection';
 
 export function PlayerPage() {
   const { playerId } = useParams<{ playerId: string }>();
   const [data, setData] = useState<PlayerDetailResponse | null>(null);
-  const [stats, setStats] = useState<PlayerStatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,19 +17,14 @@ export function PlayerPage() {
     async function load() {
       setLoading(true);
       setError(null);
-      setStats(null);
 
       try {
         const id = parseInt(playerId ?? '', 10);
         if (isNaN(id)) throw new Error('Invalid player ID');
-        const [playerResult, statsResult] = await Promise.all([
-          getPlayer(id),
-          getPlayerStats(id),
-        ]);
+        const playerResult = await getPlayer(id);
 
         if (!cancelled) {
           setData(playerResult);
-          setStats(statsResult);
         }
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load player');
@@ -47,7 +41,7 @@ export function PlayerPage() {
     return <div className="loading" role="status" aria-live="polite">Loading player…</div>;
   }
 
-    if (error || !data || !stats) {
+    if (error || !data) {
       return <div role="alert"><p>{error ?? 'Player not found'}</p></div>;
     }
 
@@ -89,7 +83,7 @@ export function PlayerPage() {
           Player Stats
         </h2>
 
-        <PlayerStatsTables stats={stats} />
+        <PlayerStatsSection playerId={player.id} />
       </section>
 
       <section aria-labelledby="match-history-heading">

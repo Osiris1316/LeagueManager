@@ -671,6 +671,47 @@ tbody tr:hover {
   }
 }
 
+/* ── Player stats scope picker ── */
+.player-stats-section__note {
+  color: var(--color-text-tertiary);
+  font-size: 0.875rem;
+  padding: var(--space-md) 0;
+}
+
+.stats-scope-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.stats-scope-picker__select {
+  appearance: none;
+  background: var(--color-bg-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-xs) var(--space-md);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.stats-scope-picker__select:hover {
+  border-color: var(--color-text-tertiary);
+  background: var(--color-bg-hover);
+}
+
+.stats-scope-picker__select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.stats-scope-picker__select:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* ── Visually hidden (accessible labels) ── */
 .sr-only {
   position: absolute;

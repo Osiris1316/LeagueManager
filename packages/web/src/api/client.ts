@@ -1,3 +1,5 @@
+import type { SlotView } from '@league-manager/core';
+
 const BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 async function fetchJson<T>(path: string): Promise<T> {
@@ -160,6 +162,24 @@ export function getPlayerStats(playerId: number): Promise<PlayerStatsResponse> {
 
 export function getH2H(p1: number, p2: number): Promise<H2HResponse> {
   return fetchJson(`/api/h2h?p1=${p1}&p2=${p2}`);
+}
+
+export interface SeasonMeta {
+  id: number;
+  seasonNumber: number;
+  startedAt: string | null;
+  completedAt: string | null;
+  status: 'pending' | 'active' | 'complete';
+}
+
+export interface PlayerSlotsResponse {
+  playerId: number;
+  slots: SlotView[];
+  seasons: SeasonMeta[];
+}
+
+export function getPlayerSlots(playerId: number): Promise<PlayerSlotsResponse> {
+  return fetchJson(`/api/players/${playerId}/slots`);
 }
 
 export function getPlayers(): Promise<Player[]> {
