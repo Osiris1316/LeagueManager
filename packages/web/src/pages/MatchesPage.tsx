@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getSeasons, getSeasonMatches } from '../api/client';
 import type { Season, MatchWithPlayers } from '../api/client';
 import { MatchCard } from '../components/MatchCard';
+import { seasonLabelShort } from '@league-manager/core';
 
 const TIER_OPTIONS = [
   { value: 'all', label: 'All Tiers' },
@@ -81,7 +82,7 @@ export function MatchesPage() {
       <header className="matches-page__header">
         <h1>Matches</h1>
         {season && (
-          <span className="matches-page__season">Season {season.season_number}</span>
+          <span className="matches-page__season">{seasonLabelShort(season.title_id, season.season_index)}</span>
         )}
       </header>
 

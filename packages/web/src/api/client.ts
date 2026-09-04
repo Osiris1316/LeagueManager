@@ -9,10 +9,13 @@ async function fetchJson<T>(path: string): Promise<T> {
 }
 
 // ── Types ──
-
 export interface Season {
   id: number;
   season_number: number;
+  title_id: string;
+  season_index: number;
+  format: string;
+  name: string | null;
   status: string;
   best_of: number;
   started_at: string | null;

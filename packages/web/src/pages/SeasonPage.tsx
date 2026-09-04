@@ -4,6 +4,7 @@ import { getSeasons, getStandings } from '../api/client';
 import type { StandingsResponse, Season } from '../api/client';
 import { StackedView } from '../views/StackedView';
 import { ColumnsView } from '../views/ColumnsView';
+import { seasonLabel } from '@league-manager/core';
 
 export function SeasonPage() {
   const { seasonId } = useParams<{ seasonId: string }>();
@@ -85,7 +86,7 @@ export function SeasonPage() {
   return (
     <div>
       <header style={{ marginBottom: 'var(--space-xl)' }}>
-        <h1>Season {season.season_number}</h1>
+        <h1>{seasonLabel(season.title_id, season.season_index)}</h1>
         <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-xs)' }}>
           Best of {season.best_of}
           {season.status === 'active' && ' · In Progress'}

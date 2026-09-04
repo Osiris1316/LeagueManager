@@ -10,3 +10,6 @@ export type { Civ } from './aoe4/civs.js';
 export * from './stats/slots.js';
 export * from './stats/h2h.js';
 export * from './stats/rows.js';
+
+export { TITLES, titleById, type Title } from './titles/catalog.js';
+export { seasonLabel, seasonLabelShort } from './titles/labels.js';
