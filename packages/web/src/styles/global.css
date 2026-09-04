@@ -1293,7 +1293,7 @@ tbody tr:hover {
 /* ── Columns view (tiers side-by-side, row-aligned via subgrid) ── */
 .columns-view {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--col-count, 3), 1fr);
   grid-template-rows: auto auto auto auto; /* bar · header · standings · schedule */
   gap: var(--space-lg);
   align-items: start;

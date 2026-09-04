@@ -38,3 +38,7 @@ Thumbs.db
 .vscode/
 .idea/
 package-lock.json
+
+# Data Backups
+backup-*.sql
+*-backup.sql

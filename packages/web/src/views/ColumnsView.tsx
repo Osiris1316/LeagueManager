@@ -7,7 +7,10 @@ export function ColumnsView({ data }: { data: StandingsResponse }) {
   const { season, tiers } = data;
 
   return (
-    <div className="columns-view">
+    <div
+      className="columns-view"
+      style={{ '--col-count': tiers.length } as React.CSSProperties}
+    >
       {tiers.map(tierData => {
         const tierId = tierData.tier.id.replace('code_', '');
         return (
