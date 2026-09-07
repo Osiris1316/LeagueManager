@@ -16,7 +16,8 @@ export function App() {
       <div className="page-container">
         <nav className="nav" aria-label="Main navigation">
           <Link to="/" className="nav__brand">
-            AoE4 League
+            <span className="nav__brand-full">Atlantic Canadian RTS Society</span>
+            <span className="nav__brand-short">ACRS</span>
           </Link>
           <ul className="nav__links" role="list">
             <li>

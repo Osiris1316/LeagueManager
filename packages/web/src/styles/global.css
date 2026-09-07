@@ -526,6 +526,19 @@ tbody tr:hover {
   color: var(--color-accent);
 }
 
+.nav__brand-short {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .nav__brand-full {
+    display: none;
+  }
+  .nav__brand-short {
+    display: inline;
+  }
+}
+
 .nav__links {
   display: flex;
   gap: var(--space-md);
