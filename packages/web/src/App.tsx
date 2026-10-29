@@ -3,6 +3,7 @@ import { SeasonPage } from './pages/SeasonPage';
 import { PlayerPage } from './pages/PlayerPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { MatchPage } from './pages/MatchPage';
+import { AdminPage } from './pages/AdminPage';
 import { MenuPanel } from './components/MenuPanel';
 import { SeasonPicker } from './components/SeasonPicker';
 
@@ -50,6 +51,8 @@ export function App() {
             <Route path="/players" element={<PlayersPage />} />
             <Route path="/player/:playerId" element={<PlayerPage />} />
             <Route path="/match/:matchId" element={<MatchPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/:seasonId" element={<AdminPage />} />
           </Routes>
         </main>
       </div>

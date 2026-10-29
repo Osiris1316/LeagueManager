@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
 
 export function MenuPanel() {
@@ -114,9 +115,20 @@ export function MenuPanel() {
             }}
           >
             {isAdmin ? (
-              <button role="menuitem" onClick={handleLogout} style={menuItemStyle}>
-                Log out
-              </button>
+              <>
+                <Link
+                  role="menuitem"
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  style={menuItemStyle}
+                >
+                  Admin panel
+                </Link>
+                <div style={dividerStyle} role="separator" />
+                <button role="menuitem" onClick={handleLogout} style={menuItemStyle}>
+                  Log out
+                </button>
+              </>
             ) : showTokenInput ? (
               <div style={{ padding: 'var(--space-sm)' }}>
                 <label htmlFor="menu-token" style={{
@@ -175,4 +187,9 @@ const menuItemStyle: React.CSSProperties = {
   background: 'none', border: 'none', borderRadius: 'var(--border-radius-sm)',
   color: 'var(--color-text)', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
   textAlign: 'left', cursor: 'pointer',
+};
+
+const dividerStyle: React.CSSProperties = {
+  height: '1px', margin: 'var(--space-xs) 0',
+  background: 'var(--color-border-subtle)', border: 'none',
 };

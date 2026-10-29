@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getSeasons } from '../api/client';
 import type { Season } from '../api/client';
 
@@ -57,4 +58,29 @@ export function SeasonsProvider({ children }: { children: ReactNode }) {
 
 export function useSeasons() {
   return useContext(SeasonsContext);
+}
+
+/**
+ * Reads a season id out of a pathname like `/season/3` or `/admin/3`.
+ * The nav sits outside <Routes>, so useParams() is not available there —
+ * the path is the source of truth instead.
+ */
+export function seasonIdFromPath(pathname: string): number | null {
+  const match = pathname.match(/^\/(?:season|admin)\/(\d+)/);
+  return match ? Number.parseInt(match[1]!, 10) : null;
+}
+
+/**
+ * The season currently being viewed: the one named in the URL, otherwise the
+ * default (active season, falling back to the most recent).
+ */
+export function useCurrentSeasonId(): number | null {
+  const { seasons, defaultSeasonId } = useSeasons();
+  const location = useLocation();
+
+  const routeSeasonId = seasonIdFromPath(location.pathname);
+  if (routeSeasonId !== null && seasons.some(s => s.id === routeSeasonId)) {
+    return routeSeasonId;
+  }
+  return defaultSeasonId;
 }

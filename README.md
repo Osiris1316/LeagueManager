@@ -199,6 +199,18 @@ The old season stays fully intact — its standings, results, and schedule remai
 
 ---
 
+## Admin Panel
+
+Once an admin logs in (☰ menu → Log in), the menu gains an **Admin panel** link to `/admin` — a match-management dashboard for the season in progress:
+
+- Filter tabs with live counts: **Needs results** (pending / scheduled / in-progress), **Completed**, and **All**
+- Matches grouped by tier, each linking straight to the match page where results are reported, corrected, or cleared
+- A season selector, so you can manage any season — the nav's season picker stays in sync with it
+
+The route is guarded: visiting `/admin` without a valid token shows a prompt to log in rather than the match list.
+
+---
+
 ## Browsing Seasons
 
 The season picker in the top-right of the nav switches between every season in the database. Each season is addressable directly at `/season/:id`; `/` resolves to the active season, falling back to the most recent.

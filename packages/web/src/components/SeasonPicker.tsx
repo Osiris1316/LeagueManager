@@ -1,5 +1,5 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useSeasons } from '../context/SeasonsContext';
+import { useNavigate } from 'react-router-dom';
+import { useCurrentSeasonId, useSeasons } from '../context/SeasonsContext';
 
 const STATUS_LABELS: Record<string, string> = {
   active: 'Active',
@@ -7,26 +7,10 @@ const STATUS_LABELS: Record<string, string> = {
   pending: 'Upcoming',
 };
 
-/**
- * Reads a season id out of a pathname like `/season/3`.
- * The picker lives in the nav, outside <Routes>, so useParams() is not
- * available here — the path is the source of truth instead.
- */
-function seasonIdFromPath(pathname: string): number | null {
-  const match = pathname.match(/^\/season\/(\d+)/);
-  return match ? Number.parseInt(match[1]!, 10) : null;
-}
-
 export function SeasonPicker() {
-  const { seasons, loading, defaultSeasonId } = useSeasons();
-  const location = useLocation();
+  const { seasons, loading } = useSeasons();
+  const selected = useCurrentSeasonId();
   const navigate = useNavigate();
-
-  const routeSeasonId = seasonIdFromPath(location.pathname);
-  const selected =
-    routeSeasonId !== null && seasons.some(s => s.id === routeSeasonId)
-      ? routeSeasonId
-      : defaultSeasonId;
 
   // Always show the control once we know there is at least one season, so the
   // season being viewed is always visible — even before a second one exists.
