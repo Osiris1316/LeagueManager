@@ -23,6 +23,7 @@ interface MatchData {
     winner_name: string | null;
     round_number: number | null;
     season_id: number;
+    season_number: number;
     tier_id: string;
   };
   games: {
@@ -220,8 +221,8 @@ export function MatchPage() {
   return (
     <div>
       <nav aria-label="Breadcrumb" style={{ marginBottom: 'var(--space-md)' }}>
-        <Link to="/" style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-          ← Standings
+        <Link to={`/season/${match.season_id}`} style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+          ← Season {match.season_number} standings
         </Link>
       </nav>
 

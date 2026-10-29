@@ -89,6 +89,7 @@ export function PlayerPage() {
                 match={match}
                 perspectivePlayerId={player.id}
                 tierAccent={tierId as 's' | 'a' | 'b'}
+                showSeason
               />
             ))}
           </div>

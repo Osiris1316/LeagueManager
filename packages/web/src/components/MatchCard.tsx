@@ -1,10 +1,14 @@
 import { Link } from 'react-router-dom';
 import type { MatchWithPlayers } from '../api/client';
 
+type CardMatch = MatchWithPlayers & { season_number?: number };
+
 interface MatchCardProps {
-  match: MatchWithPlayers;
+  match: CardMatch;
   perspectivePlayerId?: number;
   tierAccent?: 's' | 'a' | 'b';
+  /** Show which season the match belongs to (used in cross-season history). */
+  showSeason?: boolean;
 }
 
 function formatScheduledTime(isoString: string): string {
@@ -25,27 +29,37 @@ function PlayerLink({ to, children, className }: {
     <Link
       to={to}
       className="match-card__player-link"
-      onClick={e => e.stopPropagation()}
     >
       <span className={className}>{children}</span>
     </Link>
   );
 }
 
-export function MatchCard({ match, perspectivePlayerId, tierAccent }: MatchCardProps) {
+export function MatchCard({ match, perspectivePlayerId, tierAccent, showSeason }: MatchCardProps) {
   const isComplete = match.status === 'complete';
   const tierClass = tierAccent ? ` match-card--tier-${tierAccent}` : '';
 
   // Perspective mode: showing from one player's point of view
   if (perspectivePlayerId != null) {
-    return <PerspectiveCard match={match} playerId={perspectivePlayerId} tierClass={tierClass} />;
+    return <PerspectiveCard match={match} playerId={perspectivePlayerId} tierClass={tierClass} showSeason={showSeason} />;
   }
 
   // Symmetric mode: neutral view of both players
-  return <SymmetricCard match={match} tierClass={tierClass} />;
+  return <SymmetricCard match={match} tierClass={tierClass} showSeason={showSeason} />;
 }
 
-function SymmetricCard({ match, tierClass }: { match: MatchWithPlayers; tierClass: string }) {
+/** "R2", or "S1 R2" when the season is being surfaced. */
+function matchMeta(match: CardMatch, showSeason?: boolean): string {
+  const round = `R${match.round_number}`;
+  if (!showSeason || match.season_number == null) return round;
+  return `S${match.season_number} ${round}`;
+}
+
+function SymmetricCard({ match, tierClass, showSeason }: {
+  match: CardMatch;
+  tierClass: string;
+  showSeason?: boolean;
+}) {
   const isComplete = match.status === 'complete';
   const p1Won = match.winner_id === match.player1_id;
   const p2Won = match.winner_id === match.player2_id;
@@ -57,12 +71,8 @@ function SymmetricCard({ match, tierClass }: { match: MatchWithPlayers; tierClas
       : 'Upcoming';
 
   return (
-    <Link
-      to={`/match/${match.id}`}
-      className={`match-card${tierClass}`}
-      aria-label={`${match.player1_name} vs ${match.player2_name}: ${statusLabel}`}
-    >
-      <span className="match-card__meta">R{match.round_number}</span>
+    <div className={`match-card${tierClass}`}>
+      <span className="match-card__meta">{matchMeta(match, showSeason)}</span>
 
       <PlayerLink
         to={`/player/${match.player1_id}`}
@@ -101,14 +111,25 @@ function SymmetricCard({ match, tierClass }: { match: MatchWithPlayers; tierClas
           </span>
         )}
       </span>
-    </Link>
+
+      {/* Stretched link: makes the whole card clickable without nesting
+          anchors inside the player links. */}
+      <Link
+        to={`/match/${match.id}`}
+        className="match-card__overlay"
+        aria-label={`${match.player1_name} vs ${match.player2_name}: ${statusLabel}`}
+      >
+        <span className="sr-only">View match</span>
+      </Link>
+    </div>
   );
 }
 
-function PerspectiveCard({ match, playerId, tierClass }: {
-  match: MatchWithPlayers;
+function PerspectiveCard({ match, playerId, tierClass, showSeason }: {
+  match: CardMatch;
   playerId: number;
   tierClass: string;
+  showSeason?: boolean;
 }) {
   const isP1 = match.player1_id === playerId;
   const opponentName = isP1 ? match.player2_name : match.player1_name;
@@ -123,12 +144,8 @@ function PerspectiveCard({ match, playerId, tierClass }: {
     : `Upcoming vs ${opponentName}`;
 
   return (
-    <Link
-      to={`/match/${match.id}`}
-      className={`match-card${tierClass}`}
-      aria-label={statusLabel}
-    >
-      <span className="match-card__meta">R{match.round_number}</span>
+    <div className={`match-card${tierClass}`}>
+      <span className="match-card__meta">{matchMeta(match, showSeason)}</span>
 
       <span className="match-card__vs">vs</span>
 
@@ -157,6 +174,16 @@ function PerspectiveCard({ match, playerId, tierClass }: {
           </span>
         )}
       </span>
-    </Link>
+
+      {/* Stretched link: makes the whole card clickable without nesting
+          anchors inside the player link. */}
+      <Link
+        to={`/match/${match.id}`}
+        className="match-card__overlay"
+        aria-label={statusLabel}
+      >
+        <span className="sr-only">View match</span>
+      </Link>
+    </div>
   );
 }

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="AoE4 League">
+  <rect width="32" height="32" rx="7" fill="#0f1117"/>
+  <path d="M16 6.5 23.5 25h-4.3l-1.4-3.9h-6.6L9.8 25H5.5L13 6.5Z"
+        fill="none" stroke="#d4a847" stroke-width="2.3" stroke-linejoin="round"/>
+  <path d="M12.9 17.6h6.2" fill="none" stroke="#d4a847" stroke-width="2.3" stroke-linecap="round"/>
+</svg>

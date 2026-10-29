@@ -1,11 +1,17 @@
-import { Routes, Route, NavLink, Link } from 'react-router-dom';
+import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom';
 import { SeasonPage } from './pages/SeasonPage';
 import { PlayerPage } from './pages/PlayerPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { MatchPage } from './pages/MatchPage';
 import { MenuPanel } from './components/MenuPanel';
+import { SeasonPicker } from './components/SeasonPicker';
 
 export function App() {
+  const location = useLocation();
+  // Standings live at "/" (current season) and "/season/:id" (a specific one).
+  const isStandings =
+    location.pathname === '/' || location.pathname.startsWith('/season');
+
   return (
     <>
       <a href="#main-content" className="skip-link">
@@ -20,7 +26,7 @@ export function App() {
           <ul className="nav__links" role="list">
             <li>
               <NavLink to="/" end className={({ isActive }) =>
-                `nav__link${isActive ? ' nav__link--active' : ''}`}>
+                `nav__link${isActive || isStandings ? ' nav__link--active' : ''}`}>
                 Standings
               </NavLink>
             </li>
@@ -31,7 +37,10 @@ export function App() {
               </NavLink>
             </li>
           </ul>
-          <MenuPanel />
+          <div className="nav__right">
+            <SeasonPicker />
+            <MenuPanel />
+          </div>
         </nav>
 
         <main id="main-content">

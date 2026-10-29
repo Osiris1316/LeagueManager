@@ -51,12 +51,14 @@ export function matchesRoutes<E extends { Bindings: { DB: D1Database } }>() {
           p2.display_name as player2_name,
           w.display_name as winner_name,
           t.display_name as tier_name,
-          t.civ_rule
+          t.civ_rule,
+          s.season_number
         FROM matches m
         JOIN players p1 ON m.player1_id = p1.id
         JOIN players p2 ON m.player2_id = p2.id
         LEFT JOIN players w ON m.winner_id = w.id
         JOIN tiers t ON m.tier_id = t.id
+        JOIN seasons s ON m.season_id = s.id
         WHERE m.id = ?
       `)
       .bind(id)

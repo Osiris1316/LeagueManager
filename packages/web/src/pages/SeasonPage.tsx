@@ -1,65 +1,54 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getSeasons, getStandings } from '../api/client';
-import type { StandingsResponse, Season } from '../api/client';
+import { getStandings } from '../api/client';
+import type { StandingsResponse } from '../api/client';
+import { useSeasons } from '../context/SeasonsContext';
 import { StandingsTable } from '../components/StandingsTable';
 import { ScheduleView } from '../components/ScheduleView';
 
 export function SeasonPage() {
   const { seasonId } = useParams<{ seasonId: string }>();
+  const { defaultSeasonId, loading: seasonsLoading } = useSeasons();
   const [data, setData] = useState<StandingsResponse | null>(null);
-  const [seasons, setSeasons] = useState<Season[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const parsed = seasonId ? Number.parseInt(seasonId, 10) : Number.NaN;
+  // No season in the URL means "show me the current one".
+  const targetId = Number.isFinite(parsed) ? parsed : defaultSeasonId;
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
+      if (targetId == null) {
+        // Still waiting on the season list.
+        if (!seasonsLoading) {
+          setError('No seasons found.');
+          setLoading(false);
+        }
+        return;
+      }
+
       setLoading(true);
       setError(null);
+      setData(null);
 
       try {
-        // If no seasonId in URL, find the most recent active season
-        let targetId: number;
-
-        if (seasonId) {
-          targetId = parseInt(seasonId, 10);
-        } else {
-          const allSeasons = await getSeasons();
-          if (cancelled) return;
-          setSeasons(allSeasons);
-
-          const active = allSeasons.find(s => s.status === 'active');
-          const latest = allSeasons[0]; // sorted desc by season_number
-          const target = active ?? latest;
-
-          if (!target) {
-            setError('No seasons found.');
-            setLoading(false);
-            return;
-          }
-          targetId = target.id;
-        }
-
         const standings = await getStandings(targetId);
-        if (!cancelled) {
-          setData(standings);
-        }
+        if (!cancelled) setData(standings);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Failed to load standings');
         }
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     }
 
     load();
     return () => { cancelled = true; };
-  }, [seasonId]);
+  }, [targetId, seasonsLoading]);
 
   if (loading) {
     return (
@@ -85,10 +74,11 @@ export function SeasonPage() {
     <div>
       <header style={{ marginBottom: 'var(--space-xl)' }}>
         <h1>Season {season.season_number}</h1>
-        <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-xs)' }}>
+        <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-xs)', display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
           Best of {season.best_of}
-          {season.status === 'active' && ' · In Progress'}
-          {season.status === 'complete' && ' · Complete'}
+          {season.status === 'active' && <span className="badge badge--active">In Progress</span>}
+          {season.status === 'complete' && <span className="badge badge--archived">Archived</span>}
+          {season.status === 'pending' && <span className="badge badge--pending">Upcoming</span>}
         </p>
       </header>
 

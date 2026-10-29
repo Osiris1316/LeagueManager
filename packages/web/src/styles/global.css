@@ -291,9 +291,12 @@ tbody tr:hover {
 .badge--complete { background: rgba(92, 184, 122, 0.15); color: var(--color-win); }
 .badge--win  { background: rgba(92, 184, 122, 0.15); color: var(--color-win); }
 .badge--loss { background: rgba(212, 92, 92, 0.15); color: var(--color-loss); }
+.badge--active { background: var(--color-accent-bg); color: var(--color-accent); }
+.badge--archived { background: rgba(98, 104, 128, 0.15); color: var(--color-text-secondary); }
 
 /* ── Match card ── */
 .match-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-md);
@@ -305,6 +308,20 @@ tbody tr:hover {
   text-decoration: none;
   color: var(--color-text);
   cursor: pointer;
+}
+
+/* Whole-card click target. Stretched over the card so the card stays
+   clickable without nesting anchors inside the player links. */
+.match-card__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: var(--border-radius);
+  color: inherit;
+}
+
+.match-card__overlay:hover {
+  color: inherit;
 }
 
 .match-card:hover {
@@ -337,6 +354,9 @@ tbody tr:hover {
 
 /* Player name as a clickable link inside the card */
 .match-card__player-link {
+  /* Sits above .match-card__overlay so the name stays independently clickable. */
+  position: relative;
+  z-index: 1;
   color: inherit;
   text-decoration: none;
   transition: color 0.15s ease;
@@ -499,6 +519,56 @@ tbody tr:hover {
 .nav__link--active {
   color: var(--color-text);
   border-bottom-color: var(--color-accent);
+}
+
+/* Right-hand nav cluster: season picker + menu */
+.nav__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-left: auto;
+}
+
+/* ── Season picker ── */
+.season-picker__select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--color-bg-surface);
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%239298ab' d='M0 0h10L5 6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.3125rem 1.5rem 0.3125rem 0.625rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.season-picker__select:hover {
+  border-color: var(--color-text-tertiary);
+}
+
+.season-picker__select option {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
+}
+
+/* ── Navigation: mobile ── */
+@media (max-width: 640px) {
+  .nav {
+    flex-wrap: wrap;
+    row-gap: var(--space-sm);
+  }
+
+  .nav__right {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 /* ── Loading state ── */

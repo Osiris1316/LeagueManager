@@ -83,7 +83,7 @@ export function MenuPanel() {
   }
 
   return (
-    <div style={{ position: 'relative', marginLeft: 'auto' }}>
+    <div style={{ position: 'relative' }}>
       <button
         ref={buttonRef}
         onClick={() => {
