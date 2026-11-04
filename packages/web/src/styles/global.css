@@ -622,6 +622,134 @@ tbody tr:hover {
   color: var(--color-accent);
 }
 
+/* ── Followed player (top of page) ── */
+.followed {
+  margin-bottom: var(--space-xl);
+  padding: var(--space-md);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--border-radius);
+}
+
+.followed__header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+}
+
+.followed__title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.followed__player {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.followed__player a {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.followed__change {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.followed__change:hover {
+  color: var(--color-accent);
+}
+
+.followed__empty {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* ── Settings page ── */
+.settings-player-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.settings-player {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
+  border-left: 3px solid transparent;
+  border-radius: var(--border-radius-sm);
+}
+
+.settings-player:hover {
+  background: var(--color-bg-hover);
+}
+
+/* The followed row is marked with a gold edge. */
+.settings-player--following {
+  border-left-color: var(--color-accent);
+}
+
+/* The name is the follow control. */
+.settings-player__name {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.settings-player__name:hover {
+  color: var(--color-accent);
+}
+
+.settings-player__name--following {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* Secondary link to the player's page. */
+.settings-player__view {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+}
+
+.settings-player__view:hover {
+  color: var(--color-text);
+}
+
+.settings-clear {
+  padding: 0.25rem 0.625rem;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.settings-clear:hover {
+  border-color: var(--color-loss);
+  color: var(--color-loss);
+}
+
 /* ── Navigation: mobile ── */
 @media (max-width: 640px) {
   .nav {

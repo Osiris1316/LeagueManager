@@ -114,21 +114,32 @@ export function MenuPanel() {
               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
             }}
           >
+            {isAdmin && (
+              <Link
+                role="menuitem"
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                style={menuItemStyle}
+              >
+                Admin panel
+              </Link>
+            )}
+
+            <Link
+              role="menuitem"
+              to="/settings"
+              onClick={() => setIsOpen(false)}
+              style={menuItemStyle}
+            >
+              Settings
+            </Link>
+
+            {isAdmin && <div style={dividerStyle} role="separator" />}
+
             {isAdmin ? (
-              <>
-                <Link
-                  role="menuitem"
-                  to="/admin"
-                  onClick={() => setIsOpen(false)}
-                  style={menuItemStyle}
-                >
-                  Admin panel
-                </Link>
-                <div style={dividerStyle} role="separator" />
-                <button role="menuitem" onClick={handleLogout} style={menuItemStyle}>
-                  Log out
-                </button>
-              </>
+              <button role="menuitem" onClick={handleLogout} style={menuItemStyle}>
+                Log out
+              </button>
             ) : showTokenInput ? (
               <div style={{ padding: 'var(--space-sm)' }}>
                 <label htmlFor="menu-token" style={{

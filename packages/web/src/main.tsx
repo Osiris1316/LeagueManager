@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { AdminProvider } from './context/AdminContext';
 import { SeasonsProvider } from './context/SeasonsContext';
+import { FollowProvider } from './context/FollowContext';
 import { App } from './App';
 import './styles/global.css';
 
@@ -14,7 +15,9 @@ createRoot(root).render(
     <BrowserRouter>
       <SeasonsProvider>
         <AdminProvider>
-          <App />
+          <FollowProvider>
+            <App />
+          </FollowProvider>
         </AdminProvider>
       </SeasonsProvider>
     </BrowserRouter>

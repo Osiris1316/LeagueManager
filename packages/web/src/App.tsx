@@ -4,8 +4,10 @@ import { PlayerPage } from './pages/PlayerPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { MatchPage } from './pages/MatchPage';
 import { AdminPage } from './pages/AdminPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { MenuPanel } from './components/MenuPanel';
 import { SeasonPicker } from './components/SeasonPicker';
+import { FollowedMatches } from './components/FollowedMatches';
 
 export function App() {
   const location = useLocation();
@@ -45,6 +47,7 @@ export function App() {
         </nav>
 
         <main id="main-content">
+          <FollowedMatches />
           <Routes>
             <Route path="/" element={<SeasonPage />} />
             <Route path="/season/:seasonId" element={<SeasonPage />} />
@@ -53,6 +56,7 @@ export function App() {
             <Route path="/match/:matchId" element={<MatchPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/:seasonId" element={<AdminPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </main>
       </div>

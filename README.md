@@ -155,9 +155,9 @@ LeagueManager/
 │   └── web/            ← React frontend
 │       └── src/
 │           ├── api/client.ts    ← Typed API client
-│           ├── components/      ← StandingsTable, ScheduleView, SeasonPicker
-│           ├── context/         ← AdminContext, SeasonsContext
-│           └── pages/           ← SeasonPage, PlayerPage, PlayersPage
+│           ├── components/      ← StandingsTable, ScheduleView, SeasonPicker, FollowedMatches
+│           ├── context/         ← AdminContext, SeasonsContext, FollowContext
+│           └── pages/           ← SeasonPage, PlayerPage, PlayersPage, AdminPage, SettingsPage
 │
 ├── scripts/
 │   ├── generate-matches.ts   ← Generates a round-robin bracket for a season
@@ -196,6 +196,14 @@ npx wrangler d1 execute league-manager-db --remote --file=scripts/output/new-sea
 ```
 
 The old season stays fully intact — its standings, results, and schedule remain viewable through the season picker.
+
+---
+
+## Following a Player
+
+`/settings` (☰ menu → Settings) lets you follow one player — click a player's name to follow them, or their **View** link to open their page. The choice is stored in `localStorage`, so it persists across reloads.
+
+Once you follow someone, a **Your next matches** panel appears at the top of every page, listing that player's unfinished matches for the season you're viewing, soonest first (scheduled matches before unscheduled ones, then by round). Each one links straight to the match. The match you're currently looking at is left out of the list.
 
 ---
 
