@@ -10,6 +10,7 @@
     "seed": "node scripts/reset-local-db.mjs && pnpm migrate",
     "new:season": "npx tsx scripts/new-season.ts",
     "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
     "deploy:api": "npx wrangler deploy",
     "deploy:web": "cd packages/web && pnpm build && npx wrangler pages deploy dist --project-name=league-manager"
   },

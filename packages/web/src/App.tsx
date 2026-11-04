@@ -3,8 +3,10 @@ import { SeasonPage } from './pages/SeasonPage';
 import { PlayerPage } from './pages/PlayerPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { MatchPage } from './pages/MatchPage';
+import { MatchesPage } from './pages/MatchesPage';
 import { AdminPage } from './pages/AdminPage';
 import { SettingsPage } from './pages/SettingsPage';
+import WizardPrototypePage from './pages/WizardPrototypePage';
 import { MenuPanel } from './components/MenuPanel';
 import { SeasonPicker } from './components/SeasonPicker';
 import { FollowedMatches } from './components/FollowedMatches';
@@ -24,13 +26,20 @@ export function App() {
       <div className="page-container">
         <nav className="nav" aria-label="Main navigation">
           <Link to="/" className="nav__brand">
-            AoE4 League
+            <span className="nav__brand-full">Atlantic Canadian RTS Society</span>
+            <span className="nav__brand-short">ACRS</span>
           </Link>
           <ul className="nav__links" role="list">
             <li>
               <NavLink to="/" end className={({ isActive }) =>
                 `nav__link${isActive || isStandings ? ' nav__link--active' : ''}`}>
                 Standings
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/matches" className={({ isActive }) =>
+                `nav__link${isActive ? ' nav__link--active' : ''}`}>
+                Matches
               </NavLink>
             </li>
             <li>
@@ -51,12 +60,14 @@ export function App() {
           <Routes>
             <Route path="/" element={<SeasonPage />} />
             <Route path="/season/:seasonId" element={<SeasonPage />} />
+            <Route path="/matches" element={<MatchesPage />} />
             <Route path="/players" element={<PlayersPage />} />
             <Route path="/player/:playerId" element={<PlayerPage />} />
             <Route path="/match/:matchId" element={<MatchPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/:seasonId" element={<AdminPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/wizard-prototype" element={<WizardPrototypePage />} />
           </Routes>
         </main>
       </div>

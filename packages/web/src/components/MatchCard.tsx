@@ -5,7 +5,6 @@ type CardMatch = MatchWithPlayers & { season_number?: number };
 
 interface MatchCardProps {
   match: CardMatch;
-  perspectivePlayerId?: number;
   tierAccent?: 's' | 'a' | 'b';
   /** Show which season the match belongs to (used in cross-season history). */
   showSeason?: boolean;
@@ -20,39 +19,16 @@ function formatScheduledTime(isoString: string): string {
   return `${month}/${day} ${hours}:${minutes}`;
 }
 
-function PlayerLink({ to, children, className }: {
-  to: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <Link
-      to={to}
-      className="match-card__player-link"
-    >
-      <span className={className}>{children}</span>
-    </Link>
-  );
-}
-
-export function MatchCard({ match, perspectivePlayerId, tierAccent, showSeason }: MatchCardProps) {
-  const isComplete = match.status === 'complete';
-  const tierClass = tierAccent ? ` match-card--tier-${tierAccent}` : '';
-
-  // Perspective mode: showing from one player's point of view
-  if (perspectivePlayerId != null) {
-    return <PerspectiveCard match={match} playerId={perspectivePlayerId} tierClass={tierClass} showSeason={showSeason} />;
-  }
-
-  // Symmetric mode: neutral view of both players
-  return <SymmetricCard match={match} tierClass={tierClass} showSeason={showSeason} />;
-}
-
 /** "R2", or "S1 R2" when the season is being surfaced. */
 function matchMeta(match: CardMatch, showSeason?: boolean): string {
   const round = `R${match.round_number}`;
   if (!showSeason || match.season_number == null) return round;
   return `S${match.season_number} ${round}`;
+}
+
+export function MatchCard({ match, tierAccent, showSeason }: MatchCardProps) {
+  const tierClass = tierAccent ? ` match-card--tier-${tierAccent}` : '';
+  return <SymmetricCard match={match} tierClass={tierClass} showSeason={showSeason} />;
 }
 
 function SymmetricCard({ match, tierClass, showSeason }: {
@@ -61,129 +37,69 @@ function SymmetricCard({ match, tierClass, showSeason }: {
   showSeason?: boolean;
 }) {
   const isComplete = match.status === 'complete';
+  const inProgress = match.status === 'in_progress';
   const p1Won = match.winner_id === match.player1_id;
   const p2Won = match.winner_id === match.player2_id;
 
   const statusLabel = isComplete
     ? `${match.winner_name} wins ${match.player1_score}–${match.player2_score}`
-    : match.status === 'in_progress'
+    : inProgress
       ? 'In progress'
-      : 'Upcoming';
+      : match.scheduled_at
+        ? `Scheduled ${formatScheduledTime(match.scheduled_at)}`
+        : 'Not yet scheduled';
 
   return (
-    <div className={`match-card${tierClass}`}>
-      <span className="match-card__meta">{matchMeta(match, showSeason)}</span>
+    <div className={`match-card match-card--grid${tierClass}`}>
+      <span className={`match-card__cell-score match-card__cell--top${p1Won ? ' match-card__cell-score--winner' : ''}`}>
+        {isComplete ? match.player1_score : '–'}
+      </span>
+      <span className={`match-card__name match-card__cell--top${p1Won ? ' match-card__name--winner' : ''}`}>
+        <Link to={`/player/${match.player1_id}`} className="match-card__player-link">
+          {match.player1_name}
+        </Link>
+      </span>
 
-      <PlayerLink
-        to={`/player/${match.player1_id}`}
-        className={`match-card__player match-card__player--right${p1Won ? ' match-card__player--winner' : ''}`}
-      >
-        {match.player1_name}
-      </PlayerLink>
+      <span className={`match-card__cell-score${p2Won ? ' match-card__cell-score--winner' : ''}`}>
+        {isComplete ? match.player2_score : '–'}
+      </span>
+      <span className={`match-card__name${p2Won ? ' match-card__name--winner' : ''}`}>
+        <Link to={`/player/${match.player2_id}`} className="match-card__player-link">
+          {match.player2_name}
+        </Link>
+      </span>
 
-      {isComplete ? (
-        <span className="match-card__score">
-          {match.player1_score}
-          <span className="match-card__score-sep">–</span>
-          {match.player2_score}
-        </span>
-      ) : (
-        <span className="match-card__vs">vs</span>
-      )}
-
-      <PlayerLink
-        to={`/player/${match.player2_id}`}
-        className={`match-card__player${p2Won ? ' match-card__player--winner' : ''}`}
-      >
-        {match.player2_name}
-      </PlayerLink>
-
-      <span className="match-card__trailing">
+      <span className="match-card__status">
         {isComplete ? (
           <span className="sr-only">{statusLabel}</span>
-        ) : (
-          <span className="badge badge--pending">
-            {match.status === 'in_progress'
-              ? 'Live'
-              : match.scheduled_at
-                ? formatScheduledTime(match.scheduled_at)
-                : 'Pending'}
-          </span>
-        )}
+        ) : inProgress ? (
+          <span className="badge badge--pending">Live</span>
+        ) : match.scheduled_at ? (
+          <span className="badge badge--pending">{formatScheduledTime(match.scheduled_at)}</span>
+        ) : null}
       </span>
 
-      {/* Stretched link: makes the whole card clickable without nesting
-          anchors inside the player links. */}
       <Link
         to={`/match/${match.id}`}
-        className="match-card__overlay"
-        aria-label={`${match.player1_name} vs ${match.player2_name}: ${statusLabel}`}
+        className="match-card__info"
+        aria-label={`View match: ${match.player1_name} vs ${match.player2_name}`}
       >
-        <span className="sr-only">View match</span>
+        <svg
+          viewBox="0 0 24 24" width="18" height="18"
+          fill="none" stroke="currentColor" strokeWidth="2"
+          strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
       </Link>
-    </div>
-  );
-}
 
-function PerspectiveCard({ match, playerId, tierClass, showSeason }: {
-  match: CardMatch;
-  playerId: number;
-  tierClass: string;
-  showSeason?: boolean;
-}) {
-  const isP1 = match.player1_id === playerId;
-  const opponentName = isP1 ? match.player2_name : match.player1_name;
-  const opponentId = isP1 ? match.player2_id : match.player1_id;
-  const playerScore = isP1 ? match.player1_score : match.player2_score;
-  const opponentScore = isP1 ? match.player2_score : match.player1_score;
-  const won = match.winner_id === playerId;
-  const isComplete = match.status === 'complete';
-
-  const statusLabel = isComplete
-    ? `${won ? 'Won' : 'Lost'} ${playerScore}–${opponentScore} vs ${opponentName}`
-    : `Upcoming vs ${opponentName}`;
-
-  return (
-    <div className={`match-card${tierClass}`}>
-      <span className="match-card__meta">{matchMeta(match, showSeason)}</span>
-
-      <span className="match-card__vs">vs</span>
-
-      <PlayerLink
-        to={`/player/${opponentId}`}
-        className="match-card__player"
-      >
-        {opponentName}
-      </PlayerLink>
-
-      <span className="match-card__trailing">
-        {isComplete ? (
-          <>
-            <span className={`match-card__score ${won ? 'match-card__score--win' : 'match-card__score--loss'}`}>
-              {playerScore}
-              <span className="match-card__score-sep">–</span>
-              {opponentScore}
-            </span>
-            <span className={`badge ${won ? 'badge--win' : 'badge--loss'}`}>
-              {won ? 'W' : 'L'}
-            </span>
-          </>
-        ) : (
-          <span className="badge badge--pending">
-            {match.scheduled_at ? formatScheduledTime(match.scheduled_at) : 'Pending'}
-          </span>
-        )}
-      </span>
-
-      {/* Stretched link: makes the whole card clickable without nesting
-          anchors inside the player link. */}
-      <Link
-        to={`/match/${match.id}`}
-        className="match-card__overlay"
-        aria-label={statusLabel}
-      >
-        <span className="sr-only">View match</span>
-      </Link>
+      {/* Season tag — only in cross-season history, where matches from
+          different seasons sit next to each other. */}
+      {showSeason && (
+        <span className="match-card__meta">{matchMeta(match, showSeason)}</span>
+      )}
     </div>
   );
 }

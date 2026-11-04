@@ -53,6 +53,7 @@ Without it, `/api/admin/*` responds `503 Admin not configured` — read-only fea
 | `pnpm seed` | Wipe the local D1 and re-apply all migrations |
 | `pnpm new:season` | Roll the league forward into a new season |
 | `pnpm typecheck` | Typecheck all three packages |
+| `pnpm test` | Run the vitest suites in `packages/core` |
 | `pnpm build:web` | Production build of the frontend |
 | `pnpm deploy:api` / `pnpm deploy:web` | Deploy to Cloudflare |
 
@@ -76,6 +77,19 @@ Replace `REPLACE_AFTER_D1_CREATE` with your actual database ID.
 npx wrangler d1 migrations apply league-manager-db --remote
 ```
 Applies every file in `packages/core/src/db/migrations/` (schema + seed) and tracks what it has applied, so re-running it is safe.
+
+> **One exception on an existing production database:** `007_season_titles.sql` adds the
+> `title_id` / `season_index` / `format` / `name` columns to `seasons`. A production D1 that
+> already has those columns (added out of band) will fail on the duplicate column, so mark the
+> file as applied instead of running it:
+>
+> ```bash
+> npx wrangler d1 execute league-manager-db --remote \
+>   --command "INSERT INTO d1_migrations (name) VALUES ('007_season_titles.sql')"
+> ```
+>
+> A fresh or local database starts from `001_initial.sql`, which lacks the columns, and needs the
+> migration applied normally.
 
 #### 4. Deploy the API Worker
 ```powershell
@@ -108,6 +122,10 @@ $env:VITE_API_BASE_URL = "https://league-manager-api.andrei-35b.workers.dev"
 pnpm build
 npx wrangler pages deploy dist --project-name=league-manager
 ```
+
+> The live frontend is currently served from **`league-manager-web.pages.dev`** — `league-manager.pages.dev`
+> does not resolve. `FRONTEND_ORIGIN` must match whichever URL you actually serve the app from, and
+> `VITE_API_BASE_URL` must point at the deployed Worker, or the browser will block every API call.
 
 ### Subsequent deploys
 ```powershell
@@ -150,17 +168,22 @@ LeagueManager/
 │   │   └── src/
 │   │       ├── app.ts           ← Shared app factory
 │   │       ├── worker.ts        ← Worker entrypoint
-│   │       └── routes/          ← seasons, players, matches, standings, admin
+│   │       └── routes/          ← seasons, players, matches, standings, admin,
+│   │                             maps, player-stats, h2h
 │   │
 │   └── web/            ← React frontend
 │       └── src/
 │           ├── api/client.ts    ← Typed API client
-│           ├── components/      ← StandingsTable, ScheduleView, SeasonPicker, FollowedMatches
+│           ├── components/      ← MatchCard, StandingsTable, ScheduleView, SeasonPicker,
+│           │                       FollowedMatches, RulesModal, CivFlag, PlayerStats*
 │           ├── context/         ← AdminContext, SeasonsContext, FollowContext
-│           └── pages/           ← SeasonPage, PlayerPage, PlayersPage, AdminPage, SettingsPage
+│           ├── views/           ← ColumnsView, StackedView
+│           └── pages/           ← SeasonPage, PlayerPage, PlayersPage, MatchesPage,
+│                                   MatchPage, AdminPage, SettingsPage, WizardPrototypePage
 │
 ├── scripts/
 │   ├── generate-matches.ts   ← Generates a round-robin bracket for a season
+│   ├── new-season.ts         ← Rolls the league forward into a new season
 │   └── reset-local-db.mjs    ← Wipes the local D1 database
 │
 ├── wrangler.jsonc       ← Worker config (update DB ID before deploy)
@@ -231,6 +254,28 @@ Nothing is deleted between seasons — standings, results, and rosters are all k
 
 ---
 
+## Matches, Stats and Game Titles
+
+**Matches page** (`/matches`, in the nav) lists every match in a season with filters, grouped by
+tier, plus a season selector. The standings page also has a **Columns / Stacked** view switch.
+
+**Player stats** (`/player/:id`) add civ and map breakdowns — games played, wins, and win rate per
+civ — with an all-time / season scope filter. The fold logic lives in `packages/core/src/stats/` and
+is covered by vitest (`pnpm test`).
+
+**Multiple game titles.** A season belongs to a title (`title_id`: `aoe4`, `bw`, `sc2`) and carries
+a per-title `season_index`, so two titles can each have a "Season 1" without colliding. The labels
+come from `packages/core/src/titles/catalog.ts`, and `007_season_titles.sql` adds the columns to
+`seasons`.
+
+**Match cards** show the two players on their own rows with a leading score, the schedule state,
+and an info link into the match page. Civ flags are served from `packages/web/public/assets/civs/`.
+
+**`/wizard-prototype`** is a work-in-progress guided match-reporting flow. It is a prototype — not
+linked from the nav.
+
+---
+
 ## API Endpoints
 
 | Method | Path | Description |
@@ -244,6 +289,10 @@ Nothing is deleted between seasons — standings, results, and rosters are all k
 | GET | `/api/players/:id` | Player detail with match history |
 | GET | `/api/seasons/:seasonId/matches?tier=` | Matches for a season (optional tier filter) |
 | GET | `/api/matches/:id` | Match detail with games |
+| GET | `/api/seasons/:seasonId/maps` | Map pool available for a season |
+| GET | `/api/players/:playerId/stats` | Civ and map breakdowns for a player |
+| GET | `/api/players/:playerId/slots` | Raw stat slots for a player |
+| GET | `/api/h2h` | Head-to-head series between two players |
 
 ### Admin endpoints (require `X-Admin-Token`)
 

@@ -33,9 +33,19 @@
   /* Focus ring (high contrast for accessibility) */
   --color-focus: #6ea8fe;
 
-  /* Typography */
+  /* ══════════════════════════════════════════════════════════════
+     TYPOGRAPHY CONTROL PANEL — edit these to restyle match UI
+     Loaded families (see index.html): DM Sans, Inter.
+     To use another, add it in index.html first.
+     ══════════════════════════════════════════════════════════════ */
   --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'DM Mono', ui-monospace, monospace;
+  --font-mono: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Crisp faces for match card + match-page scoreline.
+     Swap the first name in each to audition:
+       names  → 'Inter' | 'DM Sans'
+       scores → 'Inter' (tabular figures)                        */
+  --font-crisp: 'Inter', system-ui, -apple-system, sans-serif;
 
   /* Spacing scale */
   --space-xs: 0.25rem;
@@ -62,8 +72,6 @@
 
 html {
   font-size: 16px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -72,6 +80,12 @@ body {
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
+}
+
+/* All numeric UI uses equal-width (tabular) figures so digits and zeros
+   line up across every surface — scores, timestamps, counts, tables. */
+body {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Focus styles (accessibility) ── */
@@ -119,12 +133,12 @@ a:hover {
 .page-container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-xs) var(--space-md) var(--space-lg);
 }
 
 @media (min-width: 768px) {
   .page-container {
-    padding: var(--space-2xl) var(--space-xl);
+    padding: var(--space-xs) var(--space-xl) var(--space-2xl);
   }
 }
 
@@ -192,14 +206,19 @@ tbody tr:hover {
   display: none;
 }
 
-/* ── Standings table: mobile portrait ── */
-@media (max-width: 480px) {
+/* Mark each standings table's wrapper as a query container, so the table
+   reflows based on ITS OWN width — works in a narrow phone (stacked view)
+   AND a narrow column (columns view). Scoped to standings wrappers only,
+   so other tables keep their normal overflow behavior. */
+.card:has(.standings-table) .table-wrap {
+  container: standings / inline-size;
+  overflow-x: visible;
+}
+
+/* ── Standings table: card reflow when the table's box is narrow ── */
+@container standings (max-width: 500px) {
   .standings-table thead {
     display: none;
-  }
-
-  .card:has(.standings-table) {
-    padding: var(--space-xs) 0;
   }
 
   .standings-table,
@@ -238,12 +257,10 @@ tbody tr:hover {
     margin-bottom: 1px;
   }
 
-  /* Rank: hidden as its own cell */
   .standings-table td:first-child {
     display: none;
   }
 
-  /* Player name: spans full width */
   .standings-table td:nth-child(2) {
     grid-column: 1 / -1;
     text-align: left;
@@ -262,6 +279,15 @@ tbody tr:hover {
     font-weight: 400;
     font-size: 0.75rem;
     margin-right: 0.25rem;
+  }
+}
+
+/* Tighten card padding on true mobile so reflowed cards use full width.
+   Kept viewport-based because .card is an ancestor of the query container
+   and so can't be restyled from inside the @container block. */
+@media (max-width: 480px) {
+  .card:has(.standings-table) {
+    padding: var(--space-xs) 0;
   }
 }
 
@@ -300,28 +326,13 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--border-radius);
   transition: background 0.15s ease, border-color 0.15s ease;
   text-decoration: none;
   color: var(--color-text);
-  cursor: pointer;
-}
-
-/* Whole-card click target. Stretched over the card so the card stays
-   clickable without nesting anchors inside the player links. */
-.match-card__overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: var(--border-radius);
-  color: inherit;
-}
-
-.match-card__overlay:hover {
-  color: inherit;
 }
 
 .match-card:hover {
@@ -363,7 +374,8 @@ tbody tr:hover {
 }
 
 .match-card__player-link:hover {
-  color: var(--color-accent);
+  color: inherit;               /* keep winner-green / normal color */
+  text-decoration: underline;   /* the hover affordance you wanted */
 }
 
 /* Score block (mono font) */
@@ -409,6 +421,23 @@ tbody tr:hover {
   gap: var(--space-sm);
 }
 
+/* Info icon → match page (the definitive match-details affordance) */
+.match-card__info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  transition: color 0.15s ease, background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.match-card__info:hover {
+  color: var(--color-accent);
+  background: var(--color-accent-bg);
+}
+
 /* Scheduled time */
 .match-card__time {
   font-size: 0.75rem;
@@ -418,7 +447,7 @@ tbody tr:hover {
 
 /* ── Match card: mobile portrait ── */
 @media (max-width: 480px) {
-  .match-card {
+  .match-card:not(.match-card--grid) {
     flex-wrap: wrap;
     gap: var(--space-sm);
     padding: var(--space-sm) var(--space-md);
@@ -482,9 +511,13 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  padding: var(--space-md) 0;
+  padding: var(--space-xs) 0;
   margin-bottom: var(--space-xl);
   border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-bg);
 }
 
 .nav__brand {
@@ -497,6 +530,19 @@ tbody tr:hover {
 
 .nav__brand:hover {
   color: var(--color-accent);
+}
+
+.nav__brand-short {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .nav__brand-full {
+    display: none;
+  }
+  .nav__brand-short {
+    display: inline;
+  }
 }
 
 .nav__links {
@@ -777,6 +823,156 @@ tbody tr:hover {
   -webkit-overflow-scrolling: touch;
 }
 
+/* ── Player stats ── */
+.player-stats-grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+  .player-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.player-stats-card {
+  container-type: inline-size;
+  padding: 0;
+  overflow: hidden;
+}
+
+.player-stats-card .table-wrap {
+  overflow-x: visible;
+}
+
+.player-stats-card__header {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.player-stats-card__header h3 {
+  font-size: 1rem;
+}
+
+.player-stats-card__empty {
+  padding: var(--space-lg);
+  color: var(--color-text-secondary);
+}
+
+.player-stats-table {
+  width: 100%;
+}
+
+.player-stats-table th,
+.player-stats-table td {
+  white-space: nowrap;
+}
+
+.player-stats-table__label {
+  min-width: 12rem;
+}
+
+.player-stats-table .civ-flag {
+  max-width: 100%;
+  gap: var(--space-sm);
+}
+
+.player-stats-table .civ-flag__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container (max-width: 520px) {
+  .player-stats-table thead {
+    display: none;
+  }
+
+  .player-stats-table,
+  .player-stats-table tbody,
+  .player-stats-table tr,
+  .player-stats-table td {
+    display: block;
+  }
+
+  .player-stats-table tr {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .player-stats-table tr:last-child {
+    border-bottom: 0;
+  }
+
+  .player-stats-table td {
+    padding: 0;
+    border-bottom: 0;
+    white-space: normal;
+  }
+
+  .player-stats-table__label {
+    min-width: 0;
+    margin-bottom: var(--space-xs);
+  }
+
+  .player-stats-table .num {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-right: var(--space-md);
+    color: var(--color-text-secondary);
+    font-size: 0.8125rem;
+    text-align: left;
+  }
+
+  .player-stats-table .num::before {
+    content: attr(data-label) ":";
+    color: var(--color-text-tertiary);
+    font-weight: 500;
+  }
+}
+
+/* ── Player stats scope picker ── */
+.player-stats-section__note {
+  color: var(--color-text-tertiary);
+  font-size: 0.875rem;
+  padding: var(--space-md) 0;
+}
+
+.stats-scope-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.stats-scope-picker__select {
+  appearance: none;
+  background: var(--color-bg-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-xs) var(--space-md);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.stats-scope-picker__select:hover {
+  border-color: var(--color-text-tertiary);
+  background: var(--color-bg-hover);
+}
+
+.stats-scope-picker__select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.stats-scope-picker__select:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* ── Visually hidden (accessible labels) ── */
 .sr-only {
   position: absolute;
@@ -807,6 +1003,29 @@ tbody tr:hover {
   color: var(--color-text-tertiary);
   font-size: 0.75rem;
   letter-spacing: 0.02em;
+}
+
+.schedule-section {
+  margin-bottom: var(--space-lg);
+}
+
+.schedule-section:last-child {
+  margin-bottom: 0;
+}
+
+.schedule-section__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-sm);
+}
+
+.schedule-section__label + div .round-header:first-child {
+  margin-top: var(--space-sm);
 }
 
 .round-header:first-child {
@@ -864,4 +1083,719 @@ tbody tr:hover {
   border: none;
   border-top: 1px solid var(--color-border);
   margin: 1.5em 0;
+}
+
+/* ── Match page ── */
+.match-header__title {
+  font-size: 1.5rem;
+}
+
+.match-header__vs {
+  color: var(--color-text-tertiary);
+  margin: 0 0.5rem;
+  font-weight: 400;
+}
+
+.match-header__meta {
+  color: var(--color-text-secondary);
+  margin-top: var(--space-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+}
+
+.match-header__result {
+  color: var(--color-win);
+}
+
+/* Cap match content width on wide desktops; center it. */
+.match-scoreline,
+.match-links,
+.game-list,
+.match-header__meta,
+.match-actions {
+  max-width: 44rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Match action links (rules, drafts) ── */
+.match-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.match-links__btn {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.1875rem 0.625rem;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .match-links {
+    flex-direction: column;
+  }
+
+  .match-links__btn {
+    text-align: center;
+  }
+}
+
+/* Status banners */
+.banner {
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+}
+
+.banner--success {
+  background: rgba(92, 184, 122, 0.1);
+  border: 1px solid rgba(92, 184, 122, 0.3);
+  color: var(--color-win);
+}
+
+.banner--error {
+  background: rgba(212, 92, 92, 0.1);
+  border: 1px solid rgba(212, 92, 92, 0.3);
+  color: var(--color-loss);
+}
+
+/* ── Game card ── */
+.game-card {
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 0.75rem var(--space-md);
+}
+
+.game-card--disabled {
+  opacity: 0.4;
+}
+
+.game-card__header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.game-card__map {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* ── Match page: two-row score header ──
+   minmax(0,…) on the side columns lets them resolve to whole pixels,
+   which stops the sub-pixel blur on centered text.                  */
+.match-scoreline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xs);
+  container-type: inline-size;
+  transform: translateZ(0);
+}
+
+.match-scoreline__name {
+  font-family: var(--font-crisp);
+  font-size: 1.05rem;                 /* was 1.25 — smaller, less chunky */
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+/* ── Long-name behavior: CLIP (default) ──
+   To switch to SHRINK, comment out these two lines; the @container
+   rule below then scales the font down instead of clipping.        */
+.match-scoreline__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Long-name behavior: SHRINK ──
+   Active at narrow widths. In CLIP mode the ellipsis wins first;
+   comment out the two lines above to make this the visible behavior. */
+@container (max-width: 22rem) {
+  .match-scoreline__name {
+    font-size: clamp(0.8rem, 4.5cqi, 1.05rem);
+  }
+}
+
+.match-scoreline__name:hover { color: var(--color-accent); }
+.match-scoreline__name--left { text-align: right; }
+.match-scoreline__name--right { text-align: left; }
+.match-scoreline__name--winner { color: var(--color-win); }
+
+.match-scoreline__score {
+  font-family: var(--font-crisp);
+  font-size: 1.25rem;                 /* was 1.5 — smaller */
+  font-weight: 600;
+  font-feature-settings: "tnum" 1, "zero" 0;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.match-scoreline__dash { color: var(--color-text-tertiary); }
+.match-scoreline__num--winner { color: var(--color-win); }
+
+/* Read-only game result (non-admin): W/L · civ · map · civ · W/L */
+.game-result {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.game-result__civ-cell {
+  display: inline-flex;
+  align-items: center;
+}
+
+.game-result__civ-cell--left { justify-content: flex-end; }
+.game-result__civ-cell--right { justify-content: flex-start; }
+
+/* W/L pills in the game row: square-ish corners (match the cards),
+   fixed width so W and L are identical regardless of letter width. */
+.game-result .badge {
+  border-radius: var(--border-radius-sm);  /* was 999px pill → matches cards */
+  width: 1.75rem;                           /* fixed → W and L same width */
+  padding-left: 0;
+  padding-right: 0;
+  justify-content: center;
+}
+
+.game-result__player {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;   /* was: baseline — flags sit better centered */
+  gap: 0.375rem;
+  font-size: 0.9375rem;
+}
+
+.game-result__map {
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.game-result__player--right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.game-result__player-link {
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.game-result__player-link:hover {
+  color: var(--color-accent);
+}
+
+.game-result__player--winner .game-result__player-link {
+  color: var(--color-win);
+  font-weight: 600;
+}
+
+.game-result__civ {
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+}
+
+.game-result__vs {
+  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.game-result__tbd {
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* Admin game editing */
+.game-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.game-edit__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.game-edit__label {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  min-width: 4rem;
+  flex-shrink: 0;
+}
+
+.game-edit__select {
+  flex: 1;
+  padding: 0.3rem 0.4rem;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+}
+
+.game-edit__civs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+/* Winner buttons */
+.game-edit__winners {
+  display: flex;
+  gap: var(--space-sm);
+  flex: 1;
+}
+
+.btn-winner {
+  flex: 1;
+  padding: 0.3rem 0.5rem;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-winner--active {
+  background: rgba(92, 184, 122, 0.15);
+  border-color: var(--color-win);
+  color: var(--color-win);
+  font-weight: 600;
+}
+
+/* Submit / clear buttons */
+.match-actions {
+  margin-top: var(--space-lg);
+  display: flex;
+  gap: var(--space-md);
+}
+
+.btn-submit {
+  padding: var(--space-sm) var(--space-xl);
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.btn-submit:disabled {
+  background: var(--color-text-tertiary);
+  cursor: not-allowed;
+}
+
+.btn-clear {
+  padding: var(--space-sm) var(--space-lg);
+  background: transparent;
+  color: var(--color-loss);
+  border: 1px solid var(--color-loss);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.btn-clear:disabled {
+  cursor: not-allowed;
+}
+
+/* Scheduling input */
+.schedule-row {
+  margin-top: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.schedule-row label {
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+}
+
+.schedule-row input {
+  padding: 0.375rem 0.5rem;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+}
+
+/* Game list spacing */
+.game-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* ── Matches page ── */
+.matches-page__header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.matches-page__season {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+}
+
+.matches-page__filters {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-lg);
+}
+
+.matches-page__empty {
+  color: var(--color-text-secondary);
+  padding: var(--space-xl) 0;
+}
+
+/* Filter chips */
+.filter-chip {
+  padding: 0.25rem 0.75rem;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.filter-chip:hover {
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text);
+}
+
+.filter-chip--active {
+  background: var(--color-accent-bg);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* Section headings with count */
+.matches-section__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 1rem;
+  margin-bottom: var(--space-md);
+  margin-top: var(--space-xl);
+}
+
+.matches-section__heading:first-of-type {
+  margin-top: 0;
+}
+
+.matches-section__count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-surface);
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+}
+
+/* Standings table conditional colors */
+.num--positive { color: var(--color-win); }
+.num--negative { color: var(--color-loss); }
+
+/* ── Columns view (tiers side-by-side, row-aligned via subgrid) ── */
+.columns-view {
+  display: grid;
+  grid-template-columns: repeat(var(--col-count, 3), 1fr);
+  grid-template-rows: auto auto auto auto; /* bar · header · standings · schedule */
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.columns-view__col {
+  min-width: 0;
+  display: grid;
+  grid-row: span 4;             /* occupy all four bands */
+  grid-template-rows: subgrid;  /* adopt the parent's row lines */
+  gap: 0;
+}
+
+.columns-view__col .section-header {
+  margin-bottom: var(--space-md);
+}
+
+/* Narrow screens can't hold 3 columns — fall back to a single stack. */
+@media (max-width: 900px) {
+  .columns-view {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    gap: var(--space-xl);
+  }
+
+  .columns-view__col {
+    display: block;
+    grid-row: auto;
+  }
+}
+
+/* ── View switch toggle ── */
+.view-switch {
+  display: inline-flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xl);
+}
+
+.view-switch__btn {
+  padding: 0.25rem 0.75rem;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.view-switch__btn:hover {
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text);
+}
+
+.view-switch__btn--active {
+  background: var(--color-accent-bg);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* ── Collapsible section (native details/summary) ── */
+.collapsible {
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.collapsible__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: color 0.15s ease;
+}
+
+.collapsible__summary:hover {
+  color: var(--color-text);
+}
+
+/* Hide the browser's default disclosure triangle */
+.collapsible__summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Custom chevron: a right-pointing triangle that rotates down when open */
+.collapsible__chevron {
+  width: 0;
+  height: 0;
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.collapsible[open] .collapsible__chevron {
+  transform: rotate(90deg);
+}
+
+.collapsible__count {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-surface);
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.collapsible__body {
+  padding-top: var(--space-md);
+}
+
+/* Schedule is a query container, so its match cards reflow to fit the
+   wrapper's OWN width — narrow column (columns view) or narrow screen.
+   container-type also stops the cards from widening the subgrid track,
+   which is what was dragging the standings out behind the next column. */
+.schedule-view {
+  container: schedule / inline-size;
+}
+
+/* ── Match card: symmetric two-row grid (score | name | status | info) ── */
+.match-card--grid {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 2px var(--space-md);
+  align-items: center;
+  border-left: 1px solid var(--color-border-subtle); /* override tier stripe */
+  border-radius: var(--border-radius-sm);            /* softer corners (½ of base) */
+}
+
+/* Cell placement */
+.match-card--grid .match-card__cell-score { grid-column: 1; }
+.match-card--grid .match-card__name { grid-column: 2; }
+.match-card--grid .match-card__cell--top { grid-row: 1; }
+.match-card--grid .match-card__cell-score:not(.match-card__cell--top),
+.match-card--grid .match-card__name:not(.match-card__cell--top) { grid-row: 2; }
+.match-card--grid .match-card__status { grid-column: 3; grid-row: 1 / 3; }
+.match-card--grid .match-card__info { grid-column: 4; grid-row: 1 / 3; }
+
+/* Season tag (cross-season history only) — a third row under the two
+   score/name rows, spanning the score and name columns. */
+.match-card--grid .match-card__meta {
+  grid-column: 1 / 3;
+  grid-row: 3;
+  min-width: 0;
+}
+
+/* Score (mono), now leading each row */
+.match-card__cell-score {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  text-align: center;
+  color: var(--color-text-secondary);
+  min-width: 1.5ch;
+}
+
+/* Player name — shrinks indefinitely, truncates */
+.match-card__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.match-card__name--winner {
+  font-weight: 600;
+  color: var(--color-win);
+}
+
+.match-card__cell-score--winner {
+  color: var(--color-win);
+}
+
+/* Status column — date/time or Live pill; spans both rows, empty when unscheduled */
+.match-card__status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.match-card__status .badge {
+  min-width: 5rem;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* ── Subtle inset gridlines (segments never touch outer edges or cross) ── */
+.match-card--grid .match-card__cell-score,
+.match-card--grid .match-card__name {
+  position: relative;
+}
+
+/* Vertical ticks: right of score (score|name) and right of name (name|status) */
+.match-card--grid .match-card__cell-score::after,
+.match-card--grid .match-card__name::after {
+  content: "";
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  right: calc(var(--space-md) / -2);
+  width: 1px;
+  background: var(--color-border-subtle);
+}
+
+/* Horizontal tick: between the two rows, under the name cell only */
+.match-card--grid .match-card__name.match-card__cell--top::before {
+  content: "";
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  bottom: -1px;
+  height: 1px;
+  background: var(--color-border-subtle);
+}
+
+/* Info icon → match page; spans both rows */
+.match-card--grid .match-card__info {
+  grid-column: 4;
+  grid-row: 1 / 3;
+}
+
+.civ-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.civ-flag__img {
+  width: auto;          /* was implicitly square via width attr */
+  border-radius: 2px;
+  object-fit: contain;
+  flex-shrink: 0;
 }

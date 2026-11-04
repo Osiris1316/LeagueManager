@@ -25,6 +25,10 @@ export interface Tier {
 export interface Season {
   id: number;
   season_number: number;
+  title_id: string;
+  season_index: number;
+  format: string;
+  name: string | null;
   status: SeasonStatus;
   best_of: number;
   started_at: string | null;

@@ -68,8 +68,12 @@ export function standingsRoutes<E extends { Bindings: { DB: D1Database } }>() {
       rulesByTier[r.tier_id] = r.rules_summary;
     }
 
+    // Only include tiers that have a roster this season
+    const activeTierIds = new Set(assignments.map( a => a.tier_id));
+    const activeTiers = tiers.filter(t => activeTierIds.has(t.id));
+
     // Build per-tier data
-    const tierData = tiers.map(tier => {
+    const tierData = activeTiers.map(tier => {
       const tierPlayerIds = assignments
         .filter(a => a.tier_id === tier.id)
         .map(a => a.player_id);

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getPlayer } from '../api/client';
 import type { PlayerDetailResponse } from '../api/client';
 import { MatchCard } from '../components/MatchCard';
+import { PlayerStatsSection } from '../components/PlayerStatsSection';
 
 export function PlayerPage() {
   const { playerId } = useParams<{ playerId: string }>();
@@ -20,8 +21,11 @@ export function PlayerPage() {
       try {
         const id = parseInt(playerId ?? '', 10);
         if (isNaN(id)) throw new Error('Invalid player ID');
-        const result = await getPlayer(id);
-        if (!cancelled) setData(result);
+        const playerResult = await getPlayer(id);
+
+        if (!cancelled) {
+          setData(playerResult);
+        }
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load player');
       } finally {
@@ -37,9 +41,9 @@ export function PlayerPage() {
     return <div className="loading" role="status" aria-live="polite">Loading player…</div>;
   }
 
-  if (error || !data) {
-    return <div role="alert"><p>{error ?? 'Player not found'}</p></div>;
-  }
+    if (error || !data) {
+      return <div role="alert"><p>{error ?? 'Player not found'}</p></div>;
+    }
 
   const { player, tierAssignment, matches } = data;
   const tierId = tierAssignment?.tier_id.replace('code_', '') ?? '';
@@ -73,6 +77,14 @@ export function PlayerPage() {
           </span>
         </div>
       </header>
+      
+      <section aria-labelledby="player-stats-heading" style={{ marginBottom: 'var(--space-xl)' }}>
+        <h2 id="player-stats-heading" style={{ marginBottom: 'var(--space-md)' }}>
+          Player Stats
+        </h2>
+
+        <PlayerStatsSection playerId={player.id} />
+      </section>
 
       <section aria-labelledby="match-history-heading">
         <h2 id="match-history-heading" style={{ marginBottom: 'var(--space-md)' }}>
@@ -87,7 +99,6 @@ export function PlayerPage() {
               <MatchCard
                 key={match.id}
                 match={match}
-                perspectivePlayerId={player.id}
                 tierAccent={tierId as 's' | 'a' | 'b'}
                 showSeason
               />

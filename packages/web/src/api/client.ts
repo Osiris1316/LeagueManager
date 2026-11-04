@@ -1,3 +1,5 @@
+import type { SlotView } from '@league-manager/core';
+
 const BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 async function fetchJson<T>(path: string): Promise<T> {
@@ -7,10 +9,13 @@ async function fetchJson<T>(path: string): Promise<T> {
 }
 
 // ── Types ──
-
 export interface Season {
   id: number;
   season_number: number;
+  title_id: string;
+  season_index: number;
+  format: string;
+  name: string | null;
   status: string;
   best_of: number;
   started_at: string | null;
@@ -97,6 +102,49 @@ export interface PlayerDetailResponse {
   matches: (MatchWithPlayers & { season_number: number })[];
 }
 
+export interface KeyedRecord {
+  key: string;
+  played: number;
+  won: number;
+  winRate: number;
+}
+
+export interface PlayerStatsResponse {
+  playerId: number;
+  civs: KeyedRecord[];
+  maps: KeyedRecord[];
+}
+
+export interface H2HRecord {
+  perspectivePlayerId: number;
+  opponentPlayerId: number;
+  matchesPlayed: number;
+  wins: number;
+  losses: number;
+  gamesWon: number;
+  gamesLost: number;
+  lastMeeting: {
+    matchId: number;
+    won: boolean;
+    score: [number, number];
+  } | null;
+}
+
+export interface CivMatchupRecord {
+  civId: string;
+  oppCivId: string;
+  played: number;
+  won: number;
+  winRate: number;
+}
+
+export interface H2HResponse {
+  perspectivePlayerId: number;
+  opponentPlayerId: number;
+  series: H2HRecord;
+  civMatchups: CivMatchupRecord[];
+}
+
 // ── Public API functions ──
 
 export function getSeasons(): Promise<Season[]> {
@@ -109,6 +157,32 @@ export function getStandings(seasonId: number): Promise<StandingsResponse> {
 
 export function getPlayer(playerId: number): Promise<PlayerDetailResponse> {
   return fetchJson(`/api/players/${playerId}`);
+}
+
+export function getPlayerStats(playerId: number): Promise<PlayerStatsResponse> {
+  return fetchJson(`/api/players/${playerId}/stats`);
+}
+
+export function getH2H(p1: number, p2: number): Promise<H2HResponse> {
+  return fetchJson(`/api/h2h?p1=${p1}&p2=${p2}`);
+}
+
+export interface SeasonMeta {
+  id: number;
+  seasonNumber: number;
+  startedAt: string | null;
+  completedAt: string | null;
+  status: 'pending' | 'active' | 'complete';
+}
+
+export interface PlayerSlotsResponse {
+  playerId: number;
+  slots: SlotView[];
+  seasons: SeasonMeta[];
+}
+
+export function getPlayerSlots(playerId: number): Promise<PlayerSlotsResponse> {
+  return fetchJson(`/api/players/${playerId}/slots`);
 }
 
 export function getPlayers(): Promise<Player[]> {
@@ -129,6 +203,10 @@ export function getRules(seasonId: number, tierId: string): Promise<{
   rules_full: string | null;
 }> {
   return fetchJson(`/api/seasons/${seasonId}/tiers/${tierId}/rules`);
+}
+
+export function getSeasonMatches(seasonId: number): Promise<MatchWithPlayers[]> {
+  return fetchJson(`/api/seasons/${seasonId}/matches`);
 }
 
 // ── Admin auth ──

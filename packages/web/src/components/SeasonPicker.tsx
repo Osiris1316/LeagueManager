@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { seasonLabelShort } from '@league-manager/core';
 import { useCurrentSeasonId, useSeasons } from '../context/SeasonsContext';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -32,7 +33,7 @@ export function SeasonPicker() {
       >
         {seasons.map(s => (
           <option key={s.id} value={s.id}>
-            {`Season ${s.season_number} · ${STATUS_LABELS[s.status] ?? s.status}`}
+            {`${seasonLabelShort(s.title_id, s.season_index)} · ${STATUS_LABELS[s.status] ?? s.status}`}
           </option>
         ))}
       </select>

@@ -3,8 +3,9 @@ import { useParams } from 'react-router-dom';
 import { getStandings } from '../api/client';
 import type { StandingsResponse } from '../api/client';
 import { useSeasons } from '../context/SeasonsContext';
-import { StandingsTable } from '../components/StandingsTable';
-import { ScheduleView } from '../components/ScheduleView';
+import { StackedView } from '../views/StackedView';
+import { ColumnsView } from '../views/ColumnsView';
+import { seasonLabel } from '@league-manager/core';
 
 export function SeasonPage() {
   const { seasonId } = useParams<{ seasonId: string }>();
@@ -12,6 +13,7 @@ export function SeasonPage() {
   const [data, setData] = useState<StandingsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'stacked' | 'columns'>('columns');
 
   const parsed = seasonId ? Number.parseInt(seasonId, 10) : Number.NaN;
   // No season in the URL means "show me the current one".
@@ -68,12 +70,12 @@ export function SeasonPage() {
 
   if (!data) return null;
 
-  const { season, tiers } = data;
+  const { season } = data;
 
   return (
     <div>
       <header style={{ marginBottom: 'var(--space-xl)' }}>
-        <h1>Season {season.season_number}</h1>
+        <h1>{seasonLabel(season.title_id, season.season_index)}</h1>
         <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-xs)', display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
           Best of {season.best_of}
           {season.status === 'active' && <span className="badge badge--active">In Progress</span>}
@@ -82,57 +84,28 @@ export function SeasonPage() {
         </p>
       </header>
 
-      {tiers.map(tierData => {
-        const tierId = tierData.tier.id.replace('code_', '');
-        return (
-          <section
-            key={tierData.tier.id}
-            className="tier-section"
-            aria-labelledby={`tier-heading-${tierData.tier.id}`}
-          >
-            <div className={`tier-bar tier-bar--${tierId}`} aria-hidden="true" />
+      <div className="view-switch" role="group" aria-label="Layout view">
+        <button
+          type="button"
+          className={`view-switch__btn${viewMode === 'columns' ? ' view-switch__btn--active' : ''}`}
+          onClick={() => setViewMode('columns')}
+          aria-pressed={viewMode === 'columns'}
+        >
+          Columns
+        </button>
+        <button
+          type="button"
+          className={`view-switch__btn${viewMode === 'stacked' ? ' view-switch__btn--active' : ''}`}
+          onClick={() => setViewMode('stacked')}
+          aria-pressed={viewMode === 'stacked'}
+        >
+          Stacked
+        </button>
+      </div>
 
-            <div className="section-header">
-              <h2 id={`tier-heading-${tierData.tier.id}`}>
-                {tierData.tier.display_name}
-              </h2>
-              <span className={`badge badge--${tierId}`}>
-                {tierData.tier.civ_rule === 'pro_draft'
-                  ? 'Civ Draft'
-                  : tierData.tier.civ_rule === 'win_lock'
-                  ? 'Win Lock'
-                  : 'Open'}
-              </span>
-            </div>
-
-            {tierData.tier.rules_summary && (
-              <p style={{
-                fontSize: '0.8125rem',
-                color: 'var(--color-text-tertiary)',
-                marginBottom: 'var(--space-lg)',
-                maxWidth: '40rem',
-              }}>
-                {tierData.tier.rules_summary}
-              </p>
-            )}
-
-            <StandingsTable
-              standings={tierData.standings}
-              tierId={tierData.tier.id}
-            />
-
-            <div style={{ marginTop: 'var(--space-lg)' }}>
-              <h3 style={{ marginBottom: 'var(--space-md)' }}>Schedule</h3>
-              <ScheduleView
-                matches={tierData.matches}
-                rounds={tierData.rounds}
-                seasonStartDate={season.started_at}
-                tierAccent={tierData.tier.id.replace('code_', '') as 's' | 'a' | 'b'}
-              />
-            </div>
-          </section>
-        );
-      })}
+      {viewMode === 'stacked'
+        ? <StackedView data={data} />
+        : <ColumnsView data={data} />}
     </div>
   );
 }
