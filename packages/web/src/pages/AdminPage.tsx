@@ -99,7 +99,7 @@ export function AdminPage() {
 
   return (
     <div>
-      <header style={{ marginBottom: 'var(--space-xl)' }}>
+      <header className="page-head page-head--stacked">
         <h1>Admin</h1>
         <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-xs)' }}>
           Report, correct, and schedule match results.

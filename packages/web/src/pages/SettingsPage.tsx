@@ -20,9 +20,9 @@ export function SettingsPage() {
 
   return (
     <div>
-      <header style={{ marginBottom: 'var(--space-xl)' }}>
-        <h1>Settings</h1>
-      </header>
+      <div className="page-head">
+        <div className="page-head__title"><h1>Settings</h1></div>
+      </div>
 
       <section aria-labelledby="follow-heading">
         <div className="section-header">

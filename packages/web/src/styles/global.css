@@ -1,36 +1,43 @@
 /* ── Design Tokens ── */
 :root {
-  /* Surface colors */
-  --color-bg: #0f1117;
-  --color-bg-raised: #181b24;
-  --color-bg-surface: #1e2230;
-  --color-bg-hover: #252a38;
+  /* ── Colour: dark mode (default) ──
+     Neutral near-black with no blue tint. Colour is reserved for meaning:
+     tier colours, wins and losses, overdue. Light mode redefines these same
+     tokens below, so components never name a raw colour. */
+  color-scheme: dark;
+
+  /* Surfaces, from page to raised section to hover */
+  --color-bg: #0c0c0d;
+  --color-bg-raised: #131315;
+  --color-bg-surface: #1a1a1d;
+  --color-bg-hover: #202024;
 
   /* Borders */
-  --color-border: #2a2f3e;
-  --color-border-subtle: #1f2333;
+  --color-border: #2a2a2f;
+  --color-border-subtle: #1f1f23;
 
   /* Text */
-  --color-text: #e4e6ed;
-  --color-text-secondary: #9298ab;
-  --color-text-tertiary: #626880;
+  --color-text: #ededed;
+  --color-text-secondary: #a1a1a7;
+  --color-text-tertiary: #6d6d74;
 
-  /* Accent — warm gold (AoE-inspired) */
-  --color-accent: #d4a847;
-  --color-accent-dim: #b08c35;
-  --color-accent-bg: rgba(212, 168, 71, 0.1);
+  /* Accent: in dark mode the accent is simply bright text */
+  --color-accent: #ededed;
+  --color-accent-dim: #a1a1a7;
+  --color-accent-bg: rgba(237, 237, 237, 0.07);
 
   /* Tier colors */
-  --color-tier-s: #d4a847;
-  --color-tier-a: #7ca1d4;
-  --color-tier-b: #7cd49a;
+  --color-tier-s: #c9a24c;
+  --color-tier-a: #8ba3c4;
+  --color-tier-b: #8fbf9e;
 
   /* Status colors */
-  --color-win: #5cb87a;
-  --color-loss: #d45c5c;
-  --color-pending: #626880;
-  --color-overdue: #e5803c;
-  --color-overdue-bg: rgba(229, 128, 60, 0.12);
+  --color-win: #7cc192;
+  --color-loss: #d27a7a;
+  --color-loss-bg: rgba(210, 122, 122, 0.1);
+  --color-pending: #6d6d74;
+  --color-overdue: #e08a4a;
+  --color-overdue-bg: rgba(224, 138, 74, 0.12);
 
   /* Focus ring (high contrast for accessibility) */
   --color-focus: #6ea8fe;
@@ -40,7 +47,7 @@
      Loaded families (see index.html): DM Sans, Inter.
      To use another, add it in index.html first.
      ══════════════════════════════════════════════════════════════ */
-  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'Inter', system-ui, -apple-system, sans-serif;
 
   /* Crisp faces for match card + match-page scoreline.
@@ -59,9 +66,67 @@
 
   /* Layout */
   --max-width: 72rem;
-  --ym-panel-width: 22rem;
+  --ym-panel-width: 21rem;
   --border-radius: 8px;
   --border-radius-sm: 4px;
+}
+
+/* ── Colour: light mode ──
+   Used when the device prefers light (and the visitor hasn't picked dark),
+   or when the visitor picks Light in the menu. Off-white page, white
+   sections, one ink-blue accent. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f5f5f6;
+  --color-bg-raised: #ffffff;
+  --color-bg-surface: #efeff1;
+  --color-bg-hover: #e9e9ec;
+  --color-border: #d9d9de;
+  --color-border-subtle: #e6e6ea;
+  --color-text: #141416;
+  --color-text-secondary: #55555d;
+  --color-text-tertiary: #8a8a92;
+  --color-accent: #1f4fd1;
+  --color-accent-dim: #3a63d6;
+  --color-accent-bg: rgba(31, 79, 209, 0.08);
+  --color-tier-s: #b07d12;
+  --color-tier-a: #2f6db0;
+  --color-tier-b: #2d8a57;
+  --color-win: #16803c;
+  --color-loss: #c0392b;
+  --color-loss-bg: rgba(192, 57, 43, 0.08);
+  --color-pending: #8a8a92;
+  --color-overdue: #c2510c;
+  --color-overdue-bg: rgba(194, 81, 12, 0.1);
+  --color-focus: #1f4fd1;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --color-bg: #f5f5f6;
+    --color-bg-raised: #ffffff;
+    --color-bg-surface: #efeff1;
+    --color-bg-hover: #e9e9ec;
+    --color-border: #d9d9de;
+    --color-border-subtle: #e6e6ea;
+    --color-text: #141416;
+    --color-text-secondary: #55555d;
+    --color-text-tertiary: #8a8a92;
+    --color-accent: #1f4fd1;
+    --color-accent-dim: #3a63d6;
+    --color-accent-bg: rgba(31, 79, 209, 0.08);
+    --color-tier-s: #b07d12;
+    --color-tier-a: #2f6db0;
+    --color-tier-b: #2d8a57;
+    --color-win: #16803c;
+    --color-loss: #c0392b;
+    --color-loss-bg: rgba(192, 57, 43, 0.08);
+    --color-pending: #8a8a92;
+    --color-overdue: #c2510c;
+    --color-overdue-bg: rgba(194, 81, 12, 0.1);
+    --color-focus: #1f4fd1;
+  }
 }
 
 /* ── Reset & Base ── */
@@ -218,8 +283,10 @@ tbody tr:hover {
   overflow-x: visible;
 }
 
-/* ── Standings table: card reflow when the table's box is narrow ── */
-@container standings (max-width: 500px) {
+/* ── Standings table: card reflow, only for very narrow boxes ──
+   Down to ~280px wide the table stays a real, compact table (see the
+   "Visual refresh" section at the end); below that it reflows into cards. */
+@container standings (max-width: 279px) {
   .standings-table thead {
     display: none;
   }
@@ -1121,8 +1188,8 @@ tbody tr:hover {
 }
 
 .banner--error {
-  background: rgba(212, 92, 92, 0.1);
-  border: 1px solid rgba(212, 92, 92, 0.3);
+  background: var(--color-loss-bg);
+  border: 1px solid var(--color-loss);
   color: var(--color-loss);
 }
 
@@ -2315,4 +2382,375 @@ tr[id^="standing-"] {
   .standings-row--flash td {
     animation: none;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   VISUAL REFRESH (Nov 2026): compact, quiet, light and dark.
+   Structure from "Ledger" (plain labels, text-coloured names, colour only
+   where it means something), subtle raised sections and thin tier edges
+   from "Refined", colours from the dark and light tokens at the top.
+   These rules sit last on purpose so they win over the older ones above;
+   folding them into those rules is a tidy-up for later.
+   ══════════════════════════════════════════════════════════════ */
+
+body { background: var(--color-bg); }
+
+a { color: var(--color-text); }
+a:hover { color: var(--color-text); text-decoration: underline; text-underline-offset: 2px; }
+
+h1 { font-size: 1.375rem; letter-spacing: -0.015em; }
+h2 { font-size: 1.0625rem; }
+
+.nav { margin-bottom: var(--space-lg); }
+.nav__brand:hover { color: var(--color-text); text-decoration: none; }
+.nav__link:hover,
+.nav__link--active { border-bottom-color: var(--color-accent); text-decoration: none; }
+
+/* ── Page head: title, details and controls share one row ── */
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.page-head--stacked { display: block; }
+
+.page-head__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-md);
+  min-width: 0;
+}
+
+.page-head__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.page-head__crumbs {
+  display: inline-flex;
+  gap: var(--space-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+}
+
+.page-head__crumbs a { color: var(--color-text-secondary); }
+
+.page-head__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.page-head .view-switch { margin-bottom: 0; }
+
+/* ── Page sections ── */
+.page-section { margin-bottom: var(--space-xl); }
+
+.section-title {
+  font-size: 1rem;
+  margin-bottom: var(--space-sm);
+}
+
+/* Player stats: the scope picker sits on the heading's row. */
+.page-section--stats {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-md);
+}
+
+.page-section--stats > .section-title { margin-bottom: 0; }
+.page-section--stats > .player-stats-section { display: contents; }
+.page-section--stats .stats-scope-picker { justify-self: end; margin-bottom: 0; }
+.page-section--stats .player-stats-section > :not(.stats-scope-picker),
+.page-section--stats > p {
+  grid-column: 1 / -1;
+  margin-top: var(--space-sm);
+}
+
+/* ── Labels instead of pills ── */
+.badge {
+  gap: 0.375rem;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.badge--s::before,
+.badge--a::before,
+.badge--b::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 1px;
+}
+
+.badge--s::before { background: var(--color-tier-s); }
+.badge--a::before { background: var(--color-tier-a); }
+.badge--b::before { background: var(--color-tier-b); }
+
+.badge--active::before {
+  content: "";
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  background: var(--color-win);
+}
+
+.badge--win { color: var(--color-win); }
+.badge--loss { color: var(--color-loss); }
+
+/* ── Sections: subtly raised, with the tier colour as a thin edge ── */
+.card {
+  padding: var(--space-md);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 6px;
+}
+
+.card:has(.standings-table) { padding: var(--space-xs) var(--space-sm); }
+
+.tier-bar { display: none; }
+
+.section-header {
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  padding-left: var(--space-sm);
+  border-left: 3px solid var(--tier-tone, var(--color-border));
+}
+
+.section-header:has(.badge--s) { --tier-tone: var(--color-tier-s); }
+.section-header:has(.badge--a) { --tier-tone: var(--color-tier-a); }
+.section-header:has(.badge--b) { --tier-tone: var(--color-tier-b); }
+
+.section-header h2 { font-size: 1rem; }
+
+.columns-view { gap: var(--space-md) var(--space-lg); }
+.columns-view__col .section-header { margin-bottom: var(--space-sm); }
+.tier-section { margin-bottom: var(--space-xl); }
+
+/* ── Standings table: tight rows ── */
+.standings-table thead th {
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-tertiary);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.standings-table td a { font-weight: 500; }
+
+@container standings (min-width: 501px) {
+  .standings-table th,
+  .standings-table td {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .standings-table th.num,
+  .standings-table td.num { width: 3.25rem; }
+}
+
+/* Narrow columns and phones: a real table, just smaller. */
+@container standings (min-width: 280px) and (max-width: 500px) {
+  .standings-table { table-layout: fixed; }
+
+  .standings-table th,
+  .standings-table td {
+    padding: 0.3125rem 0.25rem;
+    font-size: 0.8125rem;
+    text-align: right;
+  }
+
+  .standings-table th { font-size: 0.6875rem; }
+
+  .standings-table th:first-child,
+  .standings-table td:first-child {
+    width: 1.75rem;
+    padding-right: 0.5rem;
+    color: var(--color-text-tertiary);
+  }
+
+  .standings-table th:nth-child(2),
+  .standings-table td:nth-child(2) {
+    overflow: hidden;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .standings-table th.num,
+  .standings-table td.num { width: 2.25rem; }
+}
+
+/* ── Controls: quiet segmented switches, square corners ── */
+.view-switch {
+  gap: 0;
+  padding: 2px;
+  margin-bottom: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.view-switch__btn {
+  padding: 0.1875rem 0.625rem;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--color-text-secondary);
+}
+
+.view-switch__btn:hover { color: var(--color-text); }
+
+.view-switch__btn--active {
+  background: var(--color-bg-surface);
+  color: var(--color-text);
+}
+
+.filter-chip {
+  padding: 0.1875rem 0.625rem;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.filter-chip--active {
+  background: var(--color-bg-surface);
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text);
+}
+
+.matches-page__filters { margin-bottom: var(--space-md); }
+.matches-section__heading { margin-top: var(--space-lg); }
+
+.season-picker__select,
+.stats-scope-picker__select {
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.stats-scope-picker { gap: var(--space-xs); }
+.stats-scope-picker__select { padding: 0.1875rem 0.625rem; font-size: 0.8125rem; }
+
+.collapsible__summary {
+  padding: 0.375rem 0;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.collapsible__count { padding: 0; background: none; }
+.collapsible__body { padding-top: var(--space-sm); }
+
+/* ── Match rows: flat, with a thin tier edge ── */
+.match-list { gap: 4px; }
+
+.match-card {
+  background: var(--color-bg-raised);
+  border-color: var(--color-border-subtle);
+  border-radius: 4px;
+}
+
+.match-card:not(.match-card--grid) { padding: 0.375rem 0.75rem; }
+
+.match-card--tier-s,
+.match-card--tier-a,
+.match-card--tier-b { border-left-width: 2px; }
+
+.match-card__name--winner,
+.match-card__cell-score--winner,
+.match-card__player--winner { color: var(--color-text); font-weight: 600; }
+
+.match-card__info:hover { color: var(--color-text); background: var(--color-bg-surface); }
+
+/* ── Player stats cards ── */
+.player-stats-grid { gap: var(--space-sm); }
+.player-stats-card { border-radius: 6px; }
+.player-stats-card__header { padding: 0.5rem 0.75rem; border-bottom-color: var(--color-border-subtle); }
+.player-stats-card__header h3 { font-size: 0.875rem; }
+.player-stats-card__empty { padding: 0.625rem 0.75rem; font-size: 0.8125rem; }
+
+/* ── Your matches, in the same language ── */
+.ym-group--current,
+.match-tile--current { --ym-tone: var(--color-text); }
+
+.ym-header { padding: 0.625rem 0.75rem; }
+.ym-panel__body { padding: 0.75rem; }
+.ym-list { gap: var(--space-md); }
+.ym-panel--pinned,
+.ym-panel--player { top: 3.75rem; }
+
+.ym-group__title {
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.ym-standings__line,
+.ym-picker__btn,
+.match-tile { border-radius: 4px; }
+.ym-standings__pos { color: var(--color-text); }
+
+.ym-link-btn,
+.ym-more {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ym-ribbon { margin-bottom: var(--space-md); }
+.ym-ribbon--player { margin-bottom: var(--space-lg); }
+
+.follow-chip { border-radius: 6px; }
+.follow-chip--empty { color: var(--color-text-secondary); }
+.follow-chip__avatar {
+  border-radius: 4px;
+  background: var(--color-bg-surface);
+  color: var(--color-text);
+}
+
+.follow-btn {
+  border-color: var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text);
+}
+
+.follow-btn--on { background: var(--color-bg-surface); }
+
+/* ── Menu: appearance switch ── */
+.menu-theme {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.menu-theme__label {
+  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+}
+
+.menu-theme__switch {
+  align-self: flex-start;
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  /* Long season titles fit on one line on phones. */
+  h1 { font-size: 1.25rem; }
+  .page-head { margin-bottom: var(--space-md); }
 }

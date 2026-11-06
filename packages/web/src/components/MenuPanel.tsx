@@ -1,12 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
+import { applyTheme, readTheme } from '../theme';
+import type { ThemeChoice } from '../theme';
+
+const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
+  { value: 'system', label: 'Auto' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'light', label: 'Light' },
+];
 
 export function MenuPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [showTokenInput, setShowTokenInput] = useState(false);
   const [tokenValue, setTokenValue] = useState('');
   const { isAdmin, login, logout } = useAdmin();
+  const [theme, setTheme] = useState<ThemeChoice>(readTheme);
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -134,7 +143,24 @@ export function MenuPanel() {
               Settings
             </Link>
 
-            {isAdmin && <div style={dividerStyle} role="separator" />}
+            <div className="menu-theme" role="group" aria-label="Appearance">
+              <span className="menu-theme__label">Appearance</span>
+              <div className="view-switch menu-theme__switch">
+                {THEME_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    className={`view-switch__btn${theme === opt.value ? ' view-switch__btn--active' : ''}`}
+                    aria-pressed={theme === opt.value}
+                    onClick={() => { applyTheme(opt.value); setTheme(opt.value); }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={dividerStyle} role="separator" />
 
             {isAdmin ? (
               <button role="menuitem" onClick={handleLogout} style={menuItemStyle}>

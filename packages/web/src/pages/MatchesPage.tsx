@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { seasonLabelShort } from '@league-manager/core';
 import type { QueueGroup } from '@league-manager/core';
@@ -9,6 +10,7 @@ import { GROUP_LABELS } from '../components/your-matches/format';
 import { useFollow } from '../context/FollowContext';
 import { useSeasonLookup, useSeasons } from '../context/SeasonsContext';
 import { useYourMatches } from '../context/YourMatchesContext';
+import { useStoredFlag } from '../hooks/useStoredFlag';
 
 const TIER_LABELS: Record<string, string> = {
   code_s: 'Code S',
@@ -56,15 +58,29 @@ function MatchSection({ id, title, matches, tagFor, tone }: {
   );
 }
 
+function PageHead({ title, actions }: { title: string; actions: ReactNode }) {
+  return (
+    <div className="page-head">
+      <div className="page-head__title">
+        <h1>Matches</h1>
+        {title && <span className="page-head__meta">{title}</span>}
+      </div>
+      {actions && <div className="page-head__actions">{actions}</div>}
+    </div>
+  );
+}
+
 export function MatchesPage() {
   const { seasons, loading: seasonsLoading } = useSeasons();
   const seasonById = useSeasonLookup();
   const { followedPlayerId } = useFollow();
   const { followed, openPanel } = useYourMatches();
 
-  // Following is the default once you follow someone; All is today's view.
-  const [view, setView] = useState<'following' | 'all'>(followedPlayerId != null ? 'following' : 'all');
-  const showingFollowing = view === 'following' && followedPlayerId != null;
+  // Following is the default once you follow someone; the last choice is
+  // remembered in this browser.
+  const [preferAll, setPreferAll] = useStoredFlag('ui.matches_show_all', false);
+  const showingFollowing = !preferAll && followedPlayerId != null;
+  const setView = (view: 'following' | 'all') => setPreferAll(view === 'all');
 
   // "All" covers every live league at once. With no active season, fall back
   // to the most recent one so the page is never empty between seasons.
@@ -109,18 +125,9 @@ export function MatchesPage() {
     return [{ value: 'all', label: 'All tiers' }, ...present.map(t => ({ value: t, label: TIER_LABELS[t] ?? t }))];
   }, [matches]);
 
-  const header = (
-    <header className="matches-page__header">
-      <h1>Matches</h1>
-      {leagues.length > 0 && (
-        <span className="matches-page__season">
-          {leagues.map(s => seasonLabelShort(s.title_id, s.season_index)).join(' · ')}
-        </span>
-      )}
-    </header>
-  );
+  const leagueLabels = leagues.map(s => seasonLabelShort(s.title_id, s.season_index)).join(' · ');
 
-  const toggle = followedPlayerId != null && (
+  const switcher = followedPlayerId != null && (
     <div className="view-switch" role="group" aria-label="Which matches">
       <button
         type="button"
@@ -151,8 +158,7 @@ export function MatchesPage() {
 
     return (
       <div>
-        {header}
-        {toggle}
+        <PageHead title={leagueLabels} actions={switcher} />
         <p className="matches-page__following">
           Matches for{' '}
           <Link to={`/player/${followedPlayerId}`}>{followed.playerName ?? 'the player you follow'}</Link>
@@ -205,8 +211,7 @@ export function MatchesPage() {
 
   return (
     <div>
-      {header}
-      {toggle}
+      <PageHead title={leagueLabels} actions={switcher} />
 
       <div className="matches-page__filters">
         {tierOptions.map(opt => (

@@ -75,15 +75,19 @@ export function PlayerPage() {
   return (
     <div className="player-layout">
       <div className="player-layout__main">
-        <nav aria-label="Breadcrumb" style={{ marginBottom: 'var(--space-md)' }}>
-          <Link to="/players" style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-            ← All Players
-          </Link>
-        </nav>
-
-        <header className="player-header">
-          <div className="player-header__title">
+        <div className="page-head">
+          <div className="page-head__title">
+            <nav aria-label="Breadcrumb" className="page-head__crumbs">
+              <Link to="/players">Players</Link>
+              <span aria-hidden="true">/</span>
+            </nav>
             <h1>{player.display_name}</h1>
+            {tierAssignment && (
+              <span className={`badge badge--${tierId}`}>{tierAssignment.tier_name}</span>
+            )}
+            <span className="page-head__meta">{wins}W – {losses}L</span>
+          </div>
+          <div className="page-head__actions">
             <button
               type="button"
               className={`follow-btn${isFollowed ? ' follow-btn--on' : ''}`}
@@ -93,36 +97,22 @@ export function PlayerPage() {
               {isFollowed ? 'Following' : 'Follow'}
             </button>
           </div>
-          <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center', marginTop: 'var(--space-sm)' }}>
-            {tierAssignment && (
-              <span className={`badge badge--${tierId}`}>
-                {tierAssignment.tier_name}
-              </span>
-            )}
-            <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
-              {wins}W – {losses}L
-            </span>
-          </div>
-        </header>
+        </div>
 
         {/* Phones: this player's upcoming matches as tiles, above the stats. */}
         {!isDesktop && <PlayerRibbon data={upcoming} />}
 
-        <section aria-labelledby="player-stats-heading" style={{ marginBottom: 'var(--space-xl)' }}>
-          <h2 id="player-stats-heading" style={{ marginBottom: 'var(--space-md)' }}>
-            Player Stats
-          </h2>
+        <section aria-labelledby="player-stats-heading" className="page-section page-section--stats">
+          <h2 id="player-stats-heading" className="section-title">Player stats</h2>
 
           <PlayerStatsSection playerId={player.id} />
         </section>
 
-        <section aria-labelledby="match-history-heading">
-          <h2 id="match-history-heading" style={{ marginBottom: 'var(--space-md)' }}>
-            Match History
-          </h2>
+        <section aria-labelledby="match-history-heading" className="page-section">
+          <h2 id="match-history-heading" className="section-title">Match history</h2>
 
           {matches.length === 0 ? (
-            <p style={{ color: 'var(--color-text-secondary)' }}>No matches yet.</p>
+            <p className="ym-note">No matches yet.</p>
           ) : (
             <div className="match-list">
               {matches.map(match => {

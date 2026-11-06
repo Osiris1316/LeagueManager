@@ -33,7 +33,7 @@ export function YourMatchesProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   const [panelOpen, setPanelOpen] = useState(false);
-  const [pinned, setPinned] = useStoredFlag('ui.your_matches_pinned', false);
+  const [pinned, setPinned] = useStoredFlag('ui.your_matches_pinned', true);
   const [ribbonCollapsed, setRibbonCollapsed] = useStoredFlag('ui.your_matches_ribbon_collapsed', false);
 
   const openPanel = useCallback(() => setPanelOpen(true), []);

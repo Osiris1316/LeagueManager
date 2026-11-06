@@ -22,7 +22,9 @@ export function PlayersPage() {
 
   return (
     <div>
-      <h1 style={{ marginBottom: 'var(--space-lg)' }}>Players</h1>
+      <div className="page-head">
+        <div className="page-head__title"><h1>Players</h1></div>
+      </div>
       <div className="card">
         <div className="table-wrap">
           <table aria-label="All league players">
