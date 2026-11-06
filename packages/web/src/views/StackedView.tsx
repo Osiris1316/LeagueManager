@@ -48,7 +48,7 @@ export function StackedView({ data }: { data: StandingsResponse }) {
             />
 
             <div style={{ marginTop: 'var(--space-lg)' }}>
-              <CollapsibleSchedule count={tierData.matches.length}>
+              <CollapsibleSchedule count={tierData.matches.length} storageKey={`schedule.${tierData.tier.id}`}>
                 <ScheduleView
                   matches={tierData.matches}
                   rounds={tierData.rounds}
