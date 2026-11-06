@@ -1,53 +1,181 @@
-import { useEffect, useState } from 'react';
-import { getSeasons, getSeasonMatches } from '../api/client';
-import type { Season, MatchWithPlayers } from '../api/client';
-import { MatchCard } from '../components/MatchCard';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { seasonLabelShort } from '@league-manager/core';
+import type { QueueGroup } from '@league-manager/core';
+import { getSeasonMatches } from '../api/client';
+import type { MatchWithPlayers, Season } from '../api/client';
+import { MatchCard } from '../components/MatchCard';
+import { GROUP_LABELS } from '../components/your-matches/format';
+import { useFollow } from '../context/FollowContext';
+import { useSeasonLookup, useSeasons } from '../context/SeasonsContext';
+import { useYourMatches } from '../context/YourMatchesContext';
 
-const TIER_OPTIONS = [
-  { value: 'all', label: 'All Tiers' },
-  { value: 'code_s', label: 'Code S' },
-  { value: 'code_a', label: 'Code A' },
-  { value: 'code_b', label: 'Code B' },
-];
+const TIER_LABELS: Record<string, string> = {
+  code_s: 'Code S',
+  code_a: 'Code A',
+  code_b: 'Code B',
+};
 
 function tierAccent(tierId: string): 's' | 'a' | 'b' {
   return tierId.replace('code_', '') as 's' | 'a' | 'b';
 }
 
+/** Newest result first. */
+function byCompletedDesc(a: MatchWithPlayers, b: MatchWithPlayers): number {
+  if (a.completed_at && b.completed_at) return b.completed_at.localeCompare(a.completed_at);
+  return (b.round_number ?? 0) - (a.round_number ?? 0);
+}
+
+/** One titled list of match cards. */
+function MatchSection({ id, title, matches, tagFor, tone }: {
+  id: string;
+  title: string;
+  matches: MatchWithPlayers[];
+  tagFor: (m: MatchWithPlayers) => string | undefined;
+  tone?: QueueGroup;
+}) {
+  if (matches.length === 0) return null;
+  return (
+    <section aria-labelledby={id} className={tone ? `ym-group ym-group--${tone}` : undefined}>
+      <h2 id={id} className="matches-section__heading">
+        {tone && <span className="ym-group__dot" aria-hidden="true" />}
+        {title}
+        <span className="matches-section__count">{matches.length}</span>
+      </h2>
+      <div className="match-list">
+        {matches.map(match => (
+          <MatchCard
+            key={match.id}
+            match={match}
+            tierAccent={tierAccent(match.tier_id)}
+            seasonTag={tagFor(match)}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function MatchesPage() {
+  const { seasons, loading: seasonsLoading } = useSeasons();
+  const seasonById = useSeasonLookup();
+  const { followedPlayerId } = useFollow();
+  const { followed, openPanel } = useYourMatches();
+
+  // Following is the default once you follow someone; All is today's view.
+  const [view, setView] = useState<'following' | 'all'>(followedPlayerId != null ? 'following' : 'all');
+  const showingFollowing = view === 'following' && followedPlayerId != null;
+
+  // "All" covers every live league at once. With no active season, fall back
+  // to the most recent one so the page is never empty between seasons.
+  const leagues: Season[] = useMemo(() => {
+    const active = seasons.filter(s => s.status === 'active');
+    if (active.length) return active;
+    return seasons.filter(s => s.status !== 'pending').slice(0, 1);
+  }, [seasons]);
+  const leagueKey = leagues.map(s => s.id).join(',');
+  const multiLeague = leagues.length > 1;
+
   const [matches, setMatches] = useState<MatchWithPlayers[]>([]);
-  const [season, setSeason] = useState<Season | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tierFilter, setTierFilter] = useState('all');
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setLoading(true);
-      setError(null);
-      try {
-        const seasons = await getSeasons();
-        const current = seasons.find(s => s.status === 'active') ?? seasons[0];
-        if (!current) throw new Error('No seasons found');
-
-        const allMatches = await getSeasonMatches(current.id);
-        if (!cancelled) {
-          setSeason(current);
-          setMatches(allMatches);
-        }
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+    if (seasonsLoading) return;
+    if (leagueKey === '') {
+      setLoading(false);
+      setError('No seasons found');
+      return;
     }
-
-    load();
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all(leagueKey.split(',').map(id => getSeasonMatches(Number(id))))
+      .then(lists => { if (!cancelled) setMatches(lists.flat()); })
+      .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load'); })
+      .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, []);
+  }, [leagueKey, seasonsLoading]);
+
+  const tagFor = (m: MatchWithPlayers): string | undefined => {
+    const season = seasonById(m.season_id);
+    return season ? seasonLabelShort(season.title_id, season.season_index) : undefined;
+  };
+
+  // Tier chips come from the matches themselves, so only real tiers show.
+  const tierOptions = useMemo(() => {
+    const present = [...new Set(matches.map(m => m.tier_id))].sort();
+    return [{ value: 'all', label: 'All tiers' }, ...present.map(t => ({ value: t, label: TIER_LABELS[t] ?? t }))];
+  }, [matches]);
+
+  const header = (
+    <header className="matches-page__header">
+      <h1>Matches</h1>
+      {leagues.length > 0 && (
+        <span className="matches-page__season">
+          {leagues.map(s => seasonLabelShort(s.title_id, s.season_index)).join(' · ')}
+        </span>
+      )}
+    </header>
+  );
+
+  const toggle = followedPlayerId != null && (
+    <div className="view-switch" role="group" aria-label="Which matches">
+      <button
+        type="button"
+        className={`view-switch__btn${showingFollowing ? ' view-switch__btn--active' : ''}`}
+        onClick={() => setView('following')}
+        aria-pressed={showingFollowing}
+      >
+        Following
+      </button>
+      <button
+        type="button"
+        className={`view-switch__btn${!showingFollowing ? ' view-switch__btn--active' : ''}`}
+        onClick={() => setView('all')}
+        aria-pressed={!showingFollowing}
+      >
+        All
+      </button>
+    </div>
+  );
+
+  if (showingFollowing) {
+    const { queue } = followed;
+    const liveIds = new Set(seasons.filter(s => s.status === 'active').map(s => s.id));
+    const played = followed.matches
+      .filter(m => m.status === 'complete' && liveIds.has(m.season_id))
+      .sort(byCompletedDesc);
+    const nothing = queue.overdue.length + queue.current.length + queue.upcoming.length + played.length === 0;
+
+    return (
+      <div>
+        {header}
+        {toggle}
+        <p className="matches-page__following">
+          Matches for{' '}
+          <Link to={`/player/${followedPlayerId}`}>{followed.playerName ?? 'the player you follow'}</Link>
+          {' '}in live leagues.{' '}
+          <button type="button" className="ym-link-btn" onClick={openPanel}>Change player</button>
+        </p>
+
+        {followed.status === 'loading' && followed.matches.length === 0 ? (
+          <div className="loading" role="status" aria-live="polite">Loading matches…</div>
+        ) : followed.status === 'error' ? (
+          <div role="alert"><p>Couldn't load matches. Try again in a moment.</p></div>
+        ) : (
+          <>
+            <MatchSection id="following-overdue" title={GROUP_LABELS.overdue} matches={queue.overdue} tagFor={tagFor} tone="overdue" />
+            <MatchSection id="following-current" title={GROUP_LABELS.current} matches={queue.current} tagFor={tagFor} tone="current" />
+            <MatchSection id="following-upcoming" title={GROUP_LABELS.upcoming} matches={queue.upcoming} tagFor={tagFor} tone="upcoming" />
+            <MatchSection id="following-played" title="Played" matches={played} tagFor={tagFor} />
+            {nothing && <p className="matches-page__empty">No matches in live leagues.</p>}
+          </>
+        )}
+      </div>
+    );
+  }
 
   if (loading) {
     return <div className="loading" role="status" aria-live="polite">Loading matches…</div>;
@@ -70,24 +198,18 @@ export function MatchesPage() {
       return (a.round_number ?? 99) - (b.round_number ?? 99);
     });
 
-  const completed = filtered
-    .filter(m => m.status === 'complete')
-    .sort((a, b) => {
-      if (a.completed_at && b.completed_at) return b.completed_at.localeCompare(a.completed_at);
-      return (b.round_number ?? 0) - (a.round_number ?? 0);
-    });
+  const completed = filtered.filter(m => m.status === 'complete').sort(byCompletedDesc);
+
+  // Season tags only help when the list mixes leagues.
+  const allTagFor = multiLeague ? tagFor : () => undefined;
 
   return (
     <div>
-      <header className="matches-page__header">
-        <h1>Matches</h1>
-        {season && (
-          <span className="matches-page__season">{seasonLabelShort(season.title_id, season.season_index)}</span>
-        )}
-      </header>
+      {header}
+      {toggle}
 
       <div className="matches-page__filters">
-        {TIER_OPTIONS.map(opt => (
+        {tierOptions.map(opt => (
           <button
             key={opt.value}
             className={`filter-chip${tierFilter === opt.value ? ' filter-chip--active' : ''}`}
@@ -99,33 +221,8 @@ export function MatchesPage() {
         ))}
       </div>
 
-      {upcoming.length > 0 && (
-        <section aria-labelledby="upcoming-heading">
-          <h2 id="upcoming-heading" className="matches-section__heading">
-            Upcoming
-            <span className="matches-section__count">{upcoming.length}</span>
-          </h2>
-          <div className="match-list">
-            {upcoming.map(match => (
-              <MatchCard key={match.id} match={match} tierAccent={tierAccent(match.tier_id)} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {completed.length > 0 && (
-        <section aria-labelledby="completed-heading">
-          <h2 id="completed-heading" className="matches-section__heading">
-            Completed
-            <span className="matches-section__count">{completed.length}</span>
-          </h2>
-          <div className="match-list">
-            {completed.map(match => (
-              <MatchCard key={match.id} match={match} tierAccent={tierAccent(match.tier_id)} />
-            ))}
-          </div>
-        </section>
-      )}
+      <MatchSection id="upcoming-heading" title="Upcoming" matches={upcoming} tagFor={allTagFor} />
+      <MatchSection id="completed-heading" title="Completed" matches={completed} tagFor={allTagFor} />
 
       {upcoming.length === 0 && completed.length === 0 && (
         <p className="matches-page__empty">No matches found.</p>
