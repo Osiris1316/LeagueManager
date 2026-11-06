@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { seasonLabelShort } from '@league-manager/core';
+import { useAdmin } from '../context/AdminContext';
 import { useCurrentSeasonId, useSeasons } from '../context/SeasonsContext';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -10,17 +11,25 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function SeasonPicker() {
   const { seasons, loading } = useSeasons();
+  const { isAdmin } = useAdmin();
   const selected = useCurrentSeasonId();
   const navigate = useNavigate();
 
+  // Seasons are staged as 'pending' so they stay out of sight until they go
+  // live, so only an admin sees them here. The season being viewed is always
+  // listed, so the control never shows a different season than the page.
+  const visible = seasons.filter(
+    s => s.status !== 'pending' || isAdmin || s.id === selected
+  );
+
   // Always show the control once we know there is at least one season, so the
-  // season being viewed is always visible — even before a second one exists.
-  if (loading || seasons.length === 0) return null;
+  // season being viewed is always visible, even before a second one exists.
+  if (loading || visible.length === 0) return null;
 
   return (
     <div className="season-picker">
       <label className="sr-only" htmlFor="season-picker-select">
-        {seasons.length > 1 ? 'View season' : 'Current season'}
+        {visible.length > 1 ? 'View season' : 'Current season'}
       </label>
       <select
         id="season-picker-select"
@@ -31,7 +40,7 @@ export function SeasonPicker() {
           if (Number.isFinite(id)) navigate(`/season/${id}`);
         }}
       >
-        {seasons.map(s => (
+        {visible.map(s => (
           <option key={s.id} value={s.id}>
             {`${seasonLabelShort(s.title_id, s.season_index)} · ${STATUS_LABELS[s.status] ?? s.status}`}
           </option>

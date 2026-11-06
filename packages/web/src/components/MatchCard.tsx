@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import type { MatchWithPlayers } from '../api/client';
 
-type CardMatch = MatchWithPlayers & { season_number?: number };
-
 interface MatchCardProps {
-  match: CardMatch;
+  match: MatchWithPlayers;
   tierAccent?: 's' | 'a' | 'b';
-  /** Show which season the match belongs to (used in cross-season history). */
-  showSeason?: boolean;
+  /**
+   * Short season label such as "AoE4 S4". When given, the card shows it with
+   * the round, for lists that mix seasons (player history, followed matches).
+   */
+  seasonTag?: string;
 }
 
 function formatScheduledTime(isoString: string): string {
@@ -19,22 +20,20 @@ function formatScheduledTime(isoString: string): string {
   return `${month}/${day} ${hours}:${minutes}`;
 }
 
-/** "R2", or "S1 R2" when the season is being surfaced. */
-function matchMeta(match: CardMatch, showSeason?: boolean): string {
-  const round = `R${match.round_number}`;
-  if (!showSeason || match.season_number == null) return round;
-  return `S${match.season_number} ${round}`;
+/** "AoE4 S4 R2", or just the season tag when the round is unknown. */
+function matchMeta(match: MatchWithPlayers, seasonTag: string): string {
+  return match.round_number == null ? seasonTag : `${seasonTag} R${match.round_number}`;
 }
 
-export function MatchCard({ match, tierAccent, showSeason }: MatchCardProps) {
+export function MatchCard({ match, tierAccent, seasonTag }: MatchCardProps) {
   const tierClass = tierAccent ? ` match-card--tier-${tierAccent}` : '';
-  return <SymmetricCard match={match} tierClass={tierClass} showSeason={showSeason} />;
+  return <SymmetricCard match={match} tierClass={tierClass} seasonTag={seasonTag} />;
 }
 
-function SymmetricCard({ match, tierClass, showSeason }: {
-  match: CardMatch;
+function SymmetricCard({ match, tierClass, seasonTag }: {
+  match: MatchWithPlayers;
   tierClass: string;
-  showSeason?: boolean;
+  seasonTag?: string;
 }) {
   const isComplete = match.status === 'complete';
   const inProgress = match.status === 'in_progress';
@@ -95,10 +94,10 @@ function SymmetricCard({ match, tierClass, showSeason }: {
         </svg>
       </Link>
 
-      {/* Season tag — only in cross-season history, where matches from
-          different seasons sit next to each other. */}
-      {showSeason && (
-        <span className="match-card__meta">{matchMeta(match, showSeason)}</span>
+      {/* Season tag: only in lists where matches from different seasons
+          sit next to each other. */}
+      {seasonTag && (
+        <span className="match-card__meta">{matchMeta(match, seasonTag)}</span>
       )}
     </div>
   );

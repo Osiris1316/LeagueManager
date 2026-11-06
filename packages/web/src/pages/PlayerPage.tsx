@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPlayer } from '../api/client';
 import type { PlayerDetailResponse } from '../api/client';
+import { seasonLabelShort } from '@league-manager/core';
 import { MatchCard } from '../components/MatchCard';
 import { PlayerStatsSection } from '../components/PlayerStatsSection';
+import { useSeasonLookup } from '../context/SeasonsContext';
 
 export function PlayerPage() {
   const { playerId } = useParams<{ playerId: string }>();
+  const seasonById = useSeasonLookup();
   const [data, setData] = useState<PlayerDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,14 +98,17 @@ export function PlayerPage() {
           <p style={{ color: 'var(--color-text-secondary)' }}>No matches yet.</p>
         ) : (
           <div className="match-list">
-            {matches.map(match => (
-              <MatchCard
-                key={match.id}
-                match={match}
-                tierAccent={tierId as 's' | 'a' | 'b'}
-                showSeason
-              />
-            ))}
+            {matches.map(match => {
+              const season = seasonById(match.season_id);
+              return (
+                <MatchCard
+                  key={match.id}
+                  match={match}
+                  tierAccent={tierId as 's' | 'a' | 'b'}
+                  seasonTag={season ? seasonLabelShort(season.title_id, season.season_index) : undefined}
+                />
+              );
+            })}
           </div>
         )}
       </section>

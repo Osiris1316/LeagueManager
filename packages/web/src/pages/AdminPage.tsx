@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { seasonLabel, seasonLabelShort } from '@league-manager/core';
 import { getStandings } from '../api/client';
 import type { StandingsResponse } from '../api/client';
 import { useAdmin } from '../context/AdminContext';
@@ -7,6 +8,12 @@ import { useCurrentSeasonId, useSeasons } from '../context/SeasonsContext';
 import { MatchCard } from '../components/MatchCard';
 
 type Filter = 'needs' | 'complete' | 'all';
+
+const STATUS_LABELS: Record<string, string> = {
+  active: 'Active',
+  complete: 'Complete',
+  pending: 'Pending',
+};
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: 'needs', label: 'Needs results' },
@@ -114,7 +121,7 @@ export function AdminPage() {
         >
           {seasons.map(s => (
             <option key={s.id} value={s.id}>
-              Season {s.season_number}
+              {`${seasonLabelShort(s.title_id, s.season_index)} · ${STATUS_LABELS[s.status] ?? s.status}`}
             </option>
           ))}
         </select>
@@ -148,7 +155,7 @@ export function AdminPage() {
           {visibleTiers.length === 0 ? (
             <p style={{ color: 'var(--color-text-secondary)' }}>
               {filter === 'needs'
-                ? `Every match in Season ${season.season_number} has a result.`
+                ? `Every match in ${seasonLabel(season.title_id, season.season_index)} has a result.`
                 : 'No matches match this filter.'}
             </p>
           ) : (

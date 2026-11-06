@@ -61,6 +61,16 @@ export function useSeasons() {
 }
 
 /**
+ * Looks up a season by id from the list already loaded for the nav, so a page
+ * can label a match's season ("AoE4 S4") without asking the API again.
+ * Returns undefined until the list arrives or for an unknown id.
+ */
+export function useSeasonLookup(): (id: number) => Season | undefined {
+  const { seasons } = useSeasons();
+  return useCallback((id: number) => seasons.find(s => s.id === id), [seasons]);
+}
+
+/**
  * Reads a season id out of a pathname like `/season/3` or `/admin/3`.
  * The nav sits outside <Routes>, so useParams() is not available there —
  * the path is the source of truth instead.

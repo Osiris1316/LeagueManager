@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { seasonLabelShort } from '@league-manager/core';
 import { getPlayer } from '../api/client';
 import type { MatchWithPlayers } from '../api/client';
 import { useFollow } from '../context/FollowContext';
-import { useCurrentSeasonId } from '../context/SeasonsContext';
+import { useSeasonLookup, useSeasons } from '../context/SeasonsContext';
 import { MatchCard } from './MatchCard';
 
 /**
@@ -29,20 +30,33 @@ function matchIdFromPath(pathname: string): number | null {
 
 export function FollowedMatches() {
   const { followedPlayerId } = useFollow();
-  const seasonId = useCurrentSeasonId();
+  const { seasons, loading: seasonsLoading } = useSeasons();
+  const seasonById = useSeasonLookup();
   const location = useLocation();
 
   const [playerName, setPlayerName] = useState<string | null>(null);
   const [matches, setMatches] = useState<MatchWithPlayers[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // "Next matches" means every league that is live right now, not just the
+  // season on screen: with AoE4 and BW running at once, a player can have
+  // matches in both. Pending seasons stay hidden until they go live.
+  // The ids are joined into a string so the effect below re-runs only when
+  // the set of active seasons actually changes. A fresh array would count as
+  // "changed" on every render, because arrays compare by identity, not content.
+  const activeKey = seasons
+    .filter(s => s.status === 'active')
+    .map(s => s.id)
+    .join(',');
+
   useEffect(() => {
-    if (followedPlayerId == null || seasonId == null) {
+    if (followedPlayerId == null || activeKey === '') {
       setPlayerName(null);
       setMatches([]);
       return;
     }
 
+    const activeIds = new Set(activeKey.split(',').map(Number));
     let cancelled = false;
     setLoading(true);
 
@@ -50,9 +64,7 @@ export function FollowedMatches() {
       .then(detail => {
         if (cancelled) return;
         setPlayerName(detail.player.display_name);
-        setMatches(
-          upcoming(detail.matches.filter(m => m.season_id === seasonId))
-        );
+        setMatches(upcoming(detail.matches.filter(m => activeIds.has(m.season_id))));
       })
       .catch(() => {
         if (!cancelled) {
@@ -65,7 +77,7 @@ export function FollowedMatches() {
       });
 
     return () => { cancelled = true; };
-  }, [followedPlayerId, seasonId]);
+  }, [followedPlayerId, activeKey]);
 
   // Don't list the match the user is already looking at.
   const viewingMatchId = matchIdFromPath(location.pathname);
@@ -74,10 +86,8 @@ export function FollowedMatches() {
     [matches, viewingMatchId]
   );
 
-  const accent = useMemo(() => {
-    if (!visibleMatches.length) return undefined;
-    return visibleMatches[0]!.tier_id.replace('code_', '') as 's' | 'a' | 'b';
-  }, [visibleMatches]);
+  // Tag each card with its season only when the list mixes seasons.
+  const mixesSeasons = new Set(visibleMatches.map(m => m.season_id)).size > 1;
 
   if (followedPlayerId == null) return null;
 
@@ -97,19 +107,27 @@ export function FollowedMatches() {
         </Link>
       </div>
 
-      {loading ? (
+      {loading || seasonsLoading ? (
         <p className="followed__empty">Loading…</p>
       ) : visibleMatches.length === 0 ? (
         <p className="followed__empty">
           {playerName
-            ? `No upcoming matches for ${playerName} in this season.`
+            ? `No upcoming matches for ${playerName} right now.`
             : 'No upcoming matches.'}
         </p>
       ) : (
         <div className="match-list">
-          {visibleMatches.map(match => (
-            <MatchCard key={match.id} match={match} tierAccent={accent} />
-          ))}
+          {visibleMatches.map(match => {
+            const season = mixesSeasons ? seasonById(match.season_id) : undefined;
+            return (
+              <MatchCard
+                key={match.id}
+                match={match}
+                tierAccent={match.tier_id.replace('code_', '') as 's' | 'a' | 'b'}
+                seasonTag={season ? seasonLabelShort(season.title_id, season.season_index) : undefined}
+              />
+            );
+          })}
         </div>
       )}
     </section>

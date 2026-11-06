@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getMatch, reportMatch, clearMatch } from '../api/client';
 import type { GameReport } from '../api/client';
+import { seasonLabelShort } from '@league-manager/core';
 import { useAdmin } from '../context/AdminContext';
+import { useSeasonLookup } from '../context/SeasonsContext';
 import { CIVS, MAPS } from '../data/aoe4';
 import { RulesModal } from '../components/RulesModal';
 import { CivFlag } from '../components/CivFlag';
@@ -23,7 +25,6 @@ interface MatchData {
     winner_name: string | null;
     round_number: number | null;
     season_id: number;
-    season_number: number;
     tier_id: string;
   };
   games: {
@@ -63,6 +64,7 @@ function emptyGame(): GameInput {
 export function MatchPage() {
   const { matchId } = useParams<{ matchId: string }>();
   const { isAdmin } = useAdmin();
+  const seasonById = useSeasonLookup();
 
   const [data, setData] = useState<MatchData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -203,6 +205,7 @@ export function MatchPage() {
   }
 
   const { match } = data;
+  const season = seasonById(match.season_id);
   const isComplete = match.status === 'complete';
   const hasAnyResults = data.games.length > 0;
 
@@ -226,7 +229,7 @@ export function MatchPage() {
     <div>
       <nav aria-label="Breadcrumb" style={{ marginBottom: 'var(--space-md)' }}>
         <Link to={`/season/${match.season_id}`} style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-          ← Season {match.season_number} standings
+          ← {season ? `${seasonLabelShort(season.title_id, season.season_index)} standings` : 'Standings'}
         </Link>
       </nav>
 
