@@ -82,7 +82,7 @@ export function RulesModal({ seasonId, tierId, tierName, onClose }: RulesModalPr
           borderBottom: '1px solid var(--color-border)',
           flexShrink: 0,
         }}>
-          <h2 style={{ fontSize: '1.125rem', margin: 0 }}>
+          <h2 style={{ fontSize: 'var(--text-md)', margin: 0 }}>
             {tierName} Rules
           </h2>
           <button
@@ -92,7 +92,7 @@ export function RulesModal({ seasonId, tierId, tierName, onClose }: RulesModalPr
               background: 'none',
               border: 'none',
               color: 'var(--color-text-secondary)',
-              fontSize: '1.5rem',
+              fontSize: 'var(--text-xl)',
               cursor: 'pointer',
               padding: '0 0.25rem',
               lineHeight: 1,
@@ -126,7 +126,7 @@ export function RulesModal({ seasonId, tierId, tierName, onClose }: RulesModalPr
             <div
               className="markdown-content"
               style={{
-                fontSize: '0.9375rem',
+                fontSize: 'var(--text-base)',
                 color: 'var(--color-text)',
               }}
               dangerouslySetInnerHTML={{ __html: marked.parse(rulesHtml) as string }}

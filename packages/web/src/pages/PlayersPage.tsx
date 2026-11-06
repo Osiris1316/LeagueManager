@@ -40,7 +40,7 @@ export function PlayersPage() {
                   <td>
                     <Link to={`/player/${p.id}`}>{p.display_name}</Link>
                   </td>
-                  <td style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
+                  <td style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-base)' }}>
                     {new Date(p.created_at + 'Z').toLocaleDateString()}
                   </td>
                 </tr>

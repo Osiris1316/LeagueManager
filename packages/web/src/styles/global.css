@@ -44,7 +44,7 @@
 
   /* ══════════════════════════════════════════════════════════════
      TYPOGRAPHY CONTROL PANEL — edit these to restyle match UI
-     Loaded families (see index.html): DM Sans, Inter.
+     Loaded family (see index.html): Inter, weights 400 / 500 / 600.
      To use another, add it in index.html first.
      ══════════════════════════════════════════════════════════════ */
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
@@ -52,9 +52,27 @@
 
   /* Crisp faces for match card + match-page scoreline.
      Swap the first name in each to audition:
-       names  → 'Inter' | 'DM Sans'
+       names  → 'Inter'
        scores → 'Inter' (tabular figures)                        */
   --font-crisp: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* ── Type scale ──
+     Seven sizes, each with one job. Hierarchy comes from size first, then
+     weight and colour, so the eye moves title → section → content → detail.
+       2xs 11px  column headers, tags, end caps
+       xs  12px  meta: times, counts, controls
+       sm  13px  content: names, table cells, list rows
+       base 14px running text and paragraphs
+       md  16px  section titles
+       lg  20px  page titles
+       xl  24px  the match page scoreline */
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
 
   /* Spacing scale */
   --space-xs: 0.25rem;
@@ -217,17 +235,17 @@ h1, h2, h3, h4 {
 }
 
 h1 {
-  font-size: 1.75rem;
+  font-size: var(--text-xl);
   letter-spacing: -0.02em;
 }
 
 h2 {
-  font-size: 1.375rem;
+  font-size: var(--text-lg);
   letter-spacing: -0.015em;
 }
 
 h3 {
-  font-size: 1.125rem;
+  font-size: var(--text-md);
 }
 
 /* ── Card ── */
@@ -248,7 +266,7 @@ table {
 th {
   text-align: left;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-secondary);
@@ -259,7 +277,7 @@ th {
 td {
   padding: var(--space-sm) var(--space-md);
   border-bottom: 1px solid var(--color-border-subtle);
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
 }
 
 tr:last-child td {
@@ -311,14 +329,14 @@ tbody tr:hover {
   .standings-table td {
     border-bottom: none;
     padding: 2px 0;
-    font-size: 0.8125rem;
+    font-size: var(--text-sm);
     text-align: center;
   }
 
   .standings-table td::before {
     content: attr(data-label);
     display: block;
-    font-size: 0.5625rem;
+    font-size: var(--text-2xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -334,7 +352,7 @@ tbody tr:hover {
   .standings-table td:nth-child(2) {
     grid-column: 1 / -1;
     text-align: left;
-    font-size: 0.875rem;
+    font-size: var(--text-base);
     font-weight: 600;
     padding: 0 0 0.375rem 0;
   }
@@ -347,7 +365,7 @@ tbody tr:hover {
     display: inline;
     color: var(--color-text-tertiary);
     font-weight: 400;
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
     margin-right: 0.25rem;
   }
 }
@@ -373,7 +391,7 @@ tbody tr:hover {
   align-items: center;
   padding: 0.125rem 0.5rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -451,7 +469,7 @@ tbody tr:hover {
 /* Score block (mono font) */
 .match-card__score {
   font-family: var(--font-mono);
-  font-size: 1.125rem;
+  font-size: var(--text-md);
   font-weight: 600;
   white-space: nowrap;
   color: var(--color-text-secondary);
@@ -468,7 +486,7 @@ tbody tr:hover {
 /* "vs" label */
 .match-card__vs {
   color: var(--color-text-tertiary);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   flex-shrink: 0;
@@ -476,7 +494,7 @@ tbody tr:hover {
 
 /* Round number / meta label */
 .match-card__meta {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   min-width: 2rem;
   flex-shrink: 0;
@@ -510,7 +528,7 @@ tbody tr:hover {
 
 /* Scheduled time */
 .match-card__time {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-family: var(--font-mono);
   color: var(--color-text-tertiary);
 }
@@ -592,7 +610,7 @@ tbody tr:hover {
 
 .nav__brand {
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: var(--text-md);
   color: var(--color-text);
   letter-spacing: -0.02em;
   text-decoration: none;
@@ -622,7 +640,7 @@ tbody tr:hover {
 }
 
 .nav__link {
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   font-weight: 500;
   color: var(--color-text-secondary);
   text-decoration: none;
@@ -658,7 +676,7 @@ tbody tr:hover {
   border-radius: var(--border-radius-sm);
   color: var(--color-text);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   padding: 0.3125rem 1.5rem 0.3125rem 0.625rem;
   cursor: pointer;
@@ -684,7 +702,7 @@ tbody tr:hover {
 }
 
 .admin-toolbar__label {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -712,7 +730,7 @@ tbody tr:hover {
   border-radius: var(--border-radius-sm);
   color: var(--color-text-secondary);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
@@ -730,7 +748,7 @@ tbody tr:hover {
 
 .admin-filter__count {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
 }
 
@@ -772,7 +790,7 @@ tbody tr:hover {
   padding: 0;
   color: var(--color-text);
   font-family: var(--font-body);
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
   text-align: left;
   cursor: pointer;
   overflow: hidden;
@@ -793,7 +811,7 @@ tbody tr:hover {
 /* Secondary link to the player's page. */
 .settings-player__view {
   flex-shrink: 0;
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--color-text-tertiary);
 }
 
@@ -808,7 +826,7 @@ tbody tr:hover {
   border-radius: var(--border-radius-sm);
   color: var(--color-text-secondary);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   cursor: pointer;
 }
 
@@ -872,7 +890,7 @@ tbody tr:hover {
 }
 
 .player-stats-card__header h3 {
-  font-size: 1rem;
+  font-size: var(--text-md);
 }
 
 .player-stats-card__empty {
@@ -904,7 +922,8 @@ tbody tr:hover {
   white-space: nowrap;
 }
 
-@container (max-width: 520px) {
+/* Stacked rows only for very narrow cards; otherwise a real, compact table. */
+@container (max-width: 239px) {
   .player-stats-table thead {
     display: none;
   }
@@ -942,7 +961,7 @@ tbody tr:hover {
     gap: var(--space-xs);
     margin-right: var(--space-md);
     color: var(--color-text-secondary);
-    font-size: 0.8125rem;
+    font-size: var(--text-sm);
     text-align: left;
   }
 
@@ -956,7 +975,7 @@ tbody tr:hover {
 /* ── Player stats scope picker ── */
 .player-stats-section__note {
   color: var(--color-text-tertiary);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   padding: var(--space-md) 0;
 }
 
@@ -975,7 +994,7 @@ tbody tr:hover {
   border-radius: var(--border-radius);
   padding: var(--space-xs) var(--space-md);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   cursor: pointer;
 }
 
@@ -1009,7 +1028,7 @@ tbody tr:hover {
 
 /* ── Round headers ── */
 .round-header {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
@@ -1022,7 +1041,7 @@ tbody tr:hover {
   font-weight: 400;
   margin-left: 0.5rem;
   color: var(--color-text-tertiary);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.02em;
 }
 
@@ -1035,7 +1054,7 @@ tbody tr:hover {
 }
 
 .schedule-section__label {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1069,9 +1088,9 @@ tbody tr:hover {
   margin-bottom: 0.5em;
 }
 
-.markdown-content h1 { font-size: 1.25rem; }
-.markdown-content h2 { font-size: 1.125rem; }
-.markdown-content h3 { font-size: 1rem; }
+.markdown-content h1 { font-size: var(--text-lg); }
+.markdown-content h2 { font-size: var(--text-md); }
+.markdown-content h3 { font-size: var(--text-md); }
 
 .markdown-content h1:first-child,
 .markdown-content h2:first-child,
@@ -1108,7 +1127,7 @@ tbody tr:hover {
 
 /* ── Match page ── */
 .match-header__title {
-  font-size: 1.5rem;
+  font-size: var(--text-xl);
 }
 
 .match-header__vs {
@@ -1124,7 +1143,7 @@ tbody tr:hover {
   align-items: center;
   gap: var(--space-sm);
   flex-wrap: wrap;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 .match-header__result {
@@ -1155,7 +1174,7 @@ tbody tr:hover {
   border: 1px solid var(--color-accent);
   border-radius: var(--border-radius-sm);
   color: var(--color-accent);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   padding: 0.1875rem 0.625rem;
   cursor: pointer;
@@ -1178,7 +1197,7 @@ tbody tr:hover {
   padding: var(--space-sm) var(--space-md);
   margin-bottom: var(--space-md);
   border-radius: var(--border-radius);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 .banner--success {
@@ -1206,7 +1225,7 @@ tbody tr:hover {
 }
 
 .game-card__header {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
@@ -1239,7 +1258,7 @@ tbody tr:hover {
 
 .match-scoreline__name {
   font-family: var(--font-crisp);
-  font-size: 1.05rem;                 /* was 1.25 — smaller, less chunky */
+  font-size: var(--text-md);                 /* was 1.25 — smaller, less chunky */
   font-weight: 600;
   color: var(--color-text);
   text-decoration: none;
@@ -1271,7 +1290,7 @@ tbody tr:hover {
 
 .match-scoreline__score {
   font-family: var(--font-crisp);
-  font-size: 1.25rem;                 /* was 1.5 — smaller */
+  font-size: var(--text-lg);                 /* was 1.5 — smaller */
   font-weight: 600;
   font-feature-settings: "tnum" 1, "zero" 0;
   color: var(--color-text-secondary);
@@ -1316,13 +1335,13 @@ tbody tr:hover {
   display: flex;
   align-items: center;   /* was: baseline — flags sit better centered */
   gap: 0.375rem;
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
 }
 
 .game-result__map {
   flex-shrink: 0;
   text-align: center;
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--color-text-secondary);
 }
 
@@ -1347,13 +1366,13 @@ tbody tr:hover {
 }
 
 .game-result__civ {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--color-text-tertiary);
 }
 
 .game-result__vs {
   color: var(--color-text-tertiary);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   flex-shrink: 0;
@@ -1362,7 +1381,7 @@ tbody tr:hover {
 .game-result__tbd {
   color: var(--color-text-tertiary);
   font-style: italic;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 /* Admin game editing */
@@ -1379,7 +1398,7 @@ tbody tr:hover {
 }
 
 .game-edit__label {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   min-width: 4rem;
   flex-shrink: 0;
@@ -1393,7 +1412,7 @@ tbody tr:hover {
   border-radius: var(--border-radius-sm);
   color: var(--color-text);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
 }
 
 .game-edit__civs {
@@ -1417,7 +1436,7 @@ tbody tr:hover {
   border-radius: var(--border-radius-sm);
   color: var(--color-text-secondary);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
 }
@@ -1443,7 +1462,7 @@ tbody tr:hover {
   border: none;
   border-radius: var(--border-radius-sm);
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
   cursor: pointer;
 }
 
@@ -1458,7 +1477,7 @@ tbody tr:hover {
   color: var(--color-loss);
   border: 1px solid var(--color-loss);
   border-radius: var(--border-radius-sm);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   cursor: pointer;
 }
 
@@ -1475,7 +1494,7 @@ tbody tr:hover {
 }
 
 .schedule-row label {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--color-text-tertiary);
 }
 
@@ -1486,7 +1505,7 @@ tbody tr:hover {
   border-radius: var(--border-radius-sm);
   color: var(--color-text);
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 /* Game list spacing */
@@ -1505,7 +1524,7 @@ tbody tr:hover {
 }
 
 .matches-page__season {
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   color: var(--color-text-tertiary);
 }
 
@@ -1528,7 +1547,7 @@ tbody tr:hover {
   border-radius: 999px;
   color: var(--color-text-secondary);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -1550,7 +1569,7 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  font-size: 1rem;
+  font-size: var(--text-md);
   margin-bottom: var(--space-md);
   margin-top: var(--space-xl);
 }
@@ -1560,7 +1579,7 @@ tbody tr:hover {
 }
 
 .matches-section__count {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   background: var(--color-bg-surface);
@@ -1621,7 +1640,7 @@ tbody tr:hover {
   border-radius: 999px;
   color: var(--color-text-secondary);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -1652,7 +1671,7 @@ tbody tr:hover {
   list-style: none;
   user-select: none;
   color: var(--color-text-secondary);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1685,7 +1704,7 @@ tbody tr:hover {
 
 .collapsible__count {
   margin-left: auto;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   background: var(--color-bg-surface);
@@ -1869,7 +1888,7 @@ tbody tr:hover {
   background: var(--color-bg-surface);
   color: var(--color-text);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   transition: border-color 0.15s ease;
@@ -1898,7 +1917,7 @@ tbody tr:hover {
   border-radius: 50%;
   background: var(--color-accent-bg);
   color: var(--color-accent);
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.02em;
 }
 
@@ -1971,11 +1990,11 @@ tbody tr:hover {
 }
 
 .ym-header__title {
-  font-size: 1rem;
+  font-size: var(--text-md);
 }
 
 .ym-header__sub {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--color-text-secondary);
 }
 
@@ -2034,7 +2053,7 @@ tbody tr:hover {
   border-radius: var(--border-radius-sm);
   background: var(--color-bg-surface);
   color: var(--color-text);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
 }
 
 .ym-standings__line:hover {
@@ -2062,7 +2081,7 @@ tbody tr:hover {
   align-items: center;
   gap: var(--space-sm);
   margin-bottom: var(--space-sm);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-text-secondary);
@@ -2082,7 +2101,7 @@ tbody tr:hover {
 }
 
 .ym-group__count {
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   color: var(--color-text-tertiary);
 }
 
@@ -2097,7 +2116,7 @@ tbody tr:hover {
   background: none;
   color: var(--color-accent);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   cursor: pointer;
 }
 
@@ -2122,7 +2141,7 @@ tbody tr:hover {
 .ym-note,
 .ym-intro {
   color: var(--color-text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 .ym-intro {
@@ -2145,7 +2164,7 @@ tbody tr:hover {
   background: var(--color-bg-surface);
   color: var(--color-text);
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
@@ -2180,7 +2199,7 @@ tbody tr:hover {
 
 .ym-ribbon__label {
   flex-shrink: 0;
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -2212,7 +2231,7 @@ tbody tr:hover {
   background: none;
   color: var(--color-text-secondary);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   text-align: left;
 }
 
@@ -2250,14 +2269,14 @@ tbody tr:hover {
 
 .match-tile__opponent {
   overflow: hidden;
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .match-tile__meta {
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   color: var(--color-text-secondary);
   white-space: nowrap;
 }
@@ -2328,7 +2347,7 @@ tbody tr:hover {
   background: transparent;
   color: var(--color-accent);
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -2343,7 +2362,7 @@ tbody tr:hover {
 .matches-page__following {
   margin-bottom: var(--space-lg);
   color: var(--color-text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
 }
 
 /* ── Standings: arriving from a "your matches" link ── */
@@ -2398,8 +2417,8 @@ body { background: var(--color-bg); }
 a { color: var(--color-text); }
 a:hover { color: var(--color-text); text-decoration: underline; text-underline-offset: 2px; }
 
-h1 { font-size: 1.375rem; letter-spacing: -0.015em; }
-h2 { font-size: 1.0625rem; }
+h1 { font-size: var(--text-lg); letter-spacing: -0.015em; }
+h2 { font-size: var(--text-md); }
 
 .nav { margin-bottom: var(--space-lg); }
 .nav__brand:hover { color: var(--color-text); text-decoration: none; }
@@ -2430,14 +2449,14 @@ h2 { font-size: 1.0625rem; }
   display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--color-text-secondary);
 }
 
 .page-head__crumbs {
   display: inline-flex;
   gap: var(--space-sm);
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   color: var(--color-text-tertiary);
 }
 
@@ -2455,7 +2474,7 @@ h2 { font-size: 1.0625rem; }
 .page-section { margin-bottom: var(--space-xl); }
 
 .section-title {
-  font-size: 1rem;
+  font-size: var(--text-md);
   margin-bottom: var(--space-sm);
 }
 
@@ -2483,7 +2502,7 @@ h2 { font-size: 1.0625rem; }
   border-radius: 0;
   background: none;
   color: var(--color-text-secondary);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
@@ -2536,7 +2555,7 @@ h2 { font-size: 1.0625rem; }
 .section-header:has(.badge--a) { --tier-tone: var(--color-tier-a); }
 .section-header:has(.badge--b) { --tier-tone: var(--color-tier-b); }
 
-.section-header h2 { font-size: 1rem; }
+.section-header h2 { font-size: var(--text-md); }
 
 .columns-view { gap: var(--space-md) var(--space-lg); }
 .columns-view__col .section-header { margin-bottom: var(--space-sm); }
@@ -2546,7 +2565,7 @@ h2 { font-size: 1.0625rem; }
 .standings-table thead th {
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text-tertiary);
-  font-size: 0.6875rem;
+  font-size: var(--text-2xs);
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
@@ -2558,7 +2577,7 @@ h2 { font-size: 1.0625rem; }
   .standings-table th,
   .standings-table td {
     padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
+    font-size: var(--text-base);
   }
 
   .standings-table th.num,
@@ -2572,11 +2591,11 @@ h2 { font-size: 1.0625rem; }
   .standings-table th,
   .standings-table td {
     padding: 0.3125rem 0.25rem;
-    font-size: 0.8125rem;
+    font-size: var(--text-sm);
     text-align: right;
   }
 
-  .standings-table th { font-size: 0.6875rem; }
+  .standings-table th { font-size: var(--text-2xs); }
 
   .standings-table th:first-child,
   .standings-table td:first-child {
@@ -2643,7 +2662,7 @@ h2 { font-size: 1.0625rem; }
 }
 
 .stats-scope-picker { gap: var(--space-xs); }
-.stats-scope-picker__select { padding: 0.1875rem 0.625rem; font-size: 0.8125rem; }
+.stats-scope-picker__select { padding: 0.1875rem 0.625rem; font-size: var(--text-sm); }
 
 .collapsible__summary {
   padding: 0.375rem 0;
@@ -2680,8 +2699,8 @@ h2 { font-size: 1.0625rem; }
 .player-stats-grid { gap: var(--space-sm); }
 .player-stats-card { border-radius: 6px; }
 .player-stats-card__header { padding: 0.5rem 0.75rem; border-bottom-color: var(--color-border-subtle); }
-.player-stats-card__header h3 { font-size: 0.875rem; }
-.player-stats-card__empty { padding: 0.625rem 0.75rem; font-size: 0.8125rem; }
+.player-stats-card__header h3 { font-size: var(--text-base); }
+.player-stats-card__empty { padding: 0.625rem 0.75rem; font-size: var(--text-sm); }
 
 /* ── Your matches, in the same language ── */
 .ym-group--current,
@@ -2695,7 +2714,7 @@ h2 { font-size: 1.0625rem; }
 
 .ym-group__title {
   color: var(--color-text);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   letter-spacing: 0;
   text-transform: none;
 }
@@ -2741,7 +2760,7 @@ h2 { font-size: 1.0625rem; }
 
 .menu-theme__label {
   color: var(--color-text-tertiary);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
 }
 
 .menu-theme__switch {
@@ -2751,6 +2770,253 @@ h2 { font-size: 1.0625rem; }
 
 @media (max-width: 640px) {
   /* Long season titles fit on one line on phones. */
-  h1 { font-size: 1.25rem; }
+  h1 { font-size: var(--text-lg); }
   .page-head { margin-bottom: var(--space-md); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TYPE HIERARCHY — the last word on sizes, weights and colours of text.
+   Four levels do almost all the work:
+     page title   lg (20px) / 600          one per page
+     section      md (16px) / 600          tier names, "Player stats"
+     content      sm (13px) / 400–500      names, cells, rows
+     detail       xs–2xs (12/11px), muted  meta, headers, counts
+   Winners and "you" get weight, never size. Controls sit at detail size
+   so they never compete with content.
+   ══════════════════════════════════════════════════════════════ */
+
+body {
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4 { line-height: 1.3; font-weight: 600; }
+h1 { font-size: var(--text-lg); letter-spacing: -0.015em; }
+h2 { font-size: var(--text-md); letter-spacing: -0.005em; }
+h3 { font-size: var(--text-sm); }
+
+@media (max-width: 640px) {
+  h1 { font-size: 1.125rem; }
+}
+
+/* Nav */
+.nav__brand { font-size: var(--text-base); font-weight: 600; }
+.nav__link { font-size: var(--text-sm); font-weight: 500; }
+
+/* Page head */
+.page-head__meta,
+.page-head__crumbs { font-size: var(--text-sm); }
+
+/* Section titles all share one size */
+.section-title,
+.section-header h2,
+.matches-section__heading { font-size: var(--text-md); font-weight: 600; }
+
+.matches-section__heading { margin-top: var(--space-lg); margin-bottom: var(--space-sm); }
+
+/* Detail-size controls */
+.view-switch__btn,
+.filter-chip,
+.season-picker__select,
+.stats-scope-picker__select,
+.follow-btn,
+.follow-chip { font-size: var(--text-xs); font-weight: 500; }
+
+.badge { font-size: var(--text-xs); }
+
+/* Counts beside headings */
+.matches-section__count,
+.collapsible__count,
+.ym-group__count { font-size: var(--text-2xs); font-weight: 500; color: var(--color-text-tertiary); }
+
+.matches-section__count { padding: 0; background: none; }
+
+/* Collapsible schedules and the small labels inside them */
+.collapsible__summary { font-size: var(--text-xs); color: var(--color-text-secondary); }
+
+.round-header,
+.schedule-section__label {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.round-header__date { font-size: var(--text-2xs); letter-spacing: 0; text-transform: none; }
+
+/* Tables: content-size cells under detail-size headers */
+th,
+.standings-table thead th,
+.player-stats-table th {
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text-tertiary);
+}
+
+td,
+.standings-table td { font-size: var(--text-sm); }
+
+th abbr { text-decoration: none; cursor: help; }
+
+/* ── Match card: names at content size, never louder than section titles ── */
+.match-card { line-height: 1.35; }
+
+.match-card__name,
+.match-card__cell-score {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 400;
+}
+
+.match-card__name--winner,
+.match-card__cell-score--winner { font-weight: 600; }
+
+.match-card__cell-score { color: var(--color-text-tertiary); }
+.match-card__cell-score--winner { color: var(--color-text); }
+
+.match-card__status .badge,
+.match-card__time { font-size: var(--text-2xs); }
+
+/* ── End cap: game icon over season and round, also the match link ── */
+.match-card--grid.match-card--capped { padding-right: 0; }
+
+.match-card__cap {
+  grid-column: 4;
+  grid-row: 1 / 3;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 3.25rem;
+  margin: -0.375rem 0;
+  padding: 0 var(--space-sm);
+  border-left: 1px solid var(--color-border-subtle);
+  border-radius: 0 3px 3px 0;
+  background: var(--color-bg-surface);
+  color: var(--color-text-tertiary);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.match-card__cap:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.match-card__cap-text {
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ── Game icons ── */
+.title-icon {
+  display: block;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: contain;
+}
+
+/* Text stand-in until a game has an icon file */
+.title-icon--text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  color: var(--color-text-secondary);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.match-tile__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.match-tile__meta .title-icon { width: 14px; height: 14px; }
+.match-tile__meta .title-icon--text { height: 14px; font-size: 8px; }
+
+/* ── Player stats: one tight row per civ or map ── */
+.player-stats-table { table-layout: fixed; }
+
+.player-stats-card .table-wrap { padding: 0 var(--space-xs) var(--space-xs); }
+
+.player-stats-table th,
+.player-stats-table td {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.player-stats-table tbody tr:last-child td { border-bottom: none; }
+.player-stats-table td { font-size: var(--text-sm); }
+.player-stats-table th { padding-top: 0.375rem; }
+
+.player-stats-table__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-stats-table .num {
+  width: 2.75rem;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.player-stats-table th.num:nth-child(3),
+.player-stats-table td.num:nth-child(3) { width: 3.25rem; }
+
+.player-stats-table td.num:last-child { color: var(--color-text); font-weight: 500; }
+
+.player-stats-table .civ-flag__img { height: 13px; }
+
+.player-stats-card__header h3 { font-size: var(--text-sm); }
+.player-stats-card__empty { font-size: var(--text-sm); }
+
+/* ── Your matches ── */
+.ym-header__title { font-size: var(--text-base); }
+.ym-header__sub,
+.ym-standings__line,
+.ym-note,
+.ym-intro,
+.ym-footer,
+.ym-link-btn,
+.ym-more { font-size: var(--text-xs); }
+.ym-group__title { font-size: var(--text-xs); font-weight: 600; }
+.match-tile__opponent { font-size: var(--text-sm); font-weight: 500; }
+.match-tile__meta { font-size: var(--text-2xs); }
+.ym-ribbon__text,
+.ym-ribbon__prompt,
+.ym-picker__btn { font-size: var(--text-sm); }
+.ym-ribbon__label { font-size: var(--text-2xs); }
+
+/* Running text */
+.settings-player__name,
+.ym-intro { line-height: 1.5; }
+
+/* Stats cards frame their own table, so the generic card padding stays off. */
+.player-stats-card { padding: 0; }
+
+@media (max-width: 640px) {
+  /* Phones: the stats picker gets its own row under the heading. */
+  .page-section--stats { grid-template-columns: minmax(0, 1fr); }
+  .page-section--stats .stats-scope-picker { justify-self: start; margin-top: var(--space-sm); }
 }

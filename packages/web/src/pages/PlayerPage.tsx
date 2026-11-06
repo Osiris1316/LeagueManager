@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPlayer } from '../api/client';
 import type { PlayerDetailResponse } from '../api/client';
-import { seasonLabelShort } from '@league-manager/core';
 import { MatchCard } from '../components/MatchCard';
 import { PlayerStatsSection } from '../components/PlayerStatsSection';
 import { PlayerRibbon } from '../components/your-matches/MatchRibbon';
@@ -122,7 +121,7 @@ export function PlayerPage() {
                     key={match.id}
                     match={match}
                     tierAccent={tierId as 's' | 'a' | 'b'}
-                    seasonTag={season ? seasonLabelShort(season.title_id, season.season_index) : undefined}
+                    season={season}
                   />
                 );
               })}

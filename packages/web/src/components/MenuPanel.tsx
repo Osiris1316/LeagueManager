@@ -169,7 +169,7 @@ export function MenuPanel() {
             ) : showTokenInput ? (
               <div style={{ padding: 'var(--space-sm)' }}>
                 <label htmlFor="menu-token" style={{
-                  display: 'block', fontSize: '0.8125rem', color: 'var(--color-text-tertiary)',
+                  display: 'block', fontSize: 'var(--text-sm)', color: 'var(--color-text-tertiary)',
                   marginBottom: 'var(--space-xs)',
                 }}>
                   Admin token
@@ -184,14 +184,14 @@ export function MenuPanel() {
                   style={{
                     width: '100%', padding: '0.375rem 0.5rem', background: 'var(--color-bg-surface)',
                     border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-sm)',
-                    color: 'var(--color-text)', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
+                    color: 'var(--color-text)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)',
                     marginBottom: 'var(--space-sm)',
                   }}
                   placeholder="Enter token"
                 />
                 {loginError && (
                   <p style={{
-                    fontSize: '0.8125rem', color: 'var(--color-loss)',
+                    fontSize: 'var(--text-sm)', color: 'var(--color-loss)',
                     marginBottom: 'var(--space-sm)',
                   }}>
                     {loginError}
@@ -201,7 +201,7 @@ export function MenuPanel() {
                   width: '100%', padding: '0.375rem 0.75rem',
                   background: verifying ? 'var(--color-text-tertiary)' : 'var(--color-accent)',
                   color: 'var(--color-bg)', border: 'none', borderRadius: 'var(--border-radius-sm)',
-                  fontWeight: 600, fontSize: '0.8125rem',
+                  fontWeight: 600, fontSize: 'var(--text-sm)',
                   cursor: verifying ? 'not-allowed' : 'pointer',
                 }}>
                   {verifying ? 'Checking…' : 'Confirm'}
@@ -222,7 +222,7 @@ export function MenuPanel() {
 const menuItemStyle: React.CSSProperties = {
   display: 'block', width: '100%', padding: 'var(--space-sm) var(--space-md)',
   background: 'none', border: 'none', borderRadius: 'var(--border-radius-sm)',
-  color: 'var(--color-text)', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
+  color: 'var(--color-text)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)',
   textAlign: 'left', cursor: 'pointer',
 };
 

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { seasonLabelShort } from '@league-manager/core';
 import type { QueueGroup } from '@league-manager/core';
 import type { PlayerQueue } from '../../hooks/usePlayerQueue';
 import { useSeasonLookup } from '../../context/SeasonsContext';
@@ -72,7 +71,7 @@ export function QueueList({ data }: { data: PlayerQueue }) {
                     key={match.id}
                     match={match}
                     tierAccent={match.tier_id.replace('code_', '') as 's' | 'a' | 'b'}
-                    seasonTag={season ? seasonLabelShort(season.title_id, season.season_index) : undefined}
+                    season={season}
                   />
                 );
               })}

@@ -6,6 +6,7 @@ import type { QueueGroup } from '@league-manager/core';
 import { getSeasonMatches } from '../api/client';
 import type { MatchWithPlayers, Season } from '../api/client';
 import { MatchCard } from '../components/MatchCard';
+import type { CardSeason } from '../components/MatchCard';
 import { GROUP_LABELS } from '../components/your-matches/format';
 import { useFollow } from '../context/FollowContext';
 import { useSeasonLookup, useSeasons } from '../context/SeasonsContext';
@@ -29,11 +30,11 @@ function byCompletedDesc(a: MatchWithPlayers, b: MatchWithPlayers): number {
 }
 
 /** One titled list of match cards. */
-function MatchSection({ id, title, matches, tagFor, tone }: {
+function MatchSection({ id, title, matches, seasonFor, tone }: {
   id: string;
   title: string;
   matches: MatchWithPlayers[];
-  tagFor: (m: MatchWithPlayers) => string | undefined;
+  seasonFor: (m: MatchWithPlayers) => CardSeason | undefined;
   tone?: QueueGroup;
 }) {
   if (matches.length === 0) return null;
@@ -50,7 +51,7 @@ function MatchSection({ id, title, matches, tagFor, tone }: {
             key={match.id}
             match={match}
             tierAccent={tierAccent(match.tier_id)}
-            seasonTag={tagFor(match)}
+            season={seasonFor(match)}
           />
         ))}
       </div>
@@ -114,10 +115,7 @@ export function MatchesPage() {
     return () => { cancelled = true; };
   }, [leagueKey, seasonsLoading]);
 
-  const tagFor = (m: MatchWithPlayers): string | undefined => {
-    const season = seasonById(m.season_id);
-    return season ? seasonLabelShort(season.title_id, season.season_index) : undefined;
-  };
+  const seasonFor = (m: MatchWithPlayers): CardSeason | undefined => seasonById(m.season_id);
 
   // Tier chips come from the matches themselves, so only real tiers show.
   const tierOptions = useMemo(() => {
@@ -172,10 +170,10 @@ export function MatchesPage() {
           <div role="alert"><p>Couldn't load matches. Try again in a moment.</p></div>
         ) : (
           <>
-            <MatchSection id="following-overdue" title={GROUP_LABELS.overdue} matches={queue.overdue} tagFor={tagFor} tone="overdue" />
-            <MatchSection id="following-current" title={GROUP_LABELS.current} matches={queue.current} tagFor={tagFor} tone="current" />
-            <MatchSection id="following-upcoming" title={GROUP_LABELS.upcoming} matches={queue.upcoming} tagFor={tagFor} tone="upcoming" />
-            <MatchSection id="following-played" title="Played" matches={played} tagFor={tagFor} />
+            <MatchSection id="following-overdue" title={GROUP_LABELS.overdue} matches={queue.overdue} seasonFor={seasonFor} tone="overdue" />
+            <MatchSection id="following-current" title={GROUP_LABELS.current} matches={queue.current} seasonFor={seasonFor} tone="current" />
+            <MatchSection id="following-upcoming" title={GROUP_LABELS.upcoming} matches={queue.upcoming} seasonFor={seasonFor} tone="upcoming" />
+            <MatchSection id="following-played" title="Played" matches={played} seasonFor={seasonFor} />
             {nothing && <p className="matches-page__empty">No matches in live leagues.</p>}
           </>
         )}
@@ -206,8 +204,8 @@ export function MatchesPage() {
 
   const completed = filtered.filter(m => m.status === 'complete').sort(byCompletedDesc);
 
-  // Season tags only help when the list mixes leagues.
-  const allTagFor = multiLeague ? tagFor : () => undefined;
+  // The end cap only helps when the list mixes leagues.
+  const allSeasonFor = multiLeague ? seasonFor : () => undefined;
 
   return (
     <div>
@@ -226,8 +224,8 @@ export function MatchesPage() {
         ))}
       </div>
 
-      <MatchSection id="upcoming-heading" title="Upcoming" matches={upcoming} tagFor={allTagFor} />
-      <MatchSection id="completed-heading" title="Completed" matches={completed} tagFor={allTagFor} />
+      <MatchSection id="upcoming-heading" title="Upcoming" matches={upcoming} seasonFor={allSeasonFor} />
+      <MatchSection id="completed-heading" title="Completed" matches={completed} seasonFor={allSeasonFor} />
 
       {upcoming.length === 0 && completed.length === 0 && (
         <p className="matches-page__empty">No matches found.</p>

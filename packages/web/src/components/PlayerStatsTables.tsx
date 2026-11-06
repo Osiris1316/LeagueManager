@@ -9,6 +9,8 @@ interface PlayerStatsTablesProps {
 
 interface StatsTableProps {
   title: string;
+  /** Column heading for the first column, e.g. "Civ" or "Map". */
+  pickLabel: string;
   rows: KeyedRecord[];
   emptyText: string;
   renderLabel: (key: string) => ReactNode;
@@ -20,7 +22,7 @@ function formatWinRate(winRate: number) {
 }
 
 function formatRecord(row: KeyedRecord) {
-  return `${row.won} – ${row.played - row.won}`;
+  return `${row.won}–${row.played - row.won}`;
 }
 
 function sortRowsByPlayed(rows: KeyedRecord[]) {
@@ -45,7 +47,7 @@ function formatMapName(key: string) {
     .join(' ');
 }
 
-function StatsTable({ title, rows, emptyText, renderLabel }: StatsTableProps) {
+function StatsTable({ title, pickLabel, rows, emptyText, renderLabel }: StatsTableProps) {
   const sortedRows = sortRowsByPlayed(rows);
 
   return (
@@ -61,10 +63,10 @@ function StatsTable({ title, rows, emptyText, renderLabel }: StatsTableProps) {
           <table className="player-stats-table">
             <thead>
               <tr>
-                <th scope="col">Pick</th>
-                <th scope="col" className="num">Played</th>
-                <th scope="col" className="num">Record</th>
-                <th scope="col" className="num">Win Rate</th>
+                <th scope="col">{pickLabel}</th>
+                <th scope="col" className="num"><abbr title="Played">P</abbr></th>
+                <th scope="col" className="num"><abbr title="Wins and losses">W–L</abbr></th>
+                <th scope="col" className="num"><abbr title="Win rate">Win</abbr></th>
               </tr>
             </thead>
 
@@ -92,6 +94,7 @@ export function PlayerStatsTables({ stats }: PlayerStatsTablesProps) {
     <div className="player-stats-grid">
       <StatsTable
         title="Civilizations"
+        pickLabel="Civ"
         rows={stats.civs}
         emptyText="No civilization stats yet."
         renderLabel={(key) => <CivFlag civId={key} showName />}
@@ -99,6 +102,7 @@ export function PlayerStatsTables({ stats }: PlayerStatsTablesProps) {
 
       <StatsTable
         title="Maps"
+        pickLabel="Map"
         rows={stats.maps}
         emptyText="No map stats yet."
         renderLabel={(key) => <span>{formatMapName(key)}</span>}

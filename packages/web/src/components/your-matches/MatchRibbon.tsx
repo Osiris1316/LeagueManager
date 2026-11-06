@@ -1,4 +1,3 @@
-import { seasonLabelShort } from '@league-manager/core';
 import type { QueueGroup } from '@league-manager/core';
 import type { MatchWithPlayers } from '../../api/client';
 import { useSeasonLookup } from '../../context/SeasonsContext';
@@ -41,7 +40,7 @@ function TileTrack({ data }: { data: PlayerQueue }) {
             match={match}
             playerId={data.playerId}
             group={group}
-            seasonTag={season ? seasonLabelShort(season.title_id, season.season_index) : undefined}
+            season={season}
           />
         );
       })}

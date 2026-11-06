@@ -228,7 +228,7 @@ export function MatchPage() {
   return (
     <div>
       <nav aria-label="Breadcrumb" style={{ marginBottom: 'var(--space-md)' }}>
-        <Link to={`/season/${match.season_id}`} style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+        <Link to={`/season/${match.season_id}`} style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-secondary)' }}>
           ← {season ? `${seasonLabelShort(season.title_id, season.season_index)} standings` : 'Standings'}
         </Link>
       </nav>

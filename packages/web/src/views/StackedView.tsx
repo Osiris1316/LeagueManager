@@ -33,7 +33,7 @@ export function StackedView({ data }: { data: StandingsResponse }) {
 
             {tierData.tier.rules_summary && (
               <p style={{
-                fontSize: '0.8125rem',
+                fontSize: 'var(--text-sm)',
                 color: 'var(--color-text-tertiary)',
                 marginBottom: 'var(--space-lg)',
                 maxWidth: '40rem',
