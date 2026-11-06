@@ -38,7 +38,7 @@ export function StandingsTable({ standings, tierId }: StandingsTableProps) {
                   : '';
 
               return (
-                <tr key={row.player_id}>
+                <tr key={row.player_id} id={`standing-${row.player_id}`}>
                   <td className="num" data-label="#">{index +1}</td>
                   <td data-label="Player">
                     <span className="standings-table__position">{index + 1}.</span>{' '}

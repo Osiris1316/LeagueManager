@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { getStandings } from '../api/client';
 import type { StandingsResponse } from '../api/client';
 import { useSeasons } from '../context/SeasonsContext';
@@ -14,6 +14,7 @@ export function SeasonPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'stacked' | 'columns'>('columns');
+  const { hash } = useLocation();
 
   const parsed = seasonId ? Number.parseInt(seasonId, 10) : Number.NaN;
   // No season in the URL means "show me the current one".
@@ -51,6 +52,18 @@ export function SeasonPage() {
     load();
     return () => { cancelled = true; };
   }, [targetId, seasonsLoading]);
+
+  // A link like /season/5#standing-2 (from "your matches") scrolls to that
+  // player's row once the standings have loaded, and briefly highlights it.
+  useEffect(() => {
+    if (!data || !hash.startsWith('#standing-')) return;
+    const row = document.getElementById(hash.slice(1));
+    if (!row) return;
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.classList.add('standings-row--flash');
+    const timer = window.setTimeout(() => row.classList.remove('standings-row--flash'), 2000);
+    return () => window.clearTimeout(timer);
+  }, [data, hash, viewMode]);
 
   if (loading) {
     return (

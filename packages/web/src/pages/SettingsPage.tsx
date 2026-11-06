@@ -35,8 +35,9 @@ export function SettingsPage() {
         </div>
 
         <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', marginBottom: 'var(--space-md)' }}>
-          Click a player's name to follow them. Their upcoming matches then appear at the top of
-          every page, so you can find your next game without hunting for it.
+          Click a player's name to follow them. Their matches then appear under Your matches,
+          sorted into overdue, this round and coming up, so you can find your next game without
+          hunting for it. You can also follow someone from their player page.
         </p>
 
         {loading ? (
