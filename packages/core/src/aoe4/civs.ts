@@ -28,8 +28,10 @@ export const CIVS: readonly Civ[] = [
   { id: 'aoe4.OrderOfTheDragon',  name: 'Order of the Dragon', slug: 'order-of-the-dragon' },
   { id: 'aoe4.Ottomans',          name: 'Ottomans',            slug: 'ottomans' },
   { id: 'aoe4.Rus',               name: 'Rus',                 slug: 'rus' },
+  { id: 'aoe4.Scots',             name: 'Scots',               slug: 'scots' },
   { id: 'aoe4.SengokuDaimyo',     name: 'Sengoku Daimyo',      slug: 'sengoku-daimyo' },
   { id: 'aoe4.TughlaqDynasty',    name: 'Tughlaq Dynasty',     slug: 'tughlaq-dynasty' },
+  { id: 'aoe4.Vikings',           name: 'Vikings',             slug: 'vikings' },
   { id: 'aoe4.ZhuXiLegacy',       name: "Zhu Xi's Legacy",     slug: 'zhu-xi-legacy' },
 ];
 
