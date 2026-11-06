@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
 
 export function MenuPanel() {
@@ -83,7 +84,7 @@ export function MenuPanel() {
   }
 
   return (
-    <div style={{ position: 'relative', marginLeft: 'auto' }}>
+    <div style={{ position: 'relative' }}>
       <button
         ref={buttonRef}
         onClick={() => {
@@ -113,6 +114,28 @@ export function MenuPanel() {
               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
             }}
           >
+            {isAdmin && (
+              <Link
+                role="menuitem"
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                style={menuItemStyle}
+              >
+                Admin panel
+              </Link>
+            )}
+
+            <Link
+              role="menuitem"
+              to="/settings"
+              onClick={() => setIsOpen(false)}
+              style={menuItemStyle}
+            >
+              Settings
+            </Link>
+
+            {isAdmin && <div style={dividerStyle} role="separator" />}
+
             {isAdmin ? (
               <button role="menuitem" onClick={handleLogout} style={menuItemStyle}>
                 Log out
@@ -175,4 +198,9 @@ const menuItemStyle: React.CSSProperties = {
   background: 'none', border: 'none', borderRadius: 'var(--border-radius-sm)',
   color: 'var(--color-text)', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
   textAlign: 'left', cursor: 'pointer',
+};
+
+const dividerStyle: React.CSSProperties = {
+  height: '1px', margin: 'var(--space-xs) 0',
+  background: 'var(--color-border-subtle)', border: 'none',
 };

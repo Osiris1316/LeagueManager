@@ -100,6 +100,7 @@ export function PlayerPage() {
                 key={match.id}
                 match={match}
                 tierAccent={tierId as 's' | 'a' | 'b'}
+                showSeason
               />
             ))}
           </div>

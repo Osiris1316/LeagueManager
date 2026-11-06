@@ -2,6 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { AdminProvider } from './context/AdminContext';
+import { SeasonsProvider } from './context/SeasonsContext';
+import { FollowProvider } from './context/FollowContext';
 import { App } from './App';
 import './styles/global.css';
 
@@ -11,9 +13,13 @@ if (!root) throw new Error('Root element not found');
 createRoot(root).render(
   <StrictMode>
     <BrowserRouter>
-      <AdminProvider>
-        <App />
-      </AdminProvider>
+      <SeasonsProvider>
+        <AdminProvider>
+          <FollowProvider>
+            <App />
+          </FollowProvider>
+        </AdminProvider>
+      </SeasonsProvider>
     </BrowserRouter>
   </StrictMode>
 );

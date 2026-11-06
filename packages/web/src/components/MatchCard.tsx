@@ -1,9 +1,13 @@
 import { Link } from 'react-router-dom';
 import type { MatchWithPlayers } from '../api/client';
 
+type CardMatch = MatchWithPlayers & { season_number?: number };
+
 interface MatchCardProps {
-  match: MatchWithPlayers;
+  match: CardMatch;
   tierAccent?: 's' | 'a' | 'b';
+  /** Show which season the match belongs to (used in cross-season history). */
+  showSeason?: boolean;
 }
 
 function formatScheduledTime(isoString: string): string {
@@ -15,12 +19,23 @@ function formatScheduledTime(isoString: string): string {
   return `${month}/${day} ${hours}:${minutes}`;
 }
 
-export function MatchCard({ match, tierAccent }: MatchCardProps) {
-  const tierClass = tierAccent ? ` match-card--tier-${tierAccent}` : '';
-  return <SymmetricCard match={match} tierClass={tierClass} />;
+/** "R2", or "S1 R2" when the season is being surfaced. */
+function matchMeta(match: CardMatch, showSeason?: boolean): string {
+  const round = `R${match.round_number}`;
+  if (!showSeason || match.season_number == null) return round;
+  return `S${match.season_number} ${round}`;
 }
 
-function SymmetricCard({ match, tierClass }: { match: MatchWithPlayers; tierClass: string }) {
+export function MatchCard({ match, tierAccent, showSeason }: MatchCardProps) {
+  const tierClass = tierAccent ? ` match-card--tier-${tierAccent}` : '';
+  return <SymmetricCard match={match} tierClass={tierClass} showSeason={showSeason} />;
+}
+
+function SymmetricCard({ match, tierClass, showSeason }: {
+  match: CardMatch;
+  tierClass: string;
+  showSeason?: boolean;
+}) {
   const isComplete = match.status === 'complete';
   const inProgress = match.status === 'in_progress';
   const p1Won = match.winner_id === match.player1_id;
@@ -79,6 +94,12 @@ function SymmetricCard({ match, tierClass }: { match: MatchWithPlayers; tierClas
           <line x1="12" y1="8" x2="12.01" y2="8" />
         </svg>
       </Link>
+
+      {/* Season tag — only in cross-season history, where matches from
+          different seasons sit next to each other. */}
+      {showSeason && (
+        <span className="match-card__meta">{matchMeta(match, showSeason)}</span>
+      )}
     </div>
   );
 }

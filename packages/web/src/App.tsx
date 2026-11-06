@@ -1,18 +1,28 @@
-import { Routes, Route, NavLink, Link } from 'react-router-dom';
+import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom';
 import { SeasonPage } from './pages/SeasonPage';
 import { PlayerPage } from './pages/PlayerPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { MatchPage } from './pages/MatchPage';
 import { MatchesPage } from './pages/MatchesPage';
-import { MenuPanel } from './components/MenuPanel';
+import { AdminPage } from './pages/AdminPage';
+import { SettingsPage } from './pages/SettingsPage';
 import WizardPrototypePage from './pages/WizardPrototypePage';
+import { MenuPanel } from './components/MenuPanel';
+import { SeasonPicker } from './components/SeasonPicker';
+import { FollowedMatches } from './components/FollowedMatches';
 
 export function App() {
+  const location = useLocation();
+  // Standings live at "/" (current season) and "/season/:id" (a specific one).
+  const isStandings =
+    location.pathname === '/' || location.pathname.startsWith('/season');
+
   return (
     <>
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
+
       <div className="page-container">
         <nav className="nav" aria-label="Main navigation">
           <Link to="/" className="nav__brand">
@@ -22,7 +32,7 @@ export function App() {
           <ul className="nav__links" role="list">
             <li>
               <NavLink to="/" end className={({ isActive }) =>
-                `nav__link${isActive ? ' nav__link--active' : ''}`}>
+                `nav__link${isActive || isStandings ? ' nav__link--active' : ''}`}>
                 Standings
               </NavLink>
             </li>
@@ -39,9 +49,14 @@ export function App() {
               </NavLink>
             </li>
           </ul>
-          <MenuPanel />
+          <div className="nav__right">
+            <SeasonPicker />
+            <MenuPanel />
+          </div>
         </nav>
+
         <main id="main-content">
+          <FollowedMatches />
           <Routes>
             <Route path="/" element={<SeasonPage />} />
             <Route path="/season/:seasonId" element={<SeasonPage />} />
@@ -49,6 +64,9 @@ export function App() {
             <Route path="/players" element={<PlayersPage />} />
             <Route path="/player/:playerId" element={<PlayerPage />} />
             <Route path="/match/:matchId" element={<MatchPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/:seasonId" element={<AdminPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/wizard-prototype" element={<WizardPrototypePage />} />
           </Routes>
         </main>

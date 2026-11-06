@@ -6,8 +6,5 @@
     "types": ["@cloudflare/workers-types"],
     "lib": ["ES2022"]
   },
-  "include": ["src"],
-  "references": [
-    { "path": "../core" }
-  ]
+  "include": ["src"]
 }

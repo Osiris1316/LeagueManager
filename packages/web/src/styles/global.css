@@ -317,9 +317,12 @@ tbody tr:hover {
 .badge--complete { background: rgba(92, 184, 122, 0.15); color: var(--color-win); }
 .badge--win  { background: rgba(92, 184, 122, 0.15); color: var(--color-win); }
 .badge--loss { background: rgba(212, 92, 92, 0.15); color: var(--color-loss); }
+.badge--active { background: var(--color-accent-bg); color: var(--color-accent); }
+.badge--archived { background: rgba(98, 104, 128, 0.15); color: var(--color-text-secondary); }
 
 /* ── Match card ── */
 .match-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-md);
@@ -362,6 +365,9 @@ tbody tr:hover {
 
 /* Player name as a clickable link inside the card */
 .match-card__player-link {
+  /* Sits above .match-card__overlay so the name stays independently clickable. */
+  position: relative;
+  z-index: 1;
   color: inherit;
   text-decoration: none;
   transition: color 0.15s ease;
@@ -559,6 +565,248 @@ tbody tr:hover {
 .nav__link--active {
   color: var(--color-text);
   border-bottom-color: var(--color-accent);
+}
+
+/* Right-hand nav cluster: season picker + menu */
+.nav__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-left: auto;
+}
+
+/* ── Season picker ── */
+.season-picker__select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--color-bg-surface);
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%239298ab' d='M0 0h10L5 6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.3125rem 1.5rem 0.3125rem 0.625rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.season-picker__select:hover {
+  border-color: var(--color-text-tertiary);
+}
+
+.season-picker__select option {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
+}
+
+/* ── Admin toolbar ── */
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-xl);
+}
+
+.admin-toolbar__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+}
+
+/* ── Admin filter tabs ── */
+.admin-filters {
+  display: flex;
+  gap: var(--space-xs);
+  margin-left: auto;
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 0.1875rem;
+}
+
+.admin-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0.3125rem 0.625rem;
+  background: none;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.admin-filter:hover {
+  color: var(--color-text);
+  background: var(--color-bg-hover);
+}
+
+.admin-filter--active {
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+}
+
+.admin-filter__count {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.admin-filter--active .admin-filter__count {
+  color: var(--color-accent);
+}
+
+/* ── Followed player (top of page) ── */
+.followed {
+  margin-bottom: var(--space-xl);
+  padding: var(--space-md);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--border-radius);
+}
+
+.followed__header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-md);
+}
+
+.followed__title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.followed__player {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.followed__player a {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.followed__change {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.followed__change:hover {
+  color: var(--color-accent);
+}
+
+.followed__empty {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* ── Settings page ── */
+.settings-player-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.settings-player {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
+  border-left: 3px solid transparent;
+  border-radius: var(--border-radius-sm);
+}
+
+.settings-player:hover {
+  background: var(--color-bg-hover);
+}
+
+/* The followed row is marked with a gold edge. */
+.settings-player--following {
+  border-left-color: var(--color-accent);
+}
+
+/* The name is the follow control. */
+.settings-player__name {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.settings-player__name:hover {
+  color: var(--color-accent);
+}
+
+.settings-player__name--following {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* Secondary link to the player's page. */
+.settings-player__view {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+}
+
+.settings-player__view:hover {
+  color: var(--color-text);
+}
+
+.settings-clear {
+  padding: 0.25rem 0.625rem;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.settings-clear:hover {
+  border-color: var(--color-loss);
+  color: var(--color-loss);
+}
+
+/* ── Navigation: mobile ── */
+@media (max-width: 640px) {
+  .nav {
+    flex-wrap: wrap;
+    row-gap: var(--space-sm);
+  }
+
+  .nav__right {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 /* ── Loading state ── */
@@ -1456,6 +1704,14 @@ tbody tr:hover {
 .match-card--grid .match-card__name:not(.match-card__cell--top) { grid-row: 2; }
 .match-card--grid .match-card__status { grid-column: 3; grid-row: 1 / 3; }
 .match-card--grid .match-card__info { grid-column: 4; grid-row: 1 / 3; }
+
+/* Season tag (cross-season history only) — a third row under the two
+   score/name rows, spanning the score and name columns. */
+.match-card--grid .match-card__meta {
+  grid-column: 1 / 3;
+  grid-row: 3;
+  min-width: 0;
+}
 
 /* Score (mono), now leading each row */
 .match-card__cell-score {

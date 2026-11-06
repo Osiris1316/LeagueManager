@@ -7,6 +7,7 @@ dist/
 *.js.map
 *.d.ts
 *.d.ts.map
+*.tsbuildinfo
 
 # Keep source .ts files
 !packages/*/src/**/*.ts
@@ -16,7 +17,7 @@ dist/
 # Generated Files
 scripts/output/
 
-# Local database
+# Local database (legacy — the dev server now uses Wrangler's local D1)
 data/local.db
 data/local.db-wal
 data/local.db-shm
