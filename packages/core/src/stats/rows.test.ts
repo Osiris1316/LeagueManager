@@ -6,13 +6,13 @@ import { computeH2H } from './h2h';
 describe('rowToEnrichedGame', () => {
   it('maps snake_case → camelCase for a full row', () => {
     const row = {
-      season_id: 1, tier_id: 'code_b', match_id: 10, round: 1, game_number: 3,
+      season_id: 1, title_id: 'aoe4', tier_id: 'code_b', match_id: 10, round: 1, game_number: 3,
       player1_id: 1, player2_id: 2,
       player1_civ_id: 'french', player2_civ_id: 'english',
       map_id: 'dry-arabia', winner_id: 1,
     };
     expect(rowToEnrichedGame(row)).toEqual({
-      seasonId: 1, tierId: 'code_b', matchId: 10, round: 1, gameNumber: 3,
+      seasonId: 1, titleId: 'aoe4', tierId: 'code_b', matchId: 10, round: 1, gameNumber: 3,
       player1Id: 1, player2Id: 2,
       player1CivId: 'french', player2CivId: 'english',
       mapId: 'dry-arabia', winnerId: 1,
@@ -27,6 +27,7 @@ describe('rowToEnrichedGame', () => {
       map_id: null, winner_id: null,
     };
     const g = rowToEnrichedGame(row);
+    expect(g.titleId).toBeNull(); // query without a seasons join
     expect(g.round).toBeNull();
     expect(g.player1CivId).toBeNull();
     expect(g.mapId).toBeNull();
@@ -37,13 +38,13 @@ describe('rowToEnrichedGame', () => {
 describe('rowToEnrichedMatch', () => {
   it('maps a completed match row', () => {
     const row = {
-      season_id: 2, tier_id: 'code_b', match_id: 30, round: 5,
-      player1_id: 1, player2_id: 2, player1_score: 3, player2_score: 2,
+      season_id: 2, title_id: 'aoe4', season_index: 2, tier_id: 'code_b', match_id: 30, round: 5,
+      best_of: 5, player1_id: 1, player2_id: 2, player1_score: 3, player2_score: 2,
       winner_id: 1, completed_at: '2026-03-20',
     };
     expect(rowToEnrichedMatch(row)).toEqual({
-      seasonId: 2, tierId: 'code_b', matchId: 30, round: 5,
-      player1Id: 1, player2Id: 2, player1Score: 3, player2Score: 2,
+      seasonId: 2, titleId: 'aoe4', seasonIndex: 2, tierId: 'code_b', matchId: 30, round: 5,
+      bestOf: 5, player1Id: 1, player2Id: 2, player1Score: 3, player2Score: 2,
       winnerId: 1, completedAt: '2026-03-20',
     });
   });
@@ -58,6 +59,18 @@ describe('rowToEnrichedMatch', () => {
     expect(m.round).toBeNull();
     expect(m.winnerId).toBeNull();
     expect(m.completedAt).toBeNull();
+  });
+
+  it('preserves nulls for title, season index and best_of when not selected', () => {
+    const row = {
+      season_id: 2, tier_id: 'code_b', match_id: 30, round: 5,
+      player1_id: 1, player2_id: 2, player1_score: 2, player2_score: 0,
+      winner_id: 1, completed_at: null, best_of: null,
+    };
+    const m = rowToEnrichedMatch(row);
+    expect(m.titleId).toBeNull();
+    expect(m.seasonIndex).toBeNull();
+    expect(m.bestOf).toBeNull();
   });
 });
 

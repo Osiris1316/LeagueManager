@@ -8,15 +8,46 @@ import type { SlotView } from './slots';
  */
 export interface EnrichedMatch {
   seasonId: number;
+  /** The season's game title ('aoe4', 'bw'); null where the query didn't select it. */
+  titleId: string | null;
+  /** Season number within its title (AoE4 Season 3 → 3); null if not selected. */
+  seasonIndex: number | null;
   tierId: string;
   matchId: number;
   round: number | null;
+  bestOf: number | null;
   player1Id: number;
   player2Id: number;
   player1Score: number;
   player2Score: number;
   winnerId: number | null; // null = unplayed/void — excluded from the record
   completedAt: string | null;
+}
+
+/**
+ * The pair's decided matches, oldest first in structural order
+ * (season → round → match), not by timestamp, since completedAt may be sparse.
+ * Shared by every match-grain view below so they can never disagree about
+ * which meetings count.
+ */
+function decidedMeetings(
+  matches: EnrichedMatch[],
+  perspectivePlayerId: number,
+  opponentPlayerId: number,
+): EnrichedMatch[] {
+  return matches
+    .filter((m) => {
+      const isPair =
+        (m.player1Id === perspectivePlayerId && m.player2Id === opponentPlayerId) ||
+        (m.player1Id === opponentPlayerId && m.player2Id === perspectivePlayerId);
+      return isPair && (m.winnerId === perspectivePlayerId || m.winnerId === opponentPlayerId);
+    })
+    .sort(
+      (a, b) =>
+        a.seasonId - b.seasonId ||
+        (a.round ?? 0) - (b.round ?? 0) ||
+        a.matchId - b.matchId,
+    );
 }
 
 export interface H2HRecord {
@@ -53,21 +84,9 @@ export function computeH2H(
     lastMeeting: null,
   };
 
-  const meetings = matches.filter((m) => {
-    const isPair =
-      (m.player1Id === perspectivePlayerId && m.player2Id === opponentPlayerId) ||
-      (m.player1Id === opponentPlayerId && m.player2Id === perspectivePlayerId);
-    return isPair && (m.winnerId === perspectivePlayerId || m.winnerId === opponentPlayerId);
-  });
+  const meetings = decidedMeetings(matches, perspectivePlayerId, opponentPlayerId);
 
   if (meetings.length === 0) return rec; // never met — a value, not an error
-
-  meetings.sort(
-    (a, b) =>
-      a.seasonId - b.seasonId ||
-      (a.round ?? 0) - (b.round ?? 0) ||
-      a.matchId - b.matchId,
-  );
 
   for (const m of meetings) {
     const perspIsP1 = m.player1Id === perspectivePlayerId;
@@ -139,4 +158,126 @@ export function computeCivMatchups(
       a.oppCivId.localeCompare(b.oppCivId),
   );
   return rows;
+}
+/** One past meeting of the pair, seen from the perspective player's side. */
+export interface H2HMeeting {
+  matchId: number;
+  seasonId: number;
+  titleId: string | null;
+  seasonIndex: number | null;
+  round: number | null;
+  bestOf: number | null;
+  /** [perspective player's games, opponent's games]. */
+  score: [number, number];
+  won: boolean;
+}
+
+/**
+ * Every decided meeting of the pair, newest first, scores normalized to the
+ * perspective player. The list behind "3–2, S3 · R2 · Bo5" rows; same
+ * meetings computeH2H counts. Scope (one game title, one season) is a
+ * pre-filter on `matches`, never a parameter.
+ */
+export function computeMeetings(
+  matches: EnrichedMatch[],
+  perspectivePlayerId: number,
+  opponentPlayerId: number,
+): H2HMeeting[] {
+  return decidedMeetings(matches, perspectivePlayerId, opponentPlayerId)
+    .reverse()
+    .map((m) => {
+      const perspIsP1 = m.player1Id === perspectivePlayerId;
+      return {
+        matchId: m.matchId,
+        seasonId: m.seasonId,
+        titleId: m.titleId,
+        seasonIndex: m.seasonIndex,
+        round: m.round,
+        bestOf: m.bestOf,
+        score: perspIsP1 ? [m.player1Score, m.player2Score] : [m.player2Score, m.player1Score],
+        won: m.winnerId === perspectivePlayerId,
+      };
+    });
+}
+
+/** One game between the pair, from the perspective player's side. */
+export interface H2HGame {
+  matchId: number;
+  gameNumber: number;
+  mapId: string | null;
+  civId: string | null;
+  oppCivId: string | null;
+  won: boolean;
+}
+
+/**
+ * Every game between the pair from the perspective player's side: the pair's
+ * slots, keeping only the perspective side so each game appears once. Newest
+ * meeting first, games in play order within a meeting, so a client can group
+ * by matchId without re-sorting. Scope by pre-filtering what feeds `slots`.
+ */
+export function computePairGames(
+  slots: SlotView[],
+  perspectivePlayerId: number,
+  opponentPlayerId: number,
+): H2HGame[] {
+  return slots
+    .filter((s) => s.playerId === perspectivePlayerId && s.oppPlayerId === opponentPlayerId)
+    .sort(
+      (a, b) =>
+        b.seasonId - a.seasonId ||
+        (b.round ?? 0) - (a.round ?? 0) ||
+        b.matchId - a.matchId ||
+        a.gameNumber - b.gameNumber,
+    )
+    .map((s) => ({
+      matchId: s.matchId,
+      gameNumber: s.gameNumber,
+      mapId: s.mapId,
+      civId: s.civId,
+      oppCivId: s.oppCivId,
+      won: s.won,
+    }));
+}
+
+/** The pair's series record within one game title. */
+export interface TitleSeriesRecord {
+  titleId: string;
+  matchesPlayed: number;
+  wins: number;
+  losses: number;
+  /** The most recent meeting in this title, for linking to it. */
+  lastMatchId: number;
+}
+
+/**
+ * The pair's series record per game title, from the perspective player's
+ * side: the "Brood War 1–0" beside an AoE4 head-to-head. Each title is a
+ * pre-filter of `matches` folded by computeH2H, so the numbers can't drift
+ * from the main record. Titles they never met in, and matches with no title,
+ * are left out. Most-played title first.
+ */
+export function computeTitleRecords(
+  matches: EnrichedMatch[],
+  perspectivePlayerId: number,
+  opponentPlayerId: number,
+): TitleSeriesRecord[] {
+  const titleIds = new Set<string>();
+  for (const m of matches) if (m.titleId !== null) titleIds.add(m.titleId);
+
+  const records: TitleSeriesRecord[] = [];
+  for (const titleId of titleIds) {
+    const inTitle = matches.filter((m) => m.titleId === titleId);
+    const rec = computeH2H(inTitle, perspectivePlayerId, opponentPlayerId);
+    if (rec.matchesPlayed === 0 || rec.lastMeeting === null) continue;
+    records.push({
+      titleId,
+      matchesPlayed: rec.matchesPlayed,
+      wins: rec.wins,
+      losses: rec.losses,
+      lastMatchId: rec.lastMeeting.matchId,
+    });
+  }
+  records.sort((a, b) => b.matchesPlayed - a.matchesPlayed || a.titleId.localeCompare(b.titleId));
+  return records;
 }

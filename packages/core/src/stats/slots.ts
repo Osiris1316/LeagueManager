@@ -4,6 +4,8 @@
  */
 export interface EnrichedGame {
   seasonId: number;
+  /** The season's game title ('aoe4', 'bw'); null where the query didn't select it. */
+  titleId: string | null;
   tierId: string;
   matchId: number;
   round: number | null;

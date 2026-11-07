@@ -8,12 +8,12 @@ import {
 // 1 = Osiris, 2 = Bob, 3 = Carol   (player1Id < player2Id holds in every match)
 const games: EnrichedGame[] = [
   // Match A: Osiris vs Bob, Bo3 → Osiris 2-1
-  { seasonId: 1, tierId: 'code_b', matchId: 10, round: 1, gameNumber: 1, player1Id: 1, player2Id: 2, player1CivId: 'french',  player2CivId: 'english', mapId: 'dry-arabia',   winnerId: 1 },
-  { seasonId: 1, tierId: 'code_b', matchId: 10, round: 1, gameNumber: 2, player1Id: 1, player2Id: 2, player1CivId: 'french',  player2CivId: 'mongols', mapId: 'black-forest', winnerId: 2 },
-  { seasonId: 1, tierId: 'code_b', matchId: 10, round: 1, gameNumber: 3, player1Id: 1, player2Id: 2, player1CivId: 'abbasid', player2CivId: 'english', mapId: 'dry-arabia',   winnerId: 1 },
+  { seasonId: 1, titleId: 'aoe4', tierId: 'code_b', matchId: 10, round: 1, gameNumber: 1, player1Id: 1, player2Id: 2, player1CivId: 'french',  player2CivId: 'english', mapId: 'dry-arabia',   winnerId: 1 },
+  { seasonId: 1, titleId: 'aoe4', tierId: 'code_b', matchId: 10, round: 1, gameNumber: 2, player1Id: 1, player2Id: 2, player1CivId: 'french',  player2CivId: 'mongols', mapId: 'black-forest', winnerId: 2 },
+  { seasonId: 1, titleId: 'aoe4', tierId: 'code_b', matchId: 10, round: 1, gameNumber: 3, player1Id: 1, player2Id: 2, player1CivId: 'abbasid', player2CivId: 'english', mapId: 'dry-arabia',   winnerId: 1 },
   // Match B: Osiris vs Carol, split → 1-1
-  { seasonId: 1, tierId: 'code_b', matchId: 11, round: 2, gameNumber: 1, player1Id: 1, player2Id: 3, player1CivId: 'french',  player2CivId: 'mongols', mapId: 'black-forest', winnerId: 3 },
-  { seasonId: 1, tierId: 'code_b', matchId: 11, round: 2, gameNumber: 2, player1Id: 1, player2Id: 3, player1CivId: 'abbasid', player2CivId: 'delhi',   mapId: 'dry-arabia',   winnerId: 1 },
+  { seasonId: 1, titleId: 'aoe4', tierId: 'code_b', matchId: 11, round: 2, gameNumber: 1, player1Id: 1, player2Id: 3, player1CivId: 'french',  player2CivId: 'mongols', mapId: 'black-forest', winnerId: 3 },
+  { seasonId: 1, titleId: 'aoe4', tierId: 'code_b', matchId: 11, round: 2, gameNumber: 2, player1Id: 1, player2Id: 3, player1CivId: 'abbasid', player2CivId: 'delhi',   mapId: 'dry-arabia',   winnerId: 1 },
 ];
 
 describe('explodeToSlotViews', () => {

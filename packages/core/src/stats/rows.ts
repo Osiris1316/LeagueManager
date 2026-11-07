@@ -30,10 +30,12 @@ function strOrNull(v: unknown): string | null {
 }
 
 /** Expects a row aliased to: season_id, tier_id, match_id, round, game_number,
- *  player1_id, player2_id, player1_civ_id, player2_civ_id, map_id, winner_id. */
+ *  player1_id, player2_id, player1_civ_id, player2_civ_id, map_id, winner_id.
+ *  Optional: title_id (from a seasons join); absent maps to null. */
 export function rowToEnrichedGame(row: Record<string, unknown>): EnrichedGame {
   return {
     seasonId: num(row.season_id),
+    titleId: strOrNull(row.title_id),
     tierId: str(row.tier_id),
     matchId: num(row.match_id),
     round: numOrNull(row.round),
@@ -48,13 +50,18 @@ export function rowToEnrichedGame(row: Record<string, unknown>): EnrichedGame {
 }
 
 /** Expects a row aliased to: season_id, tier_id, match_id, round,
- *  player1_id, player2_id, player1_score, player2_score, winner_id, completed_at. */
+ *  player1_id, player2_id, player1_score, player2_score, winner_id, completed_at.
+ *  Optional: title_id and season_index (from a seasons join) and best_of;
+ *  absent maps to null. */
 export function rowToEnrichedMatch(row: Record<string, unknown>): EnrichedMatch {
   return {
     seasonId: num(row.season_id),
+    titleId: strOrNull(row.title_id),
+    seasonIndex: numOrNull(row.season_index),
     tierId: str(row.tier_id),
     matchId: num(row.match_id),
     round: numOrNull(row.round),
+    bestOf: numOrNull(row.best_of),
     player1Id: num(row.player1_id),
     player2Id: num(row.player2_id),
     player1Score: num(row.player1_score),
