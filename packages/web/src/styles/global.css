@@ -3020,3 +3020,244 @@ th abbr { text-decoration: none; cursor: help; }
   .page-section--stats { grid-template-columns: minmax(0, 1fr); }
   .page-section--stats .stats-scope-picker { justify-self: start; margin-top: var(--space-sm); }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   HEAD TO HEAD (match page): the pair's history in this game title.
+   Every row (summary, matches, games, the phone matchup table) sits on one
+   shared seven-track grid, mirrored around the centre, so columns line up
+   across all of them:
+     margin | A identity | B result | C centre | D result | E identity | margin
+   Rows are outlined with an inset shadow, not a border, and carry no side
+   padding, so outlined and plain rows have the same inner width.
+   Sizes follow the section's own width (container query units): full size
+   from 358px up; below that every font, flag, gap, row and margin shrinks
+   by the same factor, so the ratios hold and nothing wraps or clips. Each
+   size is the design token, capped by its scaled equivalent. Short civ
+   names show beside flags only from 690px, where the identity track fits a
+   flag plus the longest short name.
+   ══════════════════════════════════════════════════════════════ */
+
+.h2h {
+  container: h2h / inline-size;
+  /* 1px at 358px wide and up, less below. Resolved where it's used, so
+     against this section's width. */
+  --h2h-u: min(1px, calc(100cqi / 358));
+  max-width: 44rem;
+  margin: var(--space-xl) auto 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.h2h__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(4 * var(--h2h-u)) calc(12 * var(--h2h-u));
+}
+
+.h2h__title {
+  margin: 0;
+  font-size: min(var(--text-md), calc(16 * var(--h2h-u)));
+  font-weight: 600;
+}
+
+.h2h__scope {
+  font-size: min(var(--text-xs), calc(12 * var(--h2h-u)));
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.h2h__scope a.h2h__scope-link,
+.h2h__scope a.h2h__scope-link:hover {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.h2h__status,
+.h2h__empty {
+  margin: calc(14 * var(--h2h-u)) 0 0;
+  font-size: min(var(--text-sm), calc(13 * var(--h2h-u)));
+  color: var(--color-text-secondary);
+}
+
+.h2h__section-title {
+  margin: calc(22 * var(--h2h-u)) 0 calc(6 * var(--h2h-u));
+  font-size: min(var(--text-sm), calc(13 * var(--h2h-u)));
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* ── The shared grid ── */
+.h2h-grid {
+  display: grid;
+  grid-template-columns:
+    calc(26 * var(--h2h-u))
+    minmax(0, 2.7fr) minmax(0, 1.4fr) minmax(0, 6fr) minmax(0, 1.4fr) minmax(0, 2.7fr)
+    calc(26 * var(--h2h-u));
+  column-gap: calc(6 * var(--h2h-u));
+  align-items: center;
+  border-radius: var(--border-radius-sm);
+}
+
+.h2h-grid > * {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+/* Column placement */
+.h2h-gn { grid-column: 1; justify-self: start; padding-left: calc(10 * var(--h2h-u)); }
+.h2h-a  { grid-column: 2; justify-self: end; }
+.h2h-b  { grid-column: 3; justify-self: center; }
+.h2h-c  { grid-column: 4; justify-self: center; }
+.h2h-d  { grid-column: 5; justify-self: center; }
+.h2h-e  { grid-column: 6; justify-self: start; }
+.h2h-go { grid-column: 7; justify-self: end; margin-right: calc(10 * var(--h2h-u)); }
+
+/* A name over a result column is centred on the numbers below it, even when
+   it's wider than the column (it spills into the empty header space). */
+.h2h-b.h2h-name,
+.h2h-d.h2h-name {
+  justify-self: unsafe center;
+  width: max-content;
+}
+
+/* ── Rows ── */
+.h2h-list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2 * var(--h2h-u));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.h2h-groups {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.h2h-row {
+  height: calc(44 * var(--h2h-u));
+  background: var(--color-bg-raised);
+  box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+  color: var(--color-text);
+}
+
+.h2h-row--game { height: calc(36 * var(--h2h-u)); }
+
+.h2h-group {
+  height: calc(30 * var(--h2h-u));
+  margin-top: calc(6 * var(--h2h-u));
+  color: var(--color-text);
+}
+
+a.h2h-row,
+a.h2h-group { text-decoration: none; }
+
+a.h2h-row:hover,
+a.h2h-group:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.h2h-colhead {
+  height: calc(22 * var(--h2h-u));
+  font-size: min(var(--text-2xs), calc(11 * var(--h2h-u)));
+  color: var(--color-text-secondary);
+}
+
+.h2h-colhead--active {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* ── Summary card ── */
+.h2h__summary {
+  margin-top: calc(14 * var(--h2h-u));
+  padding: calc(8 * var(--h2h-u)) 0;
+  background: var(--color-bg-raised);
+  box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+  border-radius: 6px;
+}
+
+.h2h-summary-head { height: calc(24 * var(--h2h-u)); }
+.h2h-stat { height: calc(34 * var(--h2h-u)); }
+
+.h2h-name--summary { font-size: min(var(--text-xs), calc(12 * var(--h2h-u))); }
+.h2h-num { font-size: min(var(--text-lg), calc(20 * var(--h2h-u))); }
+
+.h2h-stat-label {
+  font-size: min(var(--text-xs), calc(12 * var(--h2h-u)));
+  color: var(--color-text-secondary);
+}
+
+/* ── Cell content ── */
+.h2h-row .h2h-score { font-size: min(var(--text-base), calc(14 * var(--h2h-u))); }
+.h2h-group .h2h-score { font-size: min(var(--text-xs), calc(12 * var(--h2h-u))); }
+
+.h2h-tag {
+  font-size: min(var(--text-2xs), calc(11 * var(--h2h-u)));
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.h2h-gn {
+  font-size: min(var(--text-2xs), calc(11 * var(--h2h-u)));
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.h2h-map,
+.h2h-wl { font-size: min(var(--text-2xs), calc(11 * var(--h2h-u))); }
+
+.h2h-map { color: var(--color-text-secondary); }
+
+.h2h-go {
+  display: block;
+  width: calc(14 * var(--h2h-u));
+  height: calc(14 * var(--h2h-u));
+  color: var(--color-text-secondary);
+}
+
+/* Winners get weight, never size. Colour only for meaning. */
+.h2h .h2h-lead { color: var(--color-text); font-weight: 600; }
+.h2h .h2h-trail { color: var(--color-text-secondary); font-weight: 400; }
+.h2h .h2h-trail-strong { color: var(--color-text-secondary); font-weight: 600; }
+.h2h .h2h-w { color: var(--color-win); font-weight: 600; }
+.h2h .h2h-l { color: var(--color-loss); font-weight: 600; }
+
+/* ── Civs: flag, plus the short name when there's room ── */
+.h2h-civ {
+  display: flex;
+  align-items: center;
+  gap: calc(8 * var(--h2h-u));
+}
+
+.h2h-flag {
+  display: block;
+  height: calc(15 * var(--h2h-u));
+  width: auto;
+  border-radius: 2px;
+}
+
+.h2h-flag--unknown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(26 * var(--h2h-u));
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  font-size: min(var(--text-2xs), calc(11 * var(--h2h-u)));
+  color: var(--color-text-tertiary);
+}
+
+.h2h-civname {
+  display: none;
+  font-size: var(--text-sm);
+}
+
+@container h2h (min-width: 690px) {
+  .h2h-civname { display: inline; }
+}

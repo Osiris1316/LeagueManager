@@ -1,4 +1,4 @@
-import type { SlotView } from '@league-manager/core';
+import type { SlotView, H2HMeeting, H2HGame, TitleSeriesRecord } from '@league-manager/core';
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -138,11 +138,23 @@ export interface CivMatchupRecord {
   winRate: number;
 }
 
+/** A game between the pair, from the perspective player's side, with its map's display name. */
+export interface H2HGameRow extends H2HGame {
+  mapName: string | null;
+}
+
 export interface H2HResponse {
   perspectivePlayerId: number;
   opponentPlayerId: number;
+  /** The title the numbers are scoped to; null = every title together. */
+  titleId: string | null;
   series: H2HRecord;
+  meetings: H2HMeeting[];
+  games: H2HGameRow[];
   civMatchups: CivMatchupRecord[];
+  /** Civs each player has used in this title against anyone, most played first. */
+  civPools: { perspective: string[]; opponent: string[] };
+  otherTitles: TitleSeriesRecord[];
 }
 
 // ── Public API functions ──
@@ -163,8 +175,10 @@ export function getPlayerStats(playerId: number): Promise<PlayerStatsResponse> {
   return fetchJson(`/api/players/${playerId}/stats`);
 }
 
-export function getH2H(p1: number, p2: number): Promise<H2HResponse> {
-  return fetchJson(`/api/h2h?p1=${p1}&p2=${p2}`);
+/** Head-to-head from p1's side; pass a title id to scope it to one game. */
+export function getH2H(p1: number, p2: number, titleId?: string | null): Promise<H2HResponse> {
+  const title = titleId ? `&title=${encodeURIComponent(titleId)}` : '';
+  return fetchJson(`/api/h2h?p1=${p1}&p2=${p2}${title}`);
 }
 
 export interface SeasonMeta {

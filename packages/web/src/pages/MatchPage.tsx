@@ -4,10 +4,11 @@ import { getMatch, reportMatch, clearMatch } from '../api/client';
 import type { GameReport } from '../api/client';
 import { seasonLabelShort } from '@league-manager/core';
 import { useAdmin } from '../context/AdminContext';
-import { useSeasonLookup } from '../context/SeasonsContext';
+import { useSeasonLookup, useSeasons } from '../context/SeasonsContext';
 import { CIVS, MAPS } from '../data/aoe4';
 import { RulesModal } from '../components/RulesModal';
 import { CivFlag } from '../components/CivFlag';
+import { HeadToHead } from '../components/head-to-head/HeadToHead';
 
 interface MatchData {
   match: {
@@ -65,6 +66,7 @@ export function MatchPage() {
   const { matchId } = useParams<{ matchId: string }>();
   const { isAdmin } = useAdmin();
   const seasonById = useSeasonLookup();
+  const { loading: seasonsLoading } = useSeasons();
 
   const [data, setData] = useState<MatchData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -206,6 +208,9 @@ export function MatchPage() {
 
   const { match } = data;
   const season = seasonById(match.season_id);
+  // The head-to-head waits for the match's game title; if the seasons list
+  // fails to load it falls back to every title together.
+  const titleId = season ? season.title_id : seasonsLoading ? undefined : null;
   const isComplete = match.status === 'complete';
   const hasAnyResults = data.games.length > 0;
 
@@ -447,6 +452,14 @@ export function MatchPage() {
           )}
         </div>
       )}
+
+      <HeadToHead
+        player1Id={match.player1_id}
+        player1Name={match.player1_name}
+        player2Id={match.player2_id}
+        player2Name={match.player2_name}
+        titleId={titleId}
+      />
 
       {showRules && (
         <RulesModal
