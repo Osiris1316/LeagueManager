@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { titleById, type H2HMeeting } from '@league-manager/core';
 import { getH2H, type H2HGameRow, type H2HResponse } from '../../api/client';
 import { CivMark } from './CivMark';
+import { CivMatchups } from './CivMatchups';
 import { NamesHeader } from './NamesHeader';
 import { mapLabel, meetingLabel, meetingTag } from './format';
 
@@ -174,6 +175,14 @@ function History({ data, leftName, rightName, titleName, hasCivCatalog }: Histor
         </>
       )}
 
+      {hasCivCatalog && data.civMatchups.length > 0 && (
+        <CivMatchups
+          matchups={data.civMatchups}
+          pools={data.civPools}
+          leftName={leftName}
+          rightName={rightName}
+        />
+      )}
     </>
   );
 }
