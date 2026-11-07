@@ -155,6 +155,26 @@ export interface H2HResponse {
   /** Civs each player has used in this title against anyone, most played first. */
   civPools: { perspective: string[]; opponent: string[] };
   otherTitles: TitleSeriesRecord[];
+  /** The season "since" starts from, as asked; null = all seasons. */
+  sinceSeasonId?: number | null;
+  /**
+   * Each player's record against everyone in the same scope (Versus page).
+   * Optional so the page still renders against an older API.
+   */
+  field?: { perspective: FieldRecord; opponent: FieldRecord };
+}
+
+/** One player's record against the whole field, in scope. */
+export interface FieldRecord {
+  playerId: number;
+  matches: { won: number; lost: number };
+  games: { won: number; lost: number };
+  /** Latest match results, newest first. */
+  form: ('W' | 'L')[];
+  /** Most played civs with records, most played first. */
+  civs: { key: string; played: number; won: number; winRate: number }[];
+  /** Their latest tier in this game; current = that season is running now. */
+  tier: { name: string; seasonId: number; seasonIndex: number | null; current: boolean } | null;
 }
 
 // ── Public API functions ──
@@ -176,9 +196,10 @@ export function getPlayerStats(playerId: number): Promise<PlayerStatsResponse> {
 }
 
 /** Head-to-head from p1's side; pass a title id to scope it to one game. */
-export function getH2H(p1: number, p2: number, titleId?: string | null): Promise<H2HResponse> {
+export function getH2H(p1: number, p2: number, titleId?: string | null, sinceSeasonId?: number | null): Promise<H2HResponse> {
   const title = titleId ? `&title=${encodeURIComponent(titleId)}` : '';
-  return fetchJson(`/api/h2h?p1=${p1}&p2=${p2}${title}`);
+  const since = sinceSeasonId != null ? `&since=${sinceSeasonId}` : '';
+  return fetchJson(`/api/h2h?p1=${p1}&p2=${p2}${title}${since}`);
 }
 
 export interface SeasonMeta {

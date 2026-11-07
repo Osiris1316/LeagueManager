@@ -4,6 +4,7 @@ import { PlayerPage } from './pages/PlayerPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { MatchPage } from './pages/MatchPage';
 import { MatchesPage } from './pages/MatchesPage';
+import { VersusPage } from './pages/VersusPage';
 import { AdminPage } from './pages/AdminPage';
 import { SettingsPage } from './pages/SettingsPage';
 import WizardPrototypePage from './pages/WizardPrototypePage';
@@ -71,6 +72,12 @@ export function App() {
                 Players
               </NavLink>
             </li>
+            <li>
+              <NavLink to="/versus" className={({ isActive }) =>
+                `nav__link${isActive ? ' nav__link--active' : ''}`}>
+                Versus
+              </NavLink>
+            </li>
           </ul>
           <div className="nav__right">
             <SeasonPicker />
@@ -90,6 +97,7 @@ export function App() {
               <Route path="/season/:seasonId" element={<SeasonPage />} />
               <Route path="/matches" element={<MatchesPage />} />
               <Route path="/players" element={<PlayersPage />} />
+              <Route path="/versus" element={<VersusPage />} />
               <Route path="/player/:playerId" element={<PlayerPage />} />
               <Route path="/match/:matchId" element={<MatchPage />} />
               <Route path="/admin" element={<AdminPage />} />

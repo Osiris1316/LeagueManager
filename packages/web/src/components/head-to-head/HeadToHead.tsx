@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { titleById, type H2HMeeting } from '@league-manager/core';
-import { getH2H, type H2HGameRow, type H2HResponse } from '../../api/client';
+import { getH2H, type FieldRecord, type H2HGameRow, type H2HResponse } from '../../api/client';
 import { CivMark } from './CivMark';
 import { CivMatchups } from './CivMatchups';
 import { NamesHeader } from './NamesHeader';
 import { mapLabel, meetingLabel, meetingTag } from './format';
+import { Record } from '../versus/Record';
 
 interface HeadToHeadProps {
   /** The match's left player (player1 in storage order): every number is from their side. */
@@ -92,16 +93,48 @@ interface HistoryProps {
   rightName: string;
   titleName: string | null;
   hasCivCatalog: boolean;
+  /** Versus page: each side's record against everyone, as rows in the summary card. */
+  showField?: boolean;
+  /** Versus page: sits in the centre of the summary card's name row (the swap button). */
+  summaryCentre?: ReactNode;
+  /** Versus page: a line under the summary card (other games they've met in). */
+  afterSummary?: ReactNode;
+  /** What the empty state says, when the default doesn't fit. */
+  emptyText?: string;
 }
 
-function History({ data, leftName, rightName, titleName, hasCivCatalog }: HistoryProps) {
+export function History({
+  data, leftName, rightName, titleName, hasCivCatalog,
+  showField = false, summaryCentre, afterSummary, emptyText,
+}: HistoryProps) {
   const { series, meetings, games } = data;
+  const field = showField ? data.field : undefined;
 
-  if (series.matchesPlayed === 0) {
+  if (series.matchesPlayed === 0 && !field) {
     return (
       <p className="h2h__empty">
-        No previous meetings{titleName ? ` in ${titleName}` : ''}
+        {emptyText ?? `No previous meetings${titleName ? ` in ${titleName}` : ''}`}
       </p>
+    );
+  }
+
+  if (series.matchesPlayed === 0 && field) {
+    return (
+      <>
+        <div className="h2h__summary">
+          <div className="h2h-grid h2h-summary-head">
+            <span className="h2h-b h2h-name h2h-name--summary h2h-lead">{leftName}</span>
+            {summaryCentre}
+            <span className="h2h-d h2h-name h2h-name--summary h2h-lead">{rightName}</span>
+          </div>
+          <div className="h2h-grid h2h-stat h2h-stat--never">
+            <span className="h2h-c h2h-stat-label">{emptyText ?? 'Never met'}</span>
+          </div>
+          <FieldRows left={field.perspective} right={field.opponent} showCivs={hasCivCatalog} />
+        </div>
+        <FieldSentence left={field.perspective} right={field.opponent} leftName={leftName} rightName={rightName} />
+        {afterSummary}
+      </>
     );
   }
 
@@ -128,11 +161,15 @@ function History({ data, leftName, rightName, titleName, hasCivCatalog }: Histor
       <div className="h2h__summary" aria-hidden="true">
         <div className="h2h-grid h2h-summary-head">
           <span className={`h2h-b h2h-name h2h-name--summary ${leftLeads ? 'h2h-lead' : 'h2h-trail'}`}>{leftName}</span>
+          {summaryCentre}
           <span className={`h2h-d h2h-name h2h-name--summary ${rightLeads ? 'h2h-lead' : 'h2h-trail'}`}>{rightName}</span>
         </div>
         <SummaryRow label="Matches" left={series.wins} right={series.losses} />
         <SummaryRow label="Games" left={series.gamesWon} right={series.gamesLost} />
+        {field && <FieldRows left={field.perspective} right={field.opponent} showCivs={hasCivCatalog} />}
       </div>
+      {field && <FieldSentence left={field.perspective} right={field.opponent} leftName={leftName} rightName={rightName} />}
+      {afterSummary}
 
       <h3 className="h2h__section-title">Matches</h3>
       <NamesHeader leftName={leftName} rightName={rightName} />
@@ -223,4 +260,78 @@ function MeetingLink({ meeting: m, leftName, rightName, variant }: {
       </svg>
     </Link>
   );
+}
+
+// ── Versus page: each side against everyone ──
+
+const rate = (won: number, lost: number) => (won + lost === 0 ? 0 : won / (won + lost));
+
+/**
+ * The narrow-width version of the Versus corners: each player's record
+ * against the whole field, on the same grid as the head-to-head rows above.
+ * Records centre their dash on the result column, so every dash on a side
+ * sits on one line under that side's head-to-head numbers. Wide screens hide
+ * these rows and show the corners instead.
+ */
+function FieldRows({ left, right, showCivs }: { left: FieldRecord; right: FieldRecord; showCivs: boolean }) {
+  const lr = rate(left.matches.won, left.matches.lost);
+  const rr = rate(right.matches.won, right.matches.lost);
+  const lGames = rate(left.games.won, left.games.lost);
+  const rGames = rate(right.games.won, right.games.lost);
+  return (
+    <div className="h2h-field">
+      <div className="h2h-grid h2h-colhead h2h-field__head">
+        <span className="h2h-c">Against everyone</span>
+      </div>
+      <div className="h2h-grid h2h-field__row">
+        <Record won={left.matches.won} lost={left.matches.lost} className={`h2h-b h2h-field__val ${lr >= rr ? 'h2h-lead' : 'h2h-trail'}`} />
+        <span className="h2h-c h2h-stat-label">Matches</span>
+        <Record won={right.matches.won} lost={right.matches.lost} className={`h2h-d h2h-field__val ${rr >= lr ? 'h2h-lead' : 'h2h-trail'}`} />
+      </div>
+      <div className="h2h-grid h2h-field__row">
+        <Record won={left.games.won} lost={left.games.lost} className={`h2h-b h2h-field__val ${lGames >= rGames ? 'h2h-lead' : 'h2h-trail'}`} />
+        <span className="h2h-c h2h-stat-label">Games</span>
+        <Record won={right.games.won} lost={right.games.lost} className={`h2h-d h2h-field__val ${rGames >= lGames ? 'h2h-lead' : 'h2h-trail'}`} />
+      </div>
+      <div className="h2h-grid h2h-field__row">
+        <span className="h2h-b h2h-field__wide"><FormPips form={left.form} side="left" /></span>
+        <span className="h2h-c h2h-stat-label">Last 5</span>
+        <span className="h2h-d h2h-field__wide"><FormPips form={right.form} side="right" /></span>
+      </div>
+      {showCivs && <div className="h2h-grid h2h-field__row">
+        <span className="h2h-b h2h-field__wide h2h-field__civs">
+          {left.civs.slice(0, 2).reverse().map((c) => <CivMark key={c.key} civId={c.key} side="left" flagOnly />)}
+        </span>
+        <span className="h2h-c h2h-stat-label">Most played</span>
+        <span className="h2h-d h2h-field__wide h2h-field__civs">
+          {right.civs.slice(0, 2).map((c) => <CivMark key={c.key} civId={c.key} side="right" flagOnly />)}
+        </span>
+      </div>}
+    </div>
+  );
+}
+
+/** Latest results as small squares, newest on the inside (next to the centre). */
+export function FormPips({ form, side }: { form: ('W' | 'L')[]; side: 'left' | 'right' }) {
+  const ordered = side === 'left' ? [...form].reverse() : form;
+  return (
+    <span className="vs-form" aria-label={`Last ${form.length}, newest first: ${form.join(' ')}`}>
+      {ordered.map((r, i) => (
+        <span key={i} className={`vs-form__pip vs-form__pip--${r === 'W' ? 'w' : 'l'}`} />
+      ))}
+    </span>
+  );
+}
+
+/**
+ * The summary card is hidden from screen readers (its sentence stands in), so
+ * the against-everyone rows get one too. Wide screens hide it with the rows;
+ * the corners there are a readable list already.
+ */
+function FieldSentence({ left, right, leftName, rightName }: {
+  left: FieldRecord; right: FieldRecord; leftName: string; rightName: string;
+}) {
+  const one = (name: string, f: FieldRecord) =>
+    `${name} ${f.matches.won}–${f.matches.lost} in matches, ${f.games.won}–${f.games.lost} in games`;
+  return <p className="sr-only h2h-field-sr">Against everyone: {one(leftName, left)}; {one(rightName, right)}.</p>;
 }

@@ -3471,3 +3471,303 @@ table.h2h-mx {
   height: 100%;
   background: var(--color-text-secondary);
 }
+
+/* ══════════════════════════════════════════════════════════════
+   VERSUS: pick any two players, a game and a start point.
+   The middle column is the match page's head to head, on its shared
+   seven-track grid. The player pickers mirror each other around the swap
+   button. On wide screens each player's corner (their record against
+   everyone) flanks the column and stays in view while scrolling; on narrow
+   screens the same numbers join the summary card as "Against everyone" rows.
+   Every won–lost record in a corner or that block uses one fixed-width,
+   three-column box (wins | dash | losses), so the dashes stack in a line.
+   ══════════════════════════════════════════════════════════════ */
+
+.vs .h2h.vs__col { margin-top: 0; }
+
+.vs__head { margin-bottom: var(--space-md); }
+
+.vs-scope {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+/* ── Nav: four tabs on one line down to 320px wide. The narrowest phones
+   get tighter gaps between the brand and the tabs. ── */
+@media (max-width: 359px) {
+  .nav { column-gap: 0.75rem; }
+  .nav__links { gap: 0.5rem; }
+}
+
+/* ── Pickers: two halves mirrored around the swap button. Each hugs the
+   centre and grows to the full half on a phone, so long names fit. ── */
+.vs-pickers {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: calc(6 * var(--h2h-u));
+}
+
+.vs-pickers .vs-pick { max-width: 15rem; }
+.vs-pickers .vs-pick--left { grid-column: 1; justify-self: end; }
+.vs-pickers .vs-pick--right { grid-column: 3; justify-self: start; }
+
+.vs-pick {
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 0;
+  width: 100%;
+  height: calc(40 * var(--h2h-u));
+  border: none;
+  border-radius: var(--border-radius-sm);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  background-color: var(--color-bg-raised);
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%239298ab' d='M0 0h10L5 6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: calc(8 * var(--h2h-u));
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: min(var(--text-base), calc(14 * var(--h2h-u)));
+  font-weight: 600;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.vs-pick:hover { box-shadow: inset 0 0 0 1px var(--color-text-tertiary); }
+
+/* Nothing picked yet: the prompt reads as a prompt, not a name. */
+.vs-pick--empty {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.vs .h2h__empty,
+.vs .h2h__status { text-align: center; }
+
+.vs-pick option {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* Name on the inside, next to the centre; chevron on the outside. */
+.vs-pick--left {
+  padding: 0 calc(8 * var(--h2h-u)) 0 calc(22 * var(--h2h-u));
+  background-position: left calc(10 * var(--h2h-u)) center;
+  text-align: right;
+  text-align-last: right;
+}
+
+.vs-pick--right {
+  padding: 0 calc(22 * var(--h2h-u)) 0 calc(8 * var(--h2h-u));
+  background-position: right calc(10 * var(--h2h-u)) center;
+  text-align: left;
+  text-align-last: left;
+}
+
+.vs-swap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(32 * var(--h2h-u));
+  height: calc(32 * var(--h2h-u));
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.vs-swap:hover { color: var(--color-text); background: var(--color-bg-hover); }
+
+.vs-swap svg {
+  width: calc(14 * var(--h2h-u));
+  height: calc(14 * var(--h2h-u));
+}
+
+.vs-swap--summary { display: none; }
+
+.vs .h2h__summary { margin-top: calc(8 * var(--h2h-u)); }
+
+/* ── Other games the pair has met in ── */
+.vs-also {
+  margin: calc(8 * var(--h2h-u)) 0 0;
+  text-align: center;
+  font-size: min(var(--text-xs), calc(12 * var(--h2h-u)));
+  color: var(--color-text-secondary);
+}
+
+.vs-also__link {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.vs-also__link:hover { color: var(--color-text); }
+
+/* ── Against everyone, inside the summary card (narrow) ── */
+.h2h-field {
+  margin-top: calc(6 * var(--h2h-u));
+  padding-top: calc(4 * var(--h2h-u));
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.h2h-field__head { height: calc(24 * var(--h2h-u)); }
+.h2h-field__row { height: calc(28 * var(--h2h-u)); }
+.h2h-stat--never { height: calc(34 * var(--h2h-u)); }
+
+.h2h-field__val { font-size: min(var(--text-sm), calc(13 * var(--h2h-u))); }
+
+/* Every value centred on its result column, like the numbers above it.
+   Records centre their dash there, so the dashes stack in one line. */
+.h2h-field .vs-rec { justify-self: unsafe center; }
+
+.h2h-b.h2h-field__wide,
+.h2h-d.h2h-field__wide {
+  justify-self: unsafe center;
+  width: max-content;
+}
+
+.h2h-field__civs {
+  display: flex;
+  gap: calc(4 * var(--h2h-u));
+}
+
+/* ── Records on one dash line ──
+   Three columns: wins right-aligned to the dash, the dash, losses
+   left-aligned from it. The box has one fixed width (room for two digits a
+   side), so wherever records sit under each other their dashes and digits
+   line up. Anything else in that column (a percentage, the last five) is
+   centred on the same line. */
+.vs-rec {
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 0.1em;
+  width: 3.7em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.vs-rec__w { justify-self: end; }
+.vs-rec__l { justify-self: start; }
+
+.vs-rec--whole {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Form: wins filled, losses outlined, so it reads without colour too ── */
+.vs-form {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(3 * var(--h2h-u));
+  vertical-align: middle;
+}
+
+.vs-form__pip {
+  display: block;
+  width: calc(8 * var(--h2h-u));
+  height: calc(8 * var(--h2h-u));
+  border-radius: 2px;
+}
+
+.vs-form__pip--w { background: var(--color-win); }
+.vs-form__pip--l { box-shadow: inset 0 0 0 1.5px var(--color-loss); }
+
+/* ── Corners: wide screens only; the summary card's rows stand in below
+   1140px. Their sizes don't scale with a container. ── */
+.vs-rail {
+  display: none;
+  --h2h-u: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 1140px) {
+  .vs .vs__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44rem minmax(0, 1fr);
+    column-gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .vs .vs__col { max-width: none; margin: 0; }
+  .vs .vs-pickers,
+  .vs .h2h-field,
+  .vs .h2h-field-sr { display: none; }
+  .vs .vs-swap--summary { display: flex; justify-self: center; }
+  .vs .h2h__summary { margin-top: 0; }
+
+  .vs .vs-rail {
+    display: block;
+    position: sticky;
+    top: 4.5rem;
+    min-width: 0;
+  }
+}
+
+.vs-rail__meta {
+  margin: 6px 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.vs-rail__card {
+  margin-top: var(--space-md);
+  padding: 0.25rem 0.75rem 0.5rem;
+  background: var(--color-bg-raised);
+  box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+  border-radius: 6px;
+}
+
+.vs-rail__title {
+  margin: 0.625rem 0 0.25rem;
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.vs-rail__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vs-rail__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  height: 1.75rem;
+}
+
+.vs-rail__row dt {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.vs-rail__row dd { display: flex; }
+
+.vs-rail__row dd,
+.vs-rail .vs-rec {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.vs-rail .h2h-civ { display: flex; }
+.vs-rail .h2h-flag { height: 15px; }
+
+/* Mirrored: the left corner reads toward the centre, the right one too. */
+.vs-rail--left .vs-rail__meta { text-align: right; }
+.vs-rail--right .vs-rail__title { text-align: right; }
+.vs-rail--right .vs-rail__row { flex-direction: row-reverse; }
