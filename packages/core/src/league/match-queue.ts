@@ -12,6 +12,8 @@
  * at local midnight on Oct 29), matching how the league talks about rounds.
  */
 
+import { isEventSeason } from '../titles/labels.js';
+
 export const ROUND_LENGTH_DAYS = 7;
 
 /** Where a match sits relative to today. */
@@ -22,6 +24,8 @@ export interface QueueSeason {
   id: number;
   status: string;
   started_at: string | null;
+  /** An event's rounds are all played on the day, so none waits a week. */
+  format?: string | null;
 }
 
 /** The match fields the queue needs. */
@@ -111,7 +115,7 @@ export function groupMatchQueue<M extends QueueMatch>(
     if (match.status === 'complete') continue;
     const season = activeSeasons.get(match.season_id);
     if (!season) continue;
-    const window = roundWindow(season.started_at, match.round_number);
+    const window = isEventSeason(season) ? null : roundWindow(season.started_at, match.round_number);
     groups[queueGroupFor(window, now)].push({
       match,
       opens: window ? window.opens.getTime() : Number.NEGATIVE_INFINITY,

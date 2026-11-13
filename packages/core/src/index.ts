@@ -1,6 +1,8 @@
 export * from './types/league.js';
 export { generateRoundRobin } from './league/round-robin.js';
-export { computeStandings } from './league/standings.js';
+export { computeStandings, seedsFromStandings } from './league/standings.js';
+export type { StandingsTiebreak, GroupSeeding } from './league/standings.js';
+export * from './league/double-elim.js';
 export { computeMatchOutcome } from './league/match-outcome.js';
 export type { MatchOutcomeInput, MatchOutcome } from './league/match-outcome.js';
 
@@ -14,7 +16,15 @@ export * from './stats/field.js';
 export * from './stats/seasons.js';
 
 export { TITLES, titleById, type Title } from './titles/catalog.js';
-export { seasonLabel, seasonLabelShort } from './titles/labels.js';
+export {
+  seasonLabel,
+  seasonLabelShort,
+  seasonName,
+  seasonNameShort,
+  isEventSeason,
+  EVENT_FORMAT,
+} from './titles/labels.js';
+export type { SeasonNaming } from './titles/labels.js';
 export {
   ROUND_LENGTH_DAYS,
   groupMatchQueue,

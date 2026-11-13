@@ -108,3 +108,16 @@ describe('groupMatchQueue', () => {
     expect(queue.current).toEqual([a, b]);
   });
 });
+
+describe('groupMatchQueue for an event', () => {
+  it('treats every round as playable now, since an event is played in one sitting', () => {
+    const event: QueueSeason = { id: 9, status: 'active', started_at: '2026-11-14', format: 'tournament' };
+    const r1 = match(9, 1);
+    const r7 = match(9, 7);
+    const bracket = match(9, null);
+    const q = groupMatchQueue([r7, r1, bracket], [event], day(2026, 11, 14, 10));
+    expect(q.current.map((m) => m.id).sort()).toEqual([r1.id, r7.id, bracket.id].sort());
+    expect(q.upcoming).toEqual([]);
+    expect(q.overdue).toEqual([]);
+  });
+});

@@ -1,18 +1,29 @@
 /**
  * Standings computation: pure functions, no database dependency.
  *
- * Computes standings from match data, with tiebreaker by:
- * 1. Match wins (descending)
- * 2. Head-to-head result (if only two players tied)
- * 3. Game differential (games won - games lost, descending)
+ * Computes standings from match data. Two tiebreak rules:
+ *
+ * 'game_diff' (leagues, the default): match wins, then game differential
+ * (games won - games lost), then name for a stable order. Players level on
+ * both share a rank.
+ *
+ * 'head_to_head' (events, where every match is a Bo1 and game differential
+ * says nothing new): match wins, then wins in the matches between the tied
+ * players only, applied again inside any group that is still level. A group
+ * that head to head can't split (a three-way circle, or matches not played
+ * yet) shares a rank, listed by name.
  */
 
 import type { Match, PlayerStanding } from '../types/league.js';
+
+export type StandingsTiebreak = 'game_diff' | 'head_to_head';
 
 interface StandingsInput {
   playerIds: number[];
   playerNames: Record<number, string>;
   matches: Match[];
+  /** Defaults to 'game_diff'. */
+  tiebreak?: StandingsTiebreak;
 }
 
 export function computeStandings(input: StandingsInput): PlayerStanding[] {
@@ -69,6 +80,10 @@ export function computeStandings(input: StandingsInput): PlayerStanding[] {
     };
   });
 
+  if (input.tiebreak === 'head_to_head') {
+    return rankByHeadToHead(standings, matches);
+  }
+
   // Sort: most match wins first, then game differential
   standings.sort((a, b) => {
     if (b.wins !== a.wins) return b.wins - a.wins;
@@ -91,4 +106,88 @@ export function computeStandings(input: StandingsInput): PlayerStanding[] {
   }
 
   return standings;
+}
+
+/** Match wins each player has in completed matches between members of the group. */
+function headToHeadWins(group: PlayerStanding[], matches: Match[]): Map<number, number> {
+  const ids = new Set(group.map(s => s.player_id));
+  const wins = new Map<number, number>(group.map(s => [s.player_id, 0]));
+  for (const m of matches) {
+    if (m.status !== 'complete' || m.winner_id == null) continue;
+    if (!ids.has(m.player1_id) || !ids.has(m.player2_id)) continue;
+    wins.set(m.winner_id, (wins.get(m.winner_id) ?? 0) + 1);
+  }
+  return wins;
+}
+
+/** Splits an already sorted list into runs that share a key. */
+function runsBy<T>(items: T[], key: (item: T) => number): T[][] {
+  const runs: T[][] = [];
+  for (const item of items) {
+    const last = runs[runs.length - 1];
+    if (last && key(last[0]!) === key(item)) last.push(item);
+    else runs.push([item]);
+  }
+  return runs;
+}
+
+/**
+ * Orders one group of players level on match wins. Returns groups in final
+ * order; a group with more than one player is a tie head to head can't break.
+ */
+function breakTie(group: PlayerStanding[], matches: Match[]): PlayerStanding[][] {
+  const byName = (a: PlayerStanding, b: PlayerStanding) => a.display_name.localeCompare(b.display_name);
+  if (group.length === 1) return [group];
+
+  const h2h = headToHeadWins(group, matches);
+  const sorted = [...group].sort((a, b) => (h2h.get(b.player_id)! - h2h.get(a.player_id)!) || byName(a, b));
+  const runs = runsBy(sorted, s => h2h.get(s.player_id)!);
+
+  // Head to head didn't separate anyone: an unbreakable tie.
+  if (runs.length === 1) return [sorted];
+
+  // Otherwise apply it again inside each smaller group still level.
+  return runs.flatMap(run => breakTie(run, matches));
+}
+
+function rankByHeadToHead(standings: PlayerStanding[], matches: Match[]): PlayerStanding[] {
+  const byWins = [...standings].sort((a, b) =>
+    (b.wins - a.wins) || a.display_name.localeCompare(b.display_name));
+
+  const ordered = runsBy(byWins, s => s.wins).flatMap(group => breakTie(group, matches));
+
+  const result: PlayerStanding[] = [];
+  let position = 1;
+  for (const group of ordered) {
+    for (const s of group) result.push({ ...s, rank: position });
+    position += group.length;
+  }
+  return result;
+}
+
+export interface GroupSeeding {
+  /** Seed number → player id, when every seed is settled. */
+  seeds: Map<number, number> | null;
+  /** Why there are no seeds yet. */
+  reason: 'group_unfinished' | 'tie' | null;
+  /** Ranks shared by more than one player, when reason is 'tie'. */
+  tiedRanks: number[];
+}
+
+/**
+ * Seeds for a playoff bracket from a head-to-head ranked group stage. Only
+ * once every group match is complete, and only when no rank is shared.
+ */
+export function seedsFromStandings(standings: PlayerStanding[], matches: Match[]): GroupSeeding {
+  if (matches.some(m => m.status !== 'complete')) {
+    return { seeds: null, reason: 'group_unfinished', tiedRanks: [] };
+  }
+  const counts = new Map<number, number>();
+  for (const s of standings) counts.set(s.rank, (counts.get(s.rank) ?? 0) + 1);
+  const tiedRanks = [...counts].filter(([, n]) => n > 1).map(([rank]) => rank).sort((a, b) => a - b);
+  if (tiedRanks.length > 0) return { seeds: null, reason: 'tie', tiedRanks };
+
+  const seeds = new Map<number, number>();
+  for (const s of standings) seeds.set(s.rank, s.player_id);
+  return { seeds, reason: null, tiedRanks: [] };
 }

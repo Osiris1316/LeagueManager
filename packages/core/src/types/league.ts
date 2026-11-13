@@ -44,6 +44,8 @@ export interface TierAssignment {
   final_rank: number | null;
   promoted: number;
   relegated: number;
+  /** Bracket seed in an event, once seeded. Absent on databases without the column. */
+  seed?: number | null;
 }
 
 export interface Match {
@@ -63,6 +65,8 @@ export interface Match {
   map_draft_id: string | null;
   civ_draft_id: string | null;
   round_number: number | null;
+  /** The bracket slot this match fills in an event (e.g. 'UB-SF1'); null in a group or league. */
+  bracket_slot?: string | null;
 }
 
 export interface Game {
