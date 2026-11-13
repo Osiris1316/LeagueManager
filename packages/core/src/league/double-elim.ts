@@ -139,10 +139,13 @@ function samePair(m: BracketMatch, x: number, y: number): boolean {
  * @param seeds seed number → player id, or null while seeding isn't settled
  *   (every seeded side is then pending). Seeds missing from the map are byes.
  * @param matches the season's bracket match rows (rows without a slot are ignored)
+ * @param entrants how many players the bracket will have, when known before
+ *   seeding: seeds above it are byes already, so the preview shows them.
  */
 export function resolveDoubleElim(
   seeds: ReadonlyMap<number, number> | null,
   matches: readonly BracketMatch[],
+  entrants?: number,
 ): ResolvedBracket {
   const bySlot = new Map<string, BracketMatch>();
   for (const m of matches) {
@@ -153,13 +156,15 @@ export function resolveDoubleElim(
 
   const entrantFrom = (source: BracketSource): Entrant => {
     if (source.kind === 'seed') {
-      if (!seeds) return PENDING;
+      if (!seeds) return entrants !== undefined && source.seed > entrants ? BYE : PENDING;
       const id = seeds.get(source.seed);
       return id === undefined ? BYE : player(id);
     }
     const from = resolved.get(source.slot);
     if (!from) return PENDING;
     if (from.status === 'skipped') return BYE;
+    // A slot with a bye on one side never has a loser.
+    if (source.kind === 'loser' && (from.a.state === 'bye' || from.b.state === 'bye')) return BYE;
     if (from.status === 'bye') {
       // The player who walked through is the winner; there is no loser.
       return source.kind === 'winner' && from.winnerId !== null ? player(from.winnerId) : BYE;

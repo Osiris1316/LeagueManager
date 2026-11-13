@@ -80,6 +80,15 @@ describe('resolveDoubleElim with seven players', () => {
     expect(isEmptySyncPlan(planBracketSync(b))).toBe(true);
   });
 
+  it('shows the byes before seeding when the player count is known', () => {
+    const b = resolveDoubleElim(null, [], 7);
+    expect(slot(b, 'UB-QF1').a.state).toBe('pending');
+    expect(slot(b, 'UB-QF1').b.state).toBe('bye');
+    expect(slot(b, 'LB-R1-1').a.state).toBe('bye');
+    expect(slot(b, 'UB-QF2').b.state).toBe('pending');
+    expect(isEmptySyncPlan(planBracketSync(b))).toBe(true);
+  });
+
   it('gives seed 1 a bye to the upper semifinal and opens three quarterfinals', () => {
     const b = resolveDoubleElim(seedsFor(7), []);
     expect(slot(b, 'UB-QF1').status).toBe('bye');

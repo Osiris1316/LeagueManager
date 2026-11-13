@@ -126,7 +126,7 @@ export function eventState(
     standings,
     seeding,
     seeds,
-    bracket: resolveDoubleElim(seeds, bracketMatches),
+    bracket: resolveDoubleElim(seeds, bracketMatches, assignments.length),
     tierId: assignments[0]?.tier_id ?? null,
   };
 }
