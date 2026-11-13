@@ -10,7 +10,8 @@
 --   "One meeting per pair per season" now applies only to matches with no
 --   bracket slot (league and group stage), as a partial unique index.
 --   Each bracket slot can hold one match per season, as a partial unique index.
---   player1_id < player2_id is kept.
+--   player1_id < player2_id is kept, and so is match_type (a column that
+--   exists in production but not in the repo's 001 migration).
 -- Every existing row and id is copied unchanged.
 --
 -- Run as ONE file, not statement by statement: SQLite can't drop a CHECK
@@ -42,6 +43,7 @@ CREATE TABLE matches_new (
   map_draft_id    TEXT,
   civ_draft_id    TEXT,
   round_number    INTEGER,
+  match_type      TEXT NOT NULL DEFAULT 'round_robin',
   bracket_slot    TEXT,
   CHECK(player1_id < player2_id)
 );
@@ -49,12 +51,12 @@ CREATE TABLE matches_new (
 INSERT INTO matches_new (
   id, season_id, tier_id, player1_id, player2_id, best_of, status, winner_id,
   player1_score, player2_score, scheduled_at, started_at, completed_at,
-  map_draft_id, civ_draft_id, round_number, bracket_slot
+  map_draft_id, civ_draft_id, round_number, match_type, bracket_slot
 )
 SELECT
   id, season_id, tier_id, player1_id, player2_id, best_of, status, winner_id,
   player1_score, player2_score, scheduled_at, started_at, completed_at,
-  map_draft_id, civ_draft_id, round_number, NULL
+  map_draft_id, civ_draft_id, round_number, match_type, NULL
 FROM matches;
 
 DROP TABLE matches;

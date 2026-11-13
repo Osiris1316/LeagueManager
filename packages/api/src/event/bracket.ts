@@ -254,8 +254,8 @@ export async function syncEventBracket(db: D1Database, seasonId: number): Promis
   for (const c of plan.create) {
     statements.push(
       db.prepare(`INSERT OR IGNORE INTO matches
-                  (season_id, tier_id, player1_id, player2_id, best_of, status, bracket_slot)
-                  VALUES (?, ?, ?, ?, ?, 'pending', ?)`)
+                  (season_id, tier_id, player1_id, player2_id, best_of, status, match_type, bracket_slot)
+                  VALUES (?, ?, ?, ?, ?, 'pending', 'bracket', ?)`)
         .bind(seasonId, state.tierId, c.player1_id, c.player2_id, bestOf, c.slot),
     );
   }
