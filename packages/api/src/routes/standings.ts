@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
-import { computeStandings } from '@league-manager/core';
+import { computeStandings, isEventSeason } from '@league-manager/core';
 import type { Match, Player, TierAssignment, Tier, Season } from '@league-manager/core';
+import { bracketView, eventState } from '../event/bracket.js';
+import type { BracketView } from '../event/bracket.js';
 
 export function standingsRoutes<E extends { Bindings: { DB: D1Database } }>() {
   const routes = new Hono<E>();
@@ -72,6 +74,12 @@ export function standingsRoutes<E extends { Bindings: { DB: D1Database } }>() {
     const activeTierIds = new Set(assignments.map( a => a.tier_id));
     const activeTiers = tiers.filter(t => activeTierIds.has(t.id));
 
+    // An event: the group stage is every match without a bracket slot, ranked
+    // by head to head, and the bracket is worked out from the rest.
+    const isEvent = isEventSeason(season);
+    const event = isEvent ? eventState(assignments, allMatches, playerNames) : null;
+    const bracket: BracketView | null = event ? bracketView(event, playerNames) : null;
+
     // Build per-tier data
     const tierData = activeTiers.map(tier => {
       const tierPlayerIds = assignments
@@ -79,14 +87,16 @@ export function standingsRoutes<E extends { Bindings: { DB: D1Database } }>() {
         .map(a => a.player_id);
 
       const tierMatches = allMatches.filter(
-        m => m.tier_id === tier.id
+        m => m.tier_id === tier.id && !(isEvent && m.bracket_slot)
       );
 
-      const standings = computeStandings({
-        playerIds: tierPlayerIds,
-        playerNames,
-        matches: tierMatches,
-      });
+      const standings = event
+        ? event.standings.filter(s => tierPlayerIds.includes(s.player_id))
+        : computeStandings({
+            playerIds: tierPlayerIds,
+            playerNames,
+            matches: tierMatches,
+          });
 
       // Group matches by round
       const rounds: Record<number, typeof tierMatches> = {};
@@ -105,7 +115,7 @@ export function standingsRoutes<E extends { Bindings: { DB: D1Database } }>() {
     };
     });
 
-    return c.json({ season, tiers: tierData });
+    return c.json(bracket ? { season, tiers: tierData, bracket } : { season, tiers: tierData });
   });
 
   // Full rules text for a season + tier (loaded on demand when user opens modal)

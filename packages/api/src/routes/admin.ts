@@ -1,6 +1,18 @@
 import { Hono } from 'hono';
-import type { Match } from '@league-manager/core';
-import { computeMatchOutcome } from '@league-manager/core';
+import type { Match, Season } from '@league-manager/core';
+import { computeMatchOutcome, isEventSeason } from '@league-manager/core';
+import { syncEventBracket } from '../event/bracket.js';
+import type { SyncResult } from '../event/bracket.js';
+
+/**
+ * After a result changes in an event, move players through the bracket.
+ * Leagues are untouched. Returns null when the season isn't an event.
+ */
+async function syncIfEvent(db: D1Database, seasonId: number): Promise<SyncResult | null> {
+  const season = await db.prepare('SELECT * FROM seasons WHERE id = ?').bind(seasonId).first<Season>();
+  if (!isEventSeason(season ?? {})) return null;
+  return syncEventBracket(db, seasonId);
+}
 
 type AdminEnv = {
   Bindings: {
@@ -169,7 +181,14 @@ export function adminRoutes() {
       .bind(matchId)
       .all();
 
-    return c.json({ match: updated, games: savedGames, message: outcome.winner_id ? 'Match complete' : 'Match in progress' });
+    const bracket = await syncIfEvent(db, match.season_id);
+
+    return c.json({
+      match: updated,
+      games: savedGames,
+      message: outcome.winner_id ? 'Match complete' : 'Match in progress',
+      ...(bracket ? { bracket } : {}),
+    });
   });
 
   // ── Clear match results ──
@@ -203,7 +222,29 @@ export function adminRoutes() {
       .bind(matchId)
       .run();
 
-    return c.json({ message: 'Results cleared' });
+    const bracket = await syncIfEvent(db, match.season_id);
+
+    return c.json({ message: 'Results cleared', ...(bracket ? { bracket } : {}) });
+  });
+
+  // ── Bring an event's bracket up to date ──
+  // POST /api/admin/seasons/:id/bracket/sync
+  // Reporting or clearing a result already does this; this is the manual
+  // nudge, for example after seeds are set by hand in the console.
+  routes.post('/seasons/:id/bracket/sync', async (c) => {
+    const db = c.env.DB;
+    const seasonId = parseInt(c.req.param('id'), 10);
+
+    if (isNaN(seasonId)) {
+      return c.json({ error: 'Invalid season ID' }, 400);
+    }
+
+    const bracket = await syncIfEvent(db, seasonId);
+    if (!bracket) {
+      return c.json({ error: 'Not an event season' }, 400);
+    }
+
+    return c.json({ message: 'Bracket up to date', bracket });
   });
 
   // ── Schedule a match ──

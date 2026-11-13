@@ -12,6 +12,7 @@ import {
   rowToEnrichedGame,
   rowToEnrichedMatch,
   seasonIdsSince,
+  isEventSeason,
 } from '@league-manager/core';
 
 interface SeasonRow {
@@ -21,6 +22,7 @@ interface SeasonRow {
   season_index: number | null;
   status: string;
   started_at: string | null;
+  format: string | null;
 }
 
 interface TierRow {
@@ -89,7 +91,7 @@ export function h2hRoutes<E extends { Bindings: { DB: D1Database } }>() {
         `)
         .bind(p1, p2, p1, p2)
         .all(),
-      db.prepare('SELECT id, title_id, season_number, season_index, status, started_at FROM seasons').all(),
+      db.prepare('SELECT * FROM seasons').all(),
       db.prepare(`
           SELECT ta.player_id, ta.season_id, t.display_name AS tier_name
           FROM tier_assignments ta
@@ -120,8 +122,9 @@ export function h2hRoutes<E extends { Bindings: { DB: D1Database } }>() {
     const slots = explodeToSlotViews(allGames.filter(inScope));
 
     // Each player's latest tier in this title (all titles if none), from live
-    // seasons only, so a staged season never shows early. Not limited by since.
-    const live = titleSeasons.filter((s) => s.status !== 'pending');
+    // league seasons only, so a staged season never shows early and an event's
+    // one-group roster never stands in for a league tier. Not limited by since.
+    const live = titleSeasons.filter((s) => s.status !== 'pending' && !isEventSeason(s));
     const tiers = tierRows.results as unknown as TierRow[];
     const tierOf = (playerId: number) => {
       let best: { row: TierRow; pos: number } | null = null;

@@ -27,7 +27,8 @@ export function playersRoutes<E extends { Bindings: { DB: D1Database } }>() {
 
     if (!player) return c.json({ error: 'Player not found' }, 404);
 
-    // Current tier assignment (most recent active season)
+    // Current tier assignment (most recent active league season; an event's
+    // one-group roster isn't a tier)
     const tierAssignment = await db
       .prepare(`
         SELECT ta.*, t.display_name as tier_name, t.civ_rule, s.season_number
@@ -35,6 +36,7 @@ export function playersRoutes<E extends { Bindings: { DB: D1Database } }>() {
         JOIN tiers t ON ta.tier_id = t.id
         JOIN seasons s ON ta.season_id = s.id
         WHERE ta.player_id = ? AND s.status = 'active'
+          AND COALESCE(s.format, '') != 'tournament'
         ORDER BY s.season_number DESC
         LIMIT 1
       `)

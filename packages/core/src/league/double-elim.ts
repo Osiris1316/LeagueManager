@@ -93,7 +93,7 @@ export type SlotStatus =
 /** The match fields the bracket reads. */
 export interface BracketMatch {
   id: number;
-  bracket_slot: string | null;
+  bracket_slot?: string | null;
   player1_id: number;
   player2_id: number;
   player1_score: number;
