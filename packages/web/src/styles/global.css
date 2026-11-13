@@ -3771,3 +3771,253 @@ table.h2h-mx {
 .vs-rail--left .vs-rail__meta { text-align: right; }
 .vs-rail--right .vs-rail__title { text-align: right; }
 .vs-rail--right .vs-rail__row { flex-direction: row-reverse; }
+
+/* ══════════════════════════════════════════════════════════════
+   EVENTS: a one-off tournament. A group stage (the standings and
+   schedule above, reused) and a double elimination bracket.
+   The bracket's layout is fixed: every slot has its grid place, a bye
+   is drawn as a quiet box, so the connecting lines are plain CSS.
+   Rows have no gap and equal height (--bk-pitch), which puts each
+   feeder's centre exactly half a pitch (or a whole one) from the centre
+   of the slot it feeds. A feeder draws its line out to the middle of the
+   column gap; a receiving cell draws the rest: a straight line in, or a
+   vertical bar joining two feeders plus the line in.
+   ══════════════════════════════════════════════════════════════ */
+
+.bracket {
+  --bk-col: 10.5rem;
+  --bk-gap: 1.75rem;
+  --bk-pitch: 4rem;
+  --bk-line: var(--color-border);
+  margin-bottom: var(--space-xl);
+}
+
+@media (max-width: 640px) {
+  .bracket {
+    --bk-col: 9.25rem;
+    --bk-gap: 1.25rem;
+    --bk-pitch: 3.75rem;
+  }
+}
+
+.bracket__head {
+  flex-wrap: wrap;
+  row-gap: var(--space-xs);
+  --tier-tone: var(--color-accent);
+}
+
+.bracket__meta {
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+}
+
+.bracket__champion {
+  margin-left: auto;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.bracket__update { margin-left: auto; }
+.bracket__champion + .bracket__update { margin-left: 0; }
+
+.bracket__note {
+  max-width: 44rem;
+  margin: 0 0 var(--space-md);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+}
+
+.bracket__block { margin-bottom: var(--space-lg); }
+
+.bracket__block-title {
+  margin: 0 0 var(--space-xs);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.bracket__scroll {
+  overflow-x: auto;
+  padding-bottom: var(--space-xs);
+}
+
+.bracket__grid {
+  display: grid;
+  width: max-content;
+  column-gap: var(--bk-gap);
+  row-gap: 0;
+  padding-right: var(--space-xs);
+}
+
+.bracket__grid--upper {
+  grid-template-columns: repeat(3, var(--bk-col));
+  grid-template-rows: auto repeat(4, var(--bk-pitch));
+}
+
+.bracket__grid--lower {
+  grid-template-columns: repeat(4, var(--bk-col));
+  grid-template-rows: auto repeat(2, var(--bk-pitch));
+}
+
+.bracket__grid--final {
+  grid-template-columns: repeat(2, var(--bk-col));
+  grid-template-rows: auto var(--bk-pitch);
+}
+
+.bracket__col-head {
+  grid-row: 1;
+  padding-bottom: 2px;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-2xs);
+  white-space: nowrap;
+}
+
+.bracket__col-head--1 { grid-column: 1; }
+.bracket__col-head--2 { grid-column: 2; }
+.bracket__col-head--3 { grid-column: 3; }
+.bracket__col-head--4 { grid-column: 4; }
+
+/* ── Where each slot sits ── */
+.bracket-cell--ub-qf1 { grid-column: 1; grid-row: 2; }
+.bracket-cell--ub-qf2 { grid-column: 1; grid-row: 3; }
+.bracket-cell--ub-qf3 { grid-column: 1; grid-row: 4; }
+.bracket-cell--ub-qf4 { grid-column: 1; grid-row: 5; }
+.bracket-cell--ub-sf1 { grid-column: 2; grid-row: 2 / span 2; }
+.bracket-cell--ub-sf2 { grid-column: 2; grid-row: 4 / span 2; }
+.bracket-cell--ub-f { grid-column: 3; grid-row: 2 / span 4; }
+
+.bracket-cell--lb-r1-1 { grid-column: 1; grid-row: 2; }
+.bracket-cell--lb-r1-2 { grid-column: 1; grid-row: 3; }
+.bracket-cell--lb-r2-1 { grid-column: 2; grid-row: 2; }
+.bracket-cell--lb-r2-2 { grid-column: 2; grid-row: 3; }
+.bracket-cell--lb-sf { grid-column: 3; grid-row: 2 / span 2; }
+.bracket-cell--lb-f { grid-column: 4; grid-row: 2 / span 2; }
+
+.bracket-cell--gf { grid-column: 1; grid-row: 2; }
+.bracket-cell--gf-reset { grid-column: 2; grid-row: 2; }
+
+.bracket-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Lines ── */
+.bracket-match--feeds::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  width: calc(var(--bk-gap) / 2);
+  border-top: 1px solid var(--bk-line);
+}
+
+.bracket-cell[class*='bracket-cell--join-']::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: calc(var(--bk-gap) / 2);
+  border-top: 1px solid var(--bk-line);
+}
+
+.bracket-cell--join-pair::after,
+.bracket-cell--join-pair-wide::after {
+  content: '';
+  position: absolute;
+  right: calc(100% + var(--bk-gap) / 2);
+  top: calc(50% - var(--bk-pitch) / 2);
+  height: var(--bk-pitch);
+  border-left: 1px solid var(--bk-line);
+}
+
+.bracket-cell--join-pair-wide::after {
+  top: calc(50% - var(--bk-pitch));
+  height: calc(var(--bk-pitch) * 2);
+}
+
+/* ── A slot ── */
+.bracket-match {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 4px;
+  background: var(--color-bg-raised);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+a.bracket-match:hover {
+  border-color: var(--color-border);
+  background: var(--color-bg-hover);
+  text-decoration: none;
+}
+
+/* Up next: both players known, not played yet. */
+.bracket-match--ready { border-color: var(--color-accent); }
+
+.bracket-match--bye,
+.bracket-match--skipped {
+  border-style: dashed;
+  background: transparent;
+}
+
+.bracket-match--stale { border-color: var(--color-loss); }
+
+.bracket-entrant {
+  display: grid;
+  grid-template-columns: 1.1rem minmax(0, 1fr) 1rem;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.25rem var(--space-sm) 0.25rem var(--space-xs);
+  line-height: 1.25;
+}
+
+.bracket-entrant--a { border-bottom: 1px solid var(--color-border-subtle); }
+
+.bracket-entrant__seed {
+  color: var(--color-text-tertiary);
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.bracket-entrant__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bracket-entrant__score {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.bracket-entrant--won .bracket-entrant__name,
+.bracket-entrant--won .bracket-entrant__score { font-weight: 600; }
+
+.bracket-entrant--lost { color: var(--color-text-tertiary); }
+
+.bracket-entrant--tbd .bracket-entrant__name,
+.bracket-entrant--bye .bracket-entrant__name {
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+}
+
+.bracket-match--skipped .bracket-entrant { color: var(--color-text-tertiary); }
+
+/* An event's one group: a readable width rather than the whole page. */
+.columns-view--event,
+.tier-section--event { max-width: 44rem; }
+.columns-view--event + .bracket,
+.tier-section--event + .bracket { margin-top: var(--space-2xl); }
+
+/* Result entry on phones: one civ picker per line, so the second player's
+   picker stays on screen (it overflowed at 390px). */
+@media (max-width: 480px) {
+  .game-edit__civs { grid-template-columns: minmax(0, 1fr); }
+  .game-edit__select { min-width: 0; }
+}

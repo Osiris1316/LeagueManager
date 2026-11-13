@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { seasonLabel, titleById } from '@league-manager/core';
+import { bracketSlotById, isEventSeason, seasonName, titleById } from '@league-manager/core';
 import type { MatchWithPlayers } from '../api/client';
 import { TitleIcon } from './TitleIcon';
 
@@ -7,6 +7,19 @@ import { TitleIcon } from './TitleIcon';
 export interface CardSeason {
   title_id: string;
   season_index: number;
+  format?: string | null;
+  name?: string | null;
+}
+
+/**
+ * Where a match sits within its season: "R2" / "Round 2", or for an event's
+ * bracket the slot ("UB SF1" / "Upper semifinal 1").
+ */
+export function matchPlace(match: { round_number: number | null; bracket_slot?: string | null }): { short: string | null; full: string | null } {
+  const slot = bracketSlotById(match.bracket_slot);
+  if (slot) return { short: slot.shortLabel, full: slot.label };
+  if (match.round_number != null) return { short: `R${match.round_number}`, full: `Round ${match.round_number}` };
+  return { short: null, full: null };
 }
 
 interface MatchCardProps {
@@ -39,12 +52,13 @@ export function MatchCard({ match, tierAccent, season }: MatchCardProps) {
  * page, so cards with a cap don't need the separate info button.
  */
 function EndCap({ match, season }: { match: MatchWithPlayers; season: CardSeason }) {
-  const round = match.round_number != null ? `R${match.round_number}` : null;
-  const full = [
-    seasonLabel(season.title_id, season.season_index),
-    round ? `Round ${match.round_number}` : null,
-  ].filter(Boolean).join(', ');
-  const short = [`S${season.season_index}`, round].filter(Boolean).join(' · ');
+  const place = matchPlace(match);
+  const full = [seasonName(season), place.full].filter(Boolean).join(', ');
+  // An event's matches carry their own place ("R3", "UB SF1"); league ones
+  // lead with the season ("S4 · R2").
+  const short = isEventSeason(season)
+    ? place.short ?? ''
+    : [`S${season.season_index}`, place.short].filter(Boolean).join(' · ');
 
   return (
     <Link

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { seasonLabelShort } from '@league-manager/core';
+import { seasonNameShort } from '@league-manager/core';
 import { useAdmin } from '../context/AdminContext';
 import { useCurrentSeasonId, useSeasons } from '../context/SeasonsContext';
 
@@ -42,7 +42,7 @@ export function SeasonPicker() {
       >
         {visible.map(s => (
           <option key={s.id} value={s.id}>
-            {`${seasonLabelShort(s.title_id, s.season_index)} · ${STATUS_LABELS[s.status] ?? s.status}`}
+            {`${seasonNameShort(s)} · ${STATUS_LABELS[s.status] ?? s.status}`}
           </option>
         ))}
       </select>

@@ -6,7 +6,9 @@ import { useSeasons } from '../context/SeasonsContext';
 import { useStoredFlag } from '../hooks/useStoredFlag';
 import { StackedView } from '../views/StackedView';
 import { ColumnsView } from '../views/ColumnsView';
-import { seasonLabel } from '@league-manager/core';
+import { Bracket } from '../components/bracket/Bracket';
+import { useAdmin } from '../context/AdminContext';
+import { isEventSeason, seasonName } from '@league-manager/core';
 
 export function SeasonPage() {
   const { seasonId } = useParams<{ seasonId: string }>();
@@ -19,6 +21,9 @@ export function SeasonPage() {
   const viewMode: 'stacked' | 'columns' = stacked ? 'stacked' : 'columns';
   const setViewMode = (mode: 'stacked' | 'columns') => setStacked(mode === 'stacked');
   const { hash } = useLocation();
+  const { isAdmin } = useAdmin();
+  // Bumped after an admin bracket update, to load the standings again.
+  const [reload, setReload] = useState(0);
 
   const parsed = seasonId ? Number.parseInt(seasonId, 10) : Number.NaN;
   // No season in the URL means "show me the current one".
@@ -55,7 +60,7 @@ export function SeasonPage() {
 
     load();
     return () => { cancelled = true; };
-  }, [targetId, seasonsLoading]);
+  }, [targetId, seasonsLoading, reload]);
 
   // A link like /season/5#standing-2 (from "your matches") scrolls to that
   // player's row once the standings have loaded, and briefly highlights it.
@@ -88,14 +93,29 @@ export function SeasonPage() {
   if (!data) return null;
 
   const { season } = data;
+  const isEvent = isEventSeason(season);
+  // An event's season row can't say Bo1 (the column only allows 3 or 5), so
+  // read it off the matches.
+  const bestOf = isEvent ? data.tiers[0]?.matches[0]?.best_of ?? season.best_of : season.best_of;
+  const bracket = data.bracket ? (
+    <Bracket
+      bracket={data.bracket}
+      seasonId={season.id}
+      isAdmin={isAdmin}
+      onUpdated={() => setReload(n => n + 1)}
+    />
+  ) : null;
+  // Once the bracket is running it is the main event, so it goes first.
+  const bracketFirst = data.bracket?.seeding.state === 'set';
+  const group = viewMode === 'stacked' ? <StackedView data={data} /> : <ColumnsView data={data} />;
 
   return (
     <div>
       <div className="page-head">
         <div className="page-head__title">
-          <h1>{seasonLabel(season.title_id, season.season_index)}</h1>
+          <h1>{seasonName(season)}</h1>
           <span className="page-head__meta">
-            Best of {season.best_of}
+            Best of {bestOf}
             {season.status === 'active' && <span className="badge badge--active">In progress</span>}
             {season.status === 'complete' && <span className="badge badge--archived">Archived</span>}
             {season.status === 'pending' && <span className="badge badge--pending">Upcoming</span>}
@@ -123,9 +143,7 @@ export function SeasonPage() {
         </div>
       </div>
 
-      {viewMode === 'stacked'
-        ? <StackedView data={data} />
-        : <ColumnsView data={data} />}
+      {bracketFirst ? <>{bracket}{group}</> : <>{group}{bracket}</>}
     </div>
   );
 }

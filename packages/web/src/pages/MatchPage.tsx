@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getMatch, reportMatch, clearMatch } from '../api/client';
 import type { GameReport } from '../api/client';
-import { seasonLabelShort } from '@league-manager/core';
+import { bracketSlotById, isEventSeason, seasonName, seasonLabelShort } from '@league-manager/core';
 import { useAdmin } from '../context/AdminContext';
 import { useSeasonLookup, useSeasons } from '../context/SeasonsContext';
 import { CIVS, MAPS } from '../data/aoe4';
@@ -27,6 +27,7 @@ interface MatchData {
     round_number: number | null;
     season_id: number;
     tier_id: string;
+    bracket_slot?: string | null;
   };
   games: {
     game_number: number;
@@ -213,6 +214,12 @@ export function MatchPage() {
   const titleId = season ? season.title_id : seasonsLoading ? undefined : null;
   const isComplete = match.status === 'complete';
   const hasAnyResults = data.games.length > 0;
+  // In an event the tier is only a container: say which stage this is.
+  const isEvent = season ? isEventSeason(season) : false;
+  const slot = bracketSlotById(match.bracket_slot);
+  const stage = isEvent
+    ? slot ? slot.label : `Group stage · Round ${match.round_number}`
+    : `${match.tier_name} · Round ${match.round_number}`;
 
   let clinchAfter = match.best_of;
   if (isAdmin) {
@@ -234,7 +241,9 @@ export function MatchPage() {
     <div>
       <nav aria-label="Breadcrumb" style={{ marginBottom: 'var(--space-md)' }}>
         <Link to={`/season/${match.season_id}`} style={{ fontSize: 'var(--text-base)', color: 'var(--color-text-secondary)' }}>
-          ← {season ? `${seasonLabelShort(season.title_id, season.season_index)} standings` : 'Standings'}
+          ← {season
+            ? isEvent ? seasonName(season) : `${seasonLabelShort(season.title_id, season.season_index)} standings`
+            : 'Standings'}
         </Link>
       </nav>
 
@@ -259,7 +268,7 @@ export function MatchPage() {
           </Link>
         </div>
         <p className="match-header__meta">
-          {match.tier_name} · Round {match.round_number} · Bo{match.best_of}
+          {stage} · Bo{match.best_of}
         </p>
         {(match as any).scheduled_at && !isAdmin && (
           <p className="match-header__meta">
@@ -465,7 +474,7 @@ export function MatchPage() {
         <RulesModal
           seasonId={match.season_id}
           tierId={match.tier_id}
-          tierName={match.tier_name}
+          tierName={isEvent && season ? seasonName(season) : match.tier_name}
           onClose={() => setShowRules(false)}
         />
       )}

@@ -57,6 +57,8 @@ export interface MatchWithPlayers {
   started_at: string | null;
   completed_at: string | null;
   round_number: number | null;
+  /** The bracket slot this match fills in an event (e.g. 'UB-SF1'); absent or null elsewhere. */
+  bracket_slot?: string | null;
   player1_name: string;
   player2_name: string;
   winner_name: string | null;
@@ -80,6 +82,48 @@ export interface TierData {
 export interface StandingsResponse {
   season: Season;
   tiers: TierData[];
+  /** Events only: the double elimination bracket fed by the group stage. */
+  bracket?: Bracket;
+}
+
+/** One side of a bracket slot. */
+export interface BracketEntrant {
+  /** player: known; bye: nobody will come from here; pending: not known yet. */
+  state: 'player' | 'bye' | 'pending';
+  player_id: number | null;
+  name: string | null;
+  seed: number | null;
+  /** Where this side comes from: "Seed 3", "Winner UB QF2", "Loser UB final". */
+  source: string;
+  score: number | null;
+}
+
+export type BracketSlotStatus = 'waiting' | 'ready' | 'complete' | 'bye' | 'skipped';
+
+export interface BracketSlot {
+  id: string;
+  section: 'upper' | 'lower' | 'final';
+  label: string;
+  short_label: string;
+  status: BracketSlotStatus;
+  a: BracketEntrant;
+  b: BracketEntrant;
+  winner_id: number | null;
+  match_id: number | null;
+  /** A played match whose players no longer fit the bracket (an earlier result changed). */
+  stale: boolean;
+}
+
+export interface Bracket {
+  seeding: {
+    /** set: running; ready: group done, next update stores seeds; pending: group running; tie/invalid: seed by hand. */
+    state: 'set' | 'ready' | 'pending' | 'tie' | 'invalid';
+    tied_ranks: number[];
+  };
+  seeds: { seed: number; player_id: number; name: string }[];
+  slots: BracketSlot[];
+  champion_id: number | null;
+  runner_up_id: number | null;
 }
 
 export interface Player {
@@ -302,6 +346,12 @@ async function adminFetch(path: string, body?: unknown): Promise<Response> {
 export async function reportMatch(matchId: number, games: GameReport[]): Promise<MatchReportResponse> {
   const res = await adminFetch(`/api/admin/matches/${matchId}/report`, { games });
   return res.json() as Promise<MatchReportResponse>;
+}
+
+/** Brings an event's bracket up to date (reporting a result already does this). */
+export async function syncBracket(seasonId: number): Promise<{ message: string }> {
+  const res = await adminFetch(`/api/admin/seasons/${seasonId}/bracket/sync`);
+  return res.json() as Promise<{ message: string }>;
 }
 
 export async function clearMatch(matchId: number): Promise<{ message: string }> {

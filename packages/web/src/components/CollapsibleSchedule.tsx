@@ -10,6 +10,8 @@ interface CollapsibleScheduleProps {
    * once keeps it open across seasons and both standings layouts.
    */
   storageKey?: string;
+  /** Open until this browser says otherwise. Defaults to closed. */
+  defaultOpen?: boolean;
   children: ReactNode;
 }
 
@@ -17,9 +19,10 @@ export function CollapsibleSchedule({
   title = 'Schedule',
   count,
   storageKey,
+  defaultOpen = false,
   children,
 }: CollapsibleScheduleProps) {
-  const [open, setOpen] = useStoredFlag(storageKey ? `ui.open.${storageKey}` : null, false);
+  const [open, setOpen] = useStoredFlag(storageKey ? `ui.open.${storageKey}` : null, defaultOpen);
 
   return (
     <details

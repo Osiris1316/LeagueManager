@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { groupMatchQueue, seasonLabelShort } from '@league-manager/core';
+import { groupMatchQueue, isEventSeason, seasonNameShort } from '@league-manager/core';
 import type { MatchQueue } from '@league-manager/core';
 import { getPlayer, getStandings } from '../api/client';
 import type { MatchWithPlayers, PlayerDetailResponse } from '../api/client';
@@ -107,8 +107,8 @@ export function usePlayerQueue(
             const row = tier.standings[index]!;
             lines.push({
               seasonId: res.season.id,
-              seasonTag: seasonLabelShort(res.season.title_id, res.season.season_index),
-              tierName: tier.tier.display_name,
+              seasonTag: seasonNameShort(res.season),
+              tierName: isEventSeason(res.season) ? 'Group stage' : tier.tier.display_name,
               position: index + 1,
               wins: row.wins,
               losses: row.losses,

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { seasonLabelShort } from '@league-manager/core';
+import { seasonNameShort } from '@league-manager/core';
 import type { QueueGroup } from '@league-manager/core';
 import { getSeasonMatches } from '../api/client';
 import type { MatchWithPlayers, Season } from '../api/client';
@@ -123,7 +123,7 @@ export function MatchesPage() {
     return [{ value: 'all', label: 'All tiers' }, ...present.map(t => ({ value: t, label: TIER_LABELS[t] ?? t }))];
   }, [matches]);
 
-  const leagueLabels = leagues.map(s => seasonLabelShort(s.title_id, s.season_index)).join(' · ');
+  const leagueLabels = leagues.map(s => seasonNameShort(s)).join(' · ');
 
   const switcher = followedPlayerId != null && (
     <div className="view-switch" role="group" aria-label="Which matches">

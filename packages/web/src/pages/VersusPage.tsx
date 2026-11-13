@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { TITLES, orderSeasonsChronologically, titleById } from '@league-manager/core';
+import { TITLES, isEventSeason, orderSeasonsChronologically, titleById } from '@league-manager/core';
 import { getH2H, getPlayers, type H2HResponse, type Player, type Season } from '../api/client';
 import { useSeasons } from '../context/SeasonsContext';
 import { useFollow } from '../context/FollowContext';
@@ -20,7 +20,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 /** "Since S3 · Jul 2026" (a showmatch or event uses its name). */
 function eventLabel(s: Season): string {
-  const name = s.format === 'showmatch' && s.name ? s.name : `S${s.season_index}`;
+  const name = (s.format === 'showmatch' || isEventSeason(s)) && s.name ? s.name : `S${s.season_index}`;
   const d = s.started_at ? new Date(`${s.started_at.slice(0, 10)}T12:00:00`) : null;
   return `Since ${name}${d ? ` · ${MONTHS[d.getMonth()]} ${d.getFullYear()}` : ''}`;
 }
@@ -86,7 +86,12 @@ export function VersusPage() {
   const swap = () => set({ p1: p2 != null ? String(p2) : null, p2: p1 != null ? String(p1) : null });
   const title = titleById(game);
   const sinceEvent = events.find((s) => s.id === since);
-  const scopeText = `${title?.shortName ?? game}${sinceEvent ? ` since S${sinceEvent.season_index}` : ''}`;
+  const sinceName = sinceEvent
+    ? (sinceEvent.format === 'showmatch' || isEventSeason(sinceEvent)) && sinceEvent.name
+      ? sinceEvent.name
+      : `S${sinceEvent.season_index}`
+    : null;
+  const scopeText = `${title?.shortName ?? game}${sinceName ? ` since ${sinceName}` : ''}`;
   // Civ flags exist for AoE4 only so far; other games show records without them.
   const hasCivs = game === 'aoe4';
 
